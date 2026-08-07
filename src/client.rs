@@ -4,15 +4,24 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use reqwest::Method;
-use serde::de::DeserializeOwned;
+use http::Method;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 
 use crate::error::Error;
-use crate::http::{self, RetryPolicy};
+use crate::transport::{SdkBody, Sleep, Transport};
 
 const DEFAULT_MAX_RETRIES: u32 = 2;
+// Default per-attempt deadline, applied in dispatch only to requests with
+// buffered non-multipart bodies: the deadline race spans the whole attempt
+// including the request-body upload, so a default the caller never chose
+// must not kill a streaming upload of unknown size — nor a multipart form,
+// which buffers file parts of unbounded size (see `ClientBuilder::timeout`).
+const DEFAULT_TIMEOUT: Duration = Duration::from_secs(60);
 const USER_AGENT: &str = concat!("scalar-rs/", env!("CARGO_PKG_VERSION"));
+// Default `Accept` for the JSON APIs that make up almost every operation.
+// A static `HeaderValue` so the insert costs no allocation and can never fail.
+const JSON_ACCEPT: http::HeaderValue = http::HeaderValue::from_static("application/json");
 const IDEMPOTENCY_HEADER: &str = "Idempotency-Key";
 
 /// A named API environment with a preset base URL.
@@ -40,24 +49,52 @@ struct Auth {
 }
 
 impl Auth {
-    /// Applies the configured credentials to a request builder.
-    fn apply(&self, mut builder: reqwest::RequestBuilder) -> reqwest::RequestBuilder {
+    /// Applies the configured credentials to a request's headers and URL.
+    ///
+    /// One renderer serves both HTTP dispatch and the WebSocket handshake,
+    /// so the two security-sensitive paths can never drift apart. Header
+    /// credentials are validated through `auth_value`, which marks them
+    /// sensitive and never echoes them in errors; query credentials ride
+    /// the URL's form-urlencoded serializer.
+    fn apply(&self, headers: &mut http::HeaderMap, _url: &mut url::Url) -> Result<(), Error> {
         if let Some(value) = &self.bearer_token {
-            builder = builder.bearer_auth(value);
+            headers.insert(http::header::AUTHORIZATION, auth_value(&format!("Bearer {value}"))?);
         }
-        builder
+        Ok(())
     }
 }
 
 /// Shared client state held behind an `Arc` so cloning a client is cheap.
 struct Inner {
-    http: reqwest::Client,
+    /// The pluggable HTTP backend every request goes through.
+    transport: Arc<dyn Transport>,
+    /// Async timer used for retry backoff and deadline enforcement.
+    sleep: Arc<dyn Sleep>,
     base_url: url::Url,
     auth: Auth,
-    retry: RetryPolicy,
-    /// Applied per-request so a caller-supplied `http_client` still honors the
-    /// builder `timeout` (a prebuilt `reqwest::Client` cannot be reconfigured).
-    timeout: Option<Duration>,
+    /// Maximum retry attempts for transient failures.
+    max_retries: u32,
+    /// The caller-configured deadline; `None` means only the buffered
+    /// non-multipart `DEFAULT_TIMEOUT` applies, resolved per request in
+    /// `dispatch`.
+    deadline: Option<Duration>,
+    /// Cap on buffered response bodies, enforced by the decode layer.
+    max_response_size: usize,
+    /// Headers applied to every request, before per-request headers and auth.
+    default_headers: http::HeaderMap,
+    /// Pre-validated `User-Agent` value sent as a plain header on every
+    /// request, so it applies identically to every transport (including BYO).
+    user_agent: http::HeaderValue,
+}
+
+/// Per-request policy overrides set by operation builders (`.timeout()`,
+/// `.max_retries()`); unset fields fall back to the client-level defaults.
+#[derive(Clone, Copy, Default)]
+pub(crate) struct RequestOverrides {
+    /// Deadline override for this request only.
+    pub(crate) timeout: Option<Duration>,
+    /// Retry-count override for this request only.
+    pub(crate) max_retries: Option<u32>,
 }
 
 /// Asynchronous client for the Scalar API.
@@ -81,10 +118,10 @@ impl Scalar {
     /// missing variables are simply left unset.
     pub fn from_env() -> Result<Self, Error> {
         let mut builder = Self::builder();
-        if let Ok(value) = std::env::var("SCALAR_BASE_URL") {
+        if let Some(value) = read_env("SCALAR_BASE_URL") {
             builder = builder.base_url(value);
         }
-        if let Ok(value) = std::env::var("SCALAR_BEARER_TOKEN") {
+        if let Some(value) = read_env("SCALAR_BEARER_TOKEN") {
             builder = builder.bearer_token(value);
         }
         builder.build()
@@ -95,8 +132,8 @@ impl std::fmt::Debug for Scalar {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Scalar")
             .field("base_url", &self.inner.base_url.as_str())
-            .field("retry", &self.inner.retry)
-            .field("timeout", &self.inner.timeout)
+            .field("max_retries", &self.inner.max_retries)
+            .field("timeout", &self.inner.deadline)
             .finish_non_exhaustive()
     }
 }
@@ -112,9 +149,12 @@ impl Scalar {
         headers: &[(String, String)],
         body: Option<&B>,
         apply_auth: bool,
+        overrides: RequestOverrides,
     ) -> Result<T, Error> {
-        let response = self.dispatch(method, path, query, headers, body, apply_auth).await?;
-        http::decode_json(response).await
+        let response = self
+            .dispatch(method, path, query, headers, body, apply_auth, overrides)
+            .await?;
+        crate::http::decode_json(response, self.inner.max_response_size).await
     }
 
     /// Like [`send`](Self::send) but for operations that return no content.
@@ -126,9 +166,12 @@ impl Scalar {
         headers: &[(String, String)],
         body: Option<&B>,
         apply_auth: bool,
+        overrides: RequestOverrides,
     ) -> Result<(), Error> {
-        let response = self.dispatch(method, path, query, headers, body, apply_auth).await?;
-        http::decode_empty(response).await
+        let response = self
+            .dispatch(method, path, query, headers, body, apply_auth, overrides)
+            .await?;
+        crate::http::decode_empty(response, self.inner.max_response_size).await
     }
 
     /// Like [`send`](Self::send) but returns the raw response bytes (binary downloads).
@@ -140,9 +183,12 @@ impl Scalar {
         headers: &[(String, String)],
         body: Option<&B>,
         apply_auth: bool,
+        overrides: RequestOverrides,
     ) -> Result<bytes::Bytes, Error> {
-        let response = self.dispatch(method, path, query, headers, body, apply_auth).await?;
-        http::decode_bytes(response).await
+        let response = self
+            .dispatch(method, path, query, headers, body, apply_auth, overrides)
+            .await?;
+        crate::http::decode_bytes(response, self.inner.max_response_size).await
     }
 
     /// Sends a request and returns the raw response, for streaming operations.
@@ -154,8 +200,10 @@ impl Scalar {
         headers: &[(String, String)],
         body: Option<&B>,
         apply_auth: bool,
-    ) -> Result<reqwest::Response, Error> {
-        self.dispatch(method, path, query, headers, body, apply_auth).await
+        overrides: RequestOverrides,
+    ) -> Result<http::Response<SdkBody>, Error> {
+        self.dispatch(method, path, query, headers, body, apply_auth, overrides)
+            .await
     }
 
     /// Assembles a request (URL, query, headers, body, auth) and sends it with retries.
@@ -167,31 +215,95 @@ impl Scalar {
         headers: &[(String, String)],
         body: Option<&B>,
         apply_auth: bool,
-    ) -> Result<reqwest::Response, Error> {
-        let url = self
-            .inner
-            .base_url
-            .join(path.trim_start_matches('/'))
-            .map_err(|error| Error::Config(error.to_string()))?;
-        let mut builder = self.inner.http.request(method, url);
-        if let Some(timeout) = self.inner.timeout {
-            builder = builder.timeout(timeout);
-        }
+        overrides: RequestOverrides,
+    ) -> Result<http::Response<SdkBody>, Error> {
+        let mut url = if path.starts_with("http://") || path.starts_with("https://") {
+            url::Url::parse(path).map_err(|error| Error::Config(error.to_string()))?
+        } else {
+            self.inner
+                .base_url
+                .join(path.trim_start_matches('/'))
+                .map_err(|error| Error::Config(error.to_string()))?
+        };
+        ensure_same_origin(&self.inner.base_url, &url)?;
         if !query.is_empty() {
-            builder = builder.query(query);
+            // Query pairs go through the url crate's form_urlencoded serializer,
+            // which percent-encodes each name and value.
+            let mut pairs = url.query_pairs_mut();
+            for (name, value) in query {
+                pairs.append_pair(name, value);
+            }
         }
-        for (name, value) in headers {
-            builder = builder.header(name, value);
+        let mut header_map = self.inner.default_headers.clone();
+        for (index, (name, value)) in headers.iter().enumerate() {
+            let parsed = header_name(name)?;
+            // A per-request header overrides a colliding default header (the
+            // contract documented on `default_header`): the name's first
+            // occurrence clears the inherited values, then `append` keeps every
+            // per-request value so repeated params (array headers) all survive.
+            if !headers[..index].iter().any(|(seen, _)| seen.eq_ignore_ascii_case(name)) {
+                header_map.remove(&parsed);
+            }
+            header_map.append(parsed, header_value(name, value)?);
         }
+        // The SDK user agent rides as a plain header so every transport sends it
+        // (including BYO ones). Checked after per-request headers land so a
+        // default-header or per-request User-Agent overrides it — the wire never
+        // carries two UA lines.
+        if !header_map.contains_key(http::header::USER_AGENT) {
+            header_map.insert(http::header::USER_AGENT, self.inner.user_agent.clone());
+        }
+        // Every operation decodes JSON unless it said otherwise, so JSON is the
+        // client-wide default. Insert-if-absent, after per-request headers land,
+        // so an operation advertising a text/binary/SSE media type — or a caller
+        // default header — keeps its own value and the wire never carries two
+        // Accept fields.
+        if !header_map.contains_key(http::header::ACCEPT) {
+            header_map.insert(http::header::ACCEPT, JSON_ACCEPT);
+        }
+        let keyed = headers
+            .iter()
+            .any(|(name, _)| name.eq_ignore_ascii_case(IDEMPOTENCY_HEADER));
+        let mut request_body = SdkBody::empty();
         if let Some(body) = body {
-            builder = builder.json(body);
+            // `entry`+`or_insert` so a spec-declared Content-Type header param
+            // (already appended via `headers`) wins over the JSON default.
+            header_map
+                .entry(http::header::CONTENT_TYPE)
+                .or_insert(http::HeaderValue::from_static("application/json"));
+            request_body = SdkBody::from_bytes(serde_json::to_vec(body)?);
         }
-        let keyed = headers.iter().any(|(name, _)| name.eq_ignore_ascii_case(IDEMPOTENCY_HEADER));
         if apply_auth {
-            builder = self.inner.auth.apply(builder);
+            self.inner.auth.apply(&mut header_map, &mut url)?;
         }
-        let request = builder.build()?;
-        http::send_with_retries(&self.inner.http, request, &self.inner.retry, keyed).await
+        let mut request = http::Request::new(request_body);
+        *request.method_mut() = method;
+        *request.uri_mut() = url
+            .as_str()
+            .parse::<http::Uri>()
+            .map_err(|error| Error::Config(error.to_string()))?;
+        *request.headers_mut() = header_map;
+        let max_retries = overrides.max_retries.unwrap_or(self.inner.max_retries);
+        // An explicit timeout (per-request or builder-wide) applies to every
+        // request — the caller asked for it. The default applies only when the
+        // body is buffered AND not multipart: the deadline race covers the
+        // upload too, and a default must not kill a streaming upload of unknown
+        // duration — nor a multipart form, whose buffered file parts can be
+        // arbitrarily large (see `default_deadline_eligible` above, computed
+        // from the encoding tag rather than by sniffing the body).
+        let deadline = overrides
+            .timeout
+            .or(self.inner.deadline)
+            .or_else(|| request.body().as_bytes().is_some().then_some(DEFAULT_TIMEOUT));
+        crate::http::send_with_retries(
+            &*self.inner.transport,
+            &*self.inner.sleep,
+            request,
+            max_retries,
+            deadline,
+            keyed,
+        )
+        .await
     }
 }
 
@@ -200,9 +312,15 @@ impl Scalar {
 pub struct ScalarBuilder {
     base_url: Option<String>,
     environment: Option<Environment>,
+    transport: Option<Arc<dyn Transport>>,
+    sleep: Option<Arc<dyn Sleep>>,
     timeout: Option<Duration>,
     max_retries: Option<u32>,
-    http_client: Option<reqwest::Client>,
+    max_response_size: Option<usize>,
+    default_headers: http::HeaderMap,
+    /// First invalid header handed to `default_header`, reported by `build`
+    /// so the setters stay infallible without swallowing the mistake.
+    invalid_header: Option<String>,
     bearer_token: Option<String>,
 }
 
@@ -213,32 +331,122 @@ impl ScalarBuilder {
     }
 
     /// Overrides the base URL the client sends requests to.
+    /// The default is the base URL of [`Environment::Production`].
     pub fn base_url(mut self, base_url: impl Into<String>) -> Self {
         self.base_url = Some(base_url.into());
         self
     }
 
     /// Selects a named environment, setting the base URL.
+    /// The default is [`Environment::Production`].
     pub fn environment(mut self, environment: Environment) -> Self {
         self.environment = Some(environment);
         self
     }
 
-    /// Sets the per-request timeout.
+    /// Supplies a custom HTTP transport.
+    ///
+    /// The default (with the `reqwest` cargo feature, which is on by
+    /// default) is the bundled `ReqwestTransport`. Bring your own backend
+    /// by implementing [`crate::transport::Transport`]; with
+    /// `default-features = false` a transport must be supplied here or
+    /// [`build`](Self::build) returns a configuration error.
+    pub fn transport(mut self, transport: impl Transport + 'static) -> Self {
+        self.transport = Some(Arc::new(transport));
+        self
+    }
+
+    /// Supplies a custom async timer for retry backoff and deadlines.
+    ///
+    /// The default is the tokio-backed sleeper whenever the `tokio` cargo
+    /// feature is enabled (the default `reqwest` backend enables it). A
+    /// custom transport on a non-tokio runtime must supply one, since
+    /// retries and request deadlines need a timer to enforce.
+    pub fn sleeper(mut self, sleeper: impl Sleep + 'static) -> Self {
+        self.sleep = Some(Arc::new(sleeper));
+        self
+    }
+
+    /// Sets the request deadline, applied to every request.
+    ///
+    /// The deadline bounds each attempt **per attempt**, from dispatch
+    /// until response headers arrive — request-body upload included —
+    /// enforced uniformly by the runtime for every transport. Each retry
+    /// gets a fresh deadline, so total wall time can reach roughly
+    /// `(1 + max_retries) × timeout` plus backoff between attempts. Once
+    /// headers arrive, streamed response bodies (SSE, downloads) are never
+    /// deadline-killed.
+    ///
+    /// Unset, a 60-second default applies, but only to requests with
+    /// buffered non-multipart bodies: a streaming upload of unknown size
+    /// gets no default deadline, and neither does a multipart form (its
+    /// buffered file parts can be arbitrarily large). An explicit timeout
+    /// — set here or per request via `.timeout()` on an operation builder
+    /// — covers streaming and multipart uploads too.
     pub fn timeout(mut self, timeout: Duration) -> Self {
         self.timeout = Some(timeout);
         self
     }
 
     /// Sets the maximum number of retry attempts for transient failures.
+    /// The default is 2.
     pub fn max_retries(mut self, max_retries: u32) -> Self {
         self.max_retries = Some(max_retries);
         self
     }
 
+    /// Caps how many bytes of a buffered response body the client reads.
+    /// The default is 64 MiB.
+    ///
+    /// Response bodies are untrusted input; the cap bounds memory use
+    /// against hostile or misconfigured servers. Streaming responses are
+    /// consumed incrementally and are not subject to it.
+    pub fn max_response_size(mut self, max_response_size: usize) -> Self {
+        self.max_response_size = Some(max_response_size);
+        self
+    }
+
+    /// Adds one default header sent with every request. There are no
+    /// default entries.
+    ///
+    /// A per-request header with the same name replaces the default value
+    /// entirely (never both on the wire), and credentials are applied last
+    /// so nothing can clobber them. An invalid name or value is reported
+    /// as a configuration error by [`build`](Self::build).
+    pub fn default_header(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
+        let name = name.into();
+        let value = value.into();
+        match (
+            http::header::HeaderName::from_bytes(name.as_bytes()),
+            http::HeaderValue::from_str(&value),
+        ) {
+            (Ok(parsed_name), Ok(parsed_value)) => {
+                self.default_headers.append(parsed_name, parsed_value);
+            }
+            // Reported by `build()`; only the name is echoed, never the value.
+            _ => self.invalid_header = Some(name),
+        }
+        self
+    }
+
+    /// Replaces the default headers sent with every request.
+    ///
+    /// Overwrites any headers added with [`default_header`](Self::default_header),
+    /// including any invalid entry it recorded.
+    pub fn default_headers(mut self, default_headers: http::HeaderMap) -> Self {
+        self.default_headers = default_headers;
+        // The invalid-header record described an entry in the map just
+        // replaced; that entry no longer exists, so `build()` must not
+        // fail on it after a wholesale replacement.
+        self.invalid_header = None;
+        self
+    }
+
     /// Supplies a preconfigured `reqwest::Client` (proxies, custom TLS, etc.).
+    #[cfg(feature = "reqwest")]
+    #[deprecated(note = "use transport(ReqwestTransport::from_client(client)) instead")]
     pub fn http_client(mut self, http_client: reqwest::Client) -> Self {
-        self.http_client = Some(http_client);
+        self.transport = Some(Arc::new(crate::transport::ReqwestTransport::from_client(http_client)));
         self
     }
 
@@ -248,26 +456,67 @@ impl ScalarBuilder {
         self
     }
 
-    /// Builds the client, resolving the base URL and HTTP stack.
+    /// Builds the client, resolving the base URL, transport, and timer.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::Config`] when the base URL or a default header is
+    /// invalid, when no transport is configured and the `reqwest` feature
+    /// is disabled, or when no timer is available for retries/deadlines;
+    /// [`Error::Transport`] when the bundled transport fails to construct.
     pub fn build(self) -> Result<Scalar, Error> {
+        if let Some(name) = self.invalid_header {
+            return Err(Error::Config(format!("invalid default header {name:?}")));
+        }
         let base_url = self
             .base_url
             .unwrap_or_else(|| self.environment.unwrap_or_default().base_url().to_string());
         let base_url = normalize_base_url(&base_url)?;
-        let http = match self.http_client {
-            Some(http) => http,
-            None => reqwest::Client::builder().user_agent(USER_AGENT).build()?,
+        // Validated once here; dispatch sends it as a plain header so the
+        // user agent applies identically to every transport.
+        let user_agent = http::HeaderValue::from_str(USER_AGENT).map_err(|error| Error::Config(error.to_string()))?;
+        let max_retries = self.max_retries.unwrap_or(DEFAULT_MAX_RETRIES);
+        // Stored as the caller-set value only: dispatch applies the 60 s
+        // default per request, gated on the body being buffered non-multipart.
+        let deadline = self.timeout;
+        let max_response_size = self.max_response_size.unwrap_or(crate::http::DEFAULT_MAX_RESPONSE_SIZE);
+        #[cfg(feature = "reqwest")]
+        let transport: Arc<dyn Transport> = match self.transport {
+            Some(transport) => transport,
+            None => Arc::new(crate::transport::ReqwestTransport::new()?),
         };
-        let retry = RetryPolicy::new(self.max_retries.unwrap_or(DEFAULT_MAX_RETRIES));
+        #[cfg(not(feature = "reqwest"))]
+        let transport: Arc<dyn Transport> = self.transport.ok_or_else(|| {
+            Error::Config(
+                "no transport configured; enable the `reqwest` feature or supply one with `ClientBuilder::transport`"
+                    .to_string(),
+            )
+        })?;
+        #[cfg(feature = "tokio")]
+        let sleep: Arc<dyn Sleep> = self.sleep.unwrap_or_else(|| Arc::new(crate::transport::TokioSleep));
+        // Retries and request deadlines need a real timer, so a tokio-less
+        // build without a caller-supplied sleeper fails loudly here instead
+        // of silently dropping backoff/timeout behavior.
+        #[cfg(not(feature = "tokio"))]
+        let sleep: Arc<dyn Sleep> = self.sleep.ok_or_else(|| {
+            Error::Config(
+                "no sleeper configured; retries and timeouts need a timer — supply one with `ClientBuilder::sleeper` or enable the `tokio` feature"
+                    .to_string(),
+            )
+        })?;
         Ok(Scalar {
             inner: Arc::new(Inner {
-                http,
+                transport,
+                sleep,
                 base_url,
                 auth: Auth {
-                        bearer_token: self.bearer_token,
+                    bearer_token: self.bearer_token,
                 },
-                retry,
-                timeout: self.timeout,
+                max_retries,
+                deadline,
+                max_response_size,
+                default_headers: self.default_headers,
+                user_agent,
             }),
         })
     }
@@ -292,4 +541,62 @@ fn normalize_base_url(base_url: &str) -> Result<url::Url, Error> {
         format!("{base_url}/")
     };
     url::Url::parse(&with_slash).map_err(|error| Error::Config(error.to_string()))
+}
+
+/// Rejects a request URL whose origin differs from the client's base URL.
+///
+/// The only absolute URL that reaches `dispatch` is a next-page link the
+/// *server* supplied (see `resolve_link`), and credentials are applied to
+/// whatever URL comes out of the join. A link naming another origin would
+/// therefore hand this client's token or API key to that origin, so it is
+/// refused before the request is assembled and before anything is sent.
+/// Dropping the credentials and following the link anyway is not a safer
+/// fallback: a cross-origin next-page link is either a misconfigured base
+/// URL or an attack, and an unauthenticated fetch would only surface as a
+/// confusing 401. Scheme, host and port must all match (that is exactly what
+/// comparing origins does). The error names only the two origins — the link
+/// itself can carry a credential in its query string.
+fn ensure_same_origin(base_url: &url::Url, url: &url::Url) -> Result<(), Error> {
+    if url.origin() == base_url.origin() {
+        return Ok(());
+    }
+    Err(Error::Config(format!(
+        "refusing to send a request to {} because this client is configured for {}",
+        url.origin().ascii_serialization(),
+        base_url.origin().ascii_serialization()
+    )))
+}
+
+/// Parses a header name, mapping an invalid (spec- or caller-derived) name
+/// to a configuration error.
+fn header_name(name: &str) -> Result<http::header::HeaderName, Error> {
+    http::header::HeaderName::from_bytes(name.as_bytes())
+        .map_err(|_| Error::Config(format!("invalid header name {name:?}")))
+}
+
+/// Parses a header value; the error names the header but never echoes the
+/// value itself, which may be sensitive (idempotency keys, caller headers).
+fn header_value(name: &str, value: &str) -> Result<http::HeaderValue, Error> {
+    http::HeaderValue::from_str(value).map_err(|_| Error::Config(format!("invalid value for header {name:?}")))
+}
+
+/// Builds a header value from a credential, marking it sensitive so a
+/// `Debug` of the request never prints it. The credential itself is
+/// deliberately never echoed in the error.
+fn auth_value(value: &str) -> Result<http::HeaderValue, Error> {
+    let mut header = http::HeaderValue::from_str(value)
+        .map_err(|_| Error::Config("credential contains characters not allowed in an HTTP header".to_string()))?;
+    header.set_sensitive(true);
+    Ok(header)
+}
+
+/// Reads an environment variable, treating an absent or blank value as unset.
+fn read_env(name: &str) -> Option<String> {
+    let value = std::env::var(name).ok()?;
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        None
+    } else {
+        Some(trimmed.to_string())
+    }
 }

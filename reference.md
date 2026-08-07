@@ -2,7 +2,7 @@
 
 ## Operations
 
-### registry.listAllApiDocuments
+### client.registry().list_all_api_documents()
 
 List all API Documents
 
@@ -10,7 +10,7 @@ List all API Documents
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### registry.listApiDocuments
+### client.registry().list_api_documents(…)
 
 List API Documents in a namespace
 
@@ -18,7 +18,7 @@ List API Documents in a namespace
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### registry.createApiDocument
+### client.registry().create_api_document(…)
 
 Create API Document
 
@@ -27,7 +27,7 @@ Create API Document
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### registry.updateApiDocument
+### client.registry().update_api_document(…)
 
 Update API Document metadata
 
@@ -36,7 +36,7 @@ Update API Document metadata
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### registry.deleteApiDocument
+### client.registry().delete_api_document(…)
 
 Delete API Document
 
@@ -44,7 +44,7 @@ Delete API Document
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### registry.retrieveApiDocumentVersion
+### client.registry().retrieve_api_document_version(…)
 
 Get API Document
 
@@ -52,7 +52,7 @@ Get API Document
 - Response body: `text/plain`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### registry.updateApiDocumentVersion
+### client.registry().update_api_document_version(…)
 
 Update API Document version
 
@@ -61,7 +61,7 @@ Update API Document version
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### registry.deleteApiDocumentVersion
+### client.registry().delete_api_document_version(…)
 
 Delete API Document version
 
@@ -69,7 +69,7 @@ Delete API Document version
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### registry.listApiDocumentVersionMetadata
+### client.registry().list_api_document_version_metadata(…)
 
 Get API Document version metadata
 
@@ -77,7 +77,7 @@ Get API Document version metadata
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### registry.createApiDocumentVersion
+### client.registry().create_api_document_version(…)
 
 Create API Document version
 
@@ -86,7 +86,7 @@ Create API Document version
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### registry.createApiDocumentAccessGroup
+### client.registry().create_api_document_access_group(…)
 
 Add access group
 
@@ -95,7 +95,7 @@ Add access group
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### registry.deleteApiDocumentAccessGroup
+### client.registry().delete_api_document_access_group(…)
 
 Remove access group
 
@@ -104,7 +104,7 @@ Remove access group
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### schemas.list
+### client.schemas().list(…)
 
 List all shared components
 
@@ -112,7 +112,7 @@ List all shared components
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### schemas.create
+### client.schemas().create(…)
 
 Create a shared component
 
@@ -121,7 +121,7 @@ Create a shared component
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### schemas.update
+### client.schemas().update(…)
 
 Update shared component metadata
 
@@ -130,7 +130,7 @@ Update shared component metadata
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### schemas.delete
+### client.schemas().delete(…)
 
 Delete a shared component
 
@@ -138,7 +138,7 @@ Delete a shared component
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### schemas.version.retrieveSchema
+### client.schemas().version().retrieve_schema(…)
 
 Get a shared component document
 
@@ -146,7 +146,7 @@ Get a shared component document
 - Response body: `text/plain`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### schemas.version.deleteSchema
+### client.schemas().version().delete_schema(…)
 
 Delete a shared component version
 
@@ -154,7 +154,7 @@ Delete a shared component version
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### schemas.version.createSchema
+### client.schemas().version().create_schema(…)
 
 Create a shared component version
 
@@ -163,7 +163,7 @@ Create a shared component version
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### schemas.accessGroup.createSchema
+### client.schemas().access_group().create_schema(…)
 
 Add shared component access group
 
@@ -172,7 +172,7 @@ Add shared component access group
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### schemas.accessGroup.deleteSchema
+### client.schemas().access_group().delete_schema(…)
 
 Remove shared component access group
 
@@ -181,7 +181,7 @@ Remove shared component access group
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### loginPortals.retrieve
+### client.login_portals().retrieve(…)
 
 Get a login portal
 
@@ -189,7 +189,7 @@ Get a login portal
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### loginPortals.update
+### client.login_portals().update(…)
 
 Update portal metadata
 
@@ -198,7 +198,7 @@ Update portal metadata
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### loginPortals.delete
+### client.login_portals().delete(…)
 
 Delete a login portal
 
@@ -206,7 +206,7 @@ Delete a login portal
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### loginPortals.create
+### client.login_portals().create(…)
 
 Create a portal
 
@@ -215,7 +215,7 @@ Create a portal
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### loginPortals.list
+### client.login_portals().list()
 
 List all portals
 
@@ -223,7 +223,7 @@ List all portals
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### rules.listRulesets
+### client.rules().list_rulesets(…)
 
 List all rules
 
@@ -231,7 +231,7 @@ List all rules
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### rules.createRuleset
+### client.rules().create_ruleset(…)
 
 Create a rule
 
@@ -240,7 +240,7 @@ Create a rule
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### rules.updateRuleset
+### client.rules().update_ruleset(…)
 
 Update rule metadata
 
@@ -249,7 +249,7 @@ Update rule metadata
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### rules.deleteRuleset
+### client.rules().delete_ruleset(…)
 
 Delete a rule
 
@@ -257,7 +257,7 @@ Delete a rule
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### rules.retrieveRulesetDocument
+### client.rules().retrieve_ruleset_document(…)
 
 Get a rule
 
@@ -265,7 +265,7 @@ Get a rule
 - Response body: `text/plain`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### rules.createRulesetAccessGroup
+### client.rules().create_ruleset_access_group(…)
 
 Add rule access group
 
@@ -274,7 +274,7 @@ Add rule access group
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### rules.deleteRulesetAccessGroup
+### client.rules().delete_ruleset_access_group(…)
 
 Remove rule access group
 
@@ -283,7 +283,7 @@ Remove rule access group
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### themes.list
+### client.themes().list()
 
 List all themes
 
@@ -291,7 +291,7 @@ List all themes
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### themes.create
+### client.themes().create(…)
 
 Create a theme
 
@@ -300,7 +300,7 @@ Create a theme
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### themes.update
+### client.themes().update(…)
 
 Update theme metadata
 
@@ -309,7 +309,7 @@ Update theme metadata
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### themes.replaceDocument
+### client.themes().replace_document(…)
 
 Update theme document
 
@@ -318,7 +318,7 @@ Update theme document
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### themes.delete
+### client.themes().delete(…)
 
 Delete a theme
 
@@ -326,7 +326,7 @@ Delete a theme
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### themes.retrieve
+### client.themes().retrieve(…)
 
 Get a theme
 
@@ -334,7 +334,7 @@ Get a theme
 - Response body: `text/plain`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### teams.list
+### client.teams().list()
 
 List teams
 
@@ -342,7 +342,7 @@ List teams
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### scalarDocs.listGuides
+### client.scalar_docs().list_guides()
 
 List all projects
 
@@ -350,7 +350,7 @@ List all projects
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### scalarDocs.createGuide
+### client.scalar_docs().create_guide(…)
 
 Create a project
 
@@ -359,7 +359,7 @@ Create a project
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### scalarDocs.publishGuide
+### client.scalar_docs().publish_guide(…)
 
 Publish a project
 
@@ -367,7 +367,7 @@ Publish a project
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### namespaces.list
+### client.namespaces().list()
 
 List namespaces
 
@@ -375,7 +375,7 @@ List namespaces
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### authentication.exchangePersonalToken
+### client.authentication().exchange_personal_token(…)
 
 Exchange token
 
@@ -384,7 +384,7 @@ Exchange token
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### authentication.listCurrentUser
+### client.authentication().list_current_user()
 
 Get current user
 

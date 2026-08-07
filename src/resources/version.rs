@@ -12,17 +12,32 @@ impl Version {
     }
 
     /// Get a shared component document
-    pub fn retrieve_schema(&self, namespace: impl Into<String>, slug: impl Into<String>, semver: impl Into<String>) -> RetrieveSchemaRequest {
+    pub fn retrieve_schema(
+        &self,
+        namespace: impl Into<String>,
+        slug: impl Into<String>,
+        semver: impl Into<String>,
+    ) -> RetrieveSchemaRequest {
         RetrieveSchemaRequest::new(self.client.clone(), namespace.into(), slug.into(), semver.into())
     }
 
     /// Delete a shared component version
-    pub fn delete_schema(&self, namespace: impl Into<String>, slug: impl Into<String>, semver: impl Into<String>) -> DeleteSchemaRequest {
+    pub fn delete_schema(
+        &self,
+        namespace: impl Into<String>,
+        slug: impl Into<String>,
+        semver: impl Into<String>,
+    ) -> DeleteSchemaRequest {
         DeleteSchemaRequest::new(self.client.clone(), namespace.into(), slug.into(), semver.into())
     }
 
     /// Create a shared component version
-    pub fn create_schema(&self, namespace: impl Into<String>, slug: impl Into<String>, body: crate::models::VersionCreateSchemaBody) -> CreateSchemaRequest {
+    pub fn create_schema(
+        &self,
+        namespace: impl Into<String>,
+        slug: impl Into<String>,
+        body: crate::models::VersionCreateSchemaBody,
+    ) -> CreateSchemaRequest {
         CreateSchemaRequest::new(self.client.clone(), namespace.into(), slug.into(), body)
     }
 }
@@ -34,6 +49,8 @@ pub struct RetrieveSchemaRequest {
     namespace: String,
     slug: String,
     semver: String,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl RetrieveSchemaRequest {
@@ -43,17 +60,53 @@ impl RetrieveSchemaRequest {
             namespace,
             slug,
             semver,
+            timeout: None,
+            max_retries: None,
         }
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
     pub async fn send(self) -> Result<bytes::Bytes, crate::error::Error> {
-        let path = format!("/v1/schemas/{}/{}/version/{}", crate::http::encode_path_param(&self.namespace), crate::http::encode_path_param(&self.slug), crate::http::encode_path_param(&self.semver));
+        let path = format!(
+            "/v1/schemas/{}/{}/version/{}",
+            crate::http::encode_path_param(&self.namespace),
+            crate::http::encode_path_param(&self.slug),
+            crate::http::encode_path_param(&self.semver)
+        );
         let query: Vec<(String, String)> = Vec::new();
-        let headers: Vec<(String, String)> = Vec::new();
+        let headers: Vec<(String, String)> = vec![("Accept".to_string(), "text/plain".to_string())];
         let body: Option<&serde_json::Value> = None;
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send_bytes(reqwest::Method::GET, &path, &query, &headers, body, true)
+            .send_bytes(http::Method::GET, &path, &query, &headers, body, true, overrides)
             .await
     }
 }
@@ -65,6 +118,8 @@ pub struct DeleteSchemaRequest {
     slug: String,
     semver: String,
     idempotency_key: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl DeleteSchemaRequest {
@@ -75,6 +130,8 @@ impl DeleteSchemaRequest {
             slug,
             semver,
             idempotency_key: None,
+            timeout: None,
+            max_retries: None,
         }
     }
 
@@ -84,17 +141,53 @@ impl DeleteSchemaRequest {
         self
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
-        let path = format!("/v1/schemas/{}/{}/version/{}", crate::http::encode_path_param(&self.namespace), crate::http::encode_path_param(&self.slug), crate::http::encode_path_param(&self.semver));
+        let path = format!(
+            "/v1/schemas/{}/{}/version/{}",
+            crate::http::encode_path_param(&self.namespace),
+            crate::http::encode_path_param(&self.slug),
+            crate::http::encode_path_param(&self.semver)
+        );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
             headers.push(("Idempotency-Key".to_string(), key));
         }
         let body: Option<&serde_json::Value> = None;
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send::<serde_json::Value, _>(reqwest::Method::DELETE, &path, &query, &headers, body, true)
+            .send::<serde_json::Value, _>(http::Method::DELETE, &path, &query, &headers, body, true, overrides)
             .await
     }
 }
@@ -106,16 +199,25 @@ pub struct CreateSchemaRequest {
     slug: String,
     body: crate::models::VersionCreateSchemaBody,
     idempotency_key: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl CreateSchemaRequest {
-    fn new(client: crate::client::Scalar, namespace: String, slug: String, body: crate::models::VersionCreateSchemaBody) -> Self {
+    fn new(
+        client: crate::client::Scalar,
+        namespace: String,
+        slug: String,
+        body: crate::models::VersionCreateSchemaBody,
+    ) -> Self {
         Self {
             client,
             namespace,
             slug,
             body,
             idempotency_key: None,
+            timeout: None,
+            max_retries: None,
         }
     }
 
@@ -125,17 +227,52 @@ impl CreateSchemaRequest {
         self
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
     pub async fn send(self) -> Result<crate::models::Uid, crate::error::Error> {
-        let path = format!("/v1/schemas/{}/{}/version", crate::http::encode_path_param(&self.namespace), crate::http::encode_path_param(&self.slug));
+        let path = format!(
+            "/v1/schemas/{}/{}/version",
+            crate::http::encode_path_param(&self.namespace),
+            crate::http::encode_path_param(&self.slug)
+        );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
             headers.push(("Idempotency-Key".to_string(), key));
         }
         let body = Some(&self.body);
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send::<crate::models::Uid, _>(reqwest::Method::POST, &path, &query, &headers, body, true)
+            .send::<crate::models::Uid, _>(http::Method::POST, &path, &query, &headers, body, true, overrides)
             .await
     }
 }
