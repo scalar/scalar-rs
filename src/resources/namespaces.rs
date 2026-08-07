@@ -21,23 +21,58 @@ impl Namespaces {
 #[must_use = "a request builder does nothing until `.send().await` is called"]
 pub struct ListRequest {
     client: crate::client::Scalar,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl ListRequest {
     fn new(client: crate::client::Scalar) -> Self {
         Self {
             client,
+            timeout: None,
+            max_retries: None,
         }
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
     pub async fn send(self) -> Result<Vec<String>, crate::error::Error> {
         let path = "/v1/namespaces".to_string();
         let query: Vec<(String, String)> = Vec::new();
         let headers: Vec<(String, String)> = Vec::new();
         let body: Option<&serde_json::Value> = None;
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send::<Vec<String>, _>(reqwest::Method::GET, &path, &query, &headers, body, true)
+            .send::<Vec<String>, _>(http::Method::GET, &path, &query, &headers, body, true, overrides)
             .await
     }
 }

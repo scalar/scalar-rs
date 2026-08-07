@@ -41,15 +41,22 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.registry().create_api_document("example", RegistryCreateApiDocumentBody {
-                title: "".to_string(),
-                description: None,
-                version: "x".to_string(),
-                slug: "".to_string(),
-                ruleset: None,
-                is_private: None,
-                document: "".to_string(),
-            }).send().await?;
+            let _ = client
+                .registry()
+                .create_api_document(
+                    "example",
+                    RegistryCreateApiDocumentBody {
+                        title: "".to_string(),
+                        description: None,
+                        version: "x".to_string(),
+                        slug: "".to_string(),
+                        ruleset: None,
+                        is_private: None,
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -61,12 +68,20 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.registry().update_api_document("example", "example", RegistryUpdateApiDocumentBody {
-                title: None,
-                description: None,
-                is_private: None,
-                ruleset: None,
-            }).send().await?;
+            let _ = client
+                .registry()
+                .update_api_document(
+                    "example",
+                    "example",
+                    RegistryUpdateApiDocumentBody {
+                        title: None,
+                        description: None,
+                        is_private: None,
+                        ruleset: None,
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -78,7 +93,11 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.registry().delete_api_document("example", "example").send().await?;
+            let _ = client
+                .registry()
+                .delete_api_document("example", "example")
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -90,63 +109,104 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.registry().retrieve_api_document_version("example", "example", "example").send().await?;
+            let _ = client
+                .registry()
+                .retrieve_api_document_version("example", "example", "example")
+                .send()
+                .await?;
             Ok(())
         }
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "GET /v1/apis/{namespace}/{slug}/version/{semver}"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "GET /v1/apis/{namespace}/{slug}/version/{semver}"
+                ));
             }
         }
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.registry().update_api_document_version("example", "example", "example", RegistryUpdateApiDocumentVersionBody {
-                document: "".to_string(),
-                last_known_version_sha: None,
-            }).send().await?;
+            let _ = client
+                .registry()
+                .update_api_document_version(
+                    "example",
+                    "example",
+                    "example",
+                    RegistryUpdateApiDocumentVersionBody {
+                        document: "".to_string(),
+                        last_known_version_sha: None,
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "PATCH /v1/apis/{namespace}/{slug}/version/{semver}"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "PATCH /v1/apis/{namespace}/{slug}/version/{semver}"
+                ));
             }
         }
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.registry().delete_api_document_version("example", "example", "example").send().await?;
+            let _ = client
+                .registry()
+                .delete_api_document_version("example", "example", "example")
+                .send()
+                .await?;
             Ok(())
         }
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "DELETE /v1/apis/{namespace}/{slug}/version/{semver}"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "DELETE /v1/apis/{namespace}/{slug}/version/{semver}"
+                ));
             }
         }
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.registry().list_api_document_version_metadata("example", "example", "example").send().await?;
+            let _ = client
+                .registry()
+                .list_api_document_version_metadata("example", "example", "example")
+                .send()
+                .await?;
             Ok(())
         }
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "GET /v1/apis/{namespace}/{slug}/version/{semver}/metadata"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "GET /v1/apis/{namespace}/{slug}/version/{semver}/metadata"
+                ));
             }
         }
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.registry().create_api_document_version("example", "example", RegistryCreateApiDocumentVersionBody {
-                version: "x".to_string(),
-                document: "".to_string(),
-                force: None,
-                last_known_version_sha: None,
-            }).send().await?;
+            let _ = client
+                .registry()
+                .create_api_document_version(
+                    "example",
+                    "example",
+                    RegistryCreateApiDocumentVersionBody {
+                        version: "x".to_string(),
+                        document: "".to_string(),
+                        force: None,
+                        last_known_version_sha: None,
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -158,9 +218,17 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.registry().create_api_document_access_group("example", "example", AccessGroup {
-                access_group_slug: "xxx".to_string(),
-            }).send().await?;
+            let _ = client
+                .registry()
+                .create_api_document_access_group(
+                    "example",
+                    "example",
+                    AccessGroup {
+                        access_group_slug: "xxx".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -172,15 +240,26 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.registry().delete_api_document_access_group("example", "example", AccessGroup {
-                access_group_slug: "xxx".to_string(),
-            }).send().await?;
+            let _ = client
+                .registry()
+                .delete_api_document_access_group(
+                    "example",
+                    "example",
+                    AccessGroup {
+                        access_group_slug: "xxx".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "DELETE /v1/apis/{namespace}/{slug}/access-group"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "DELETE /v1/apis/{namespace}/{slug}/access-group"
+                ));
             }
         }
     }
@@ -198,14 +277,21 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.schemas().create("example", SchemasCreateBody {
-                title: "".to_string(),
-                description: None,
-                version: "x".to_string(),
-                slug: "".to_string(),
-                is_private: None,
-                document: "".to_string(),
-            }).send().await?;
+            let _ = client
+                .schemas()
+                .create(
+                    "example",
+                    SchemasCreateBody {
+                        title: "".to_string(),
+                        description: None,
+                        version: "x".to_string(),
+                        slug: "".to_string(),
+                        is_private: None,
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -217,11 +303,19 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.schemas().update("example", "example", SchemasUpdateBody {
-                title: None,
-                description: None,
-                is_private: None,
-            }).send().await?;
+            let _ = client
+                .schemas()
+                .update(
+                    "example",
+                    "example",
+                    SchemasUpdateBody {
+                        title: None,
+                        description: None,
+                        is_private: None,
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -245,34 +339,59 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.schemas().version().retrieve_schema("example", "example", "example").send().await?;
+            let _ = client
+                .schemas()
+                .version()
+                .retrieve_schema("example", "example", "example")
+                .send()
+                .await?;
             Ok(())
         }
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "GET /v1/schemas/{namespace}/{slug}/version/{semver}"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "GET /v1/schemas/{namespace}/{slug}/version/{semver}"
+                ));
             }
         }
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.schemas().version().delete_schema("example", "example", "example").send().await?;
+            let _ = client
+                .schemas()
+                .version()
+                .delete_schema("example", "example", "example")
+                .send()
+                .await?;
             Ok(())
         }
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "DELETE /v1/schemas/{namespace}/{slug}/version/{semver}"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "DELETE /v1/schemas/{namespace}/{slug}/version/{semver}"
+                ));
             }
         }
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.schemas().version().create_schema("example", "example", VersionCreateSchemaBody {
-                version: "x".to_string(),
-                document: "".to_string(),
-            }).send().await?;
+            let _ = client
+                .schemas()
+                .version()
+                .create_schema(
+                    "example",
+                    "example",
+                    VersionCreateSchemaBody {
+                        version: "x".to_string(),
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -284,29 +403,53 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.schemas().access_group().create_schema("example", "example", AccessGroup {
-                access_group_slug: "xxx".to_string(),
-            }).send().await?;
+            let _ = client
+                .schemas()
+                .access_group()
+                .create_schema(
+                    "example",
+                    "example",
+                    AccessGroup {
+                        access_group_slug: "xxx".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "POST /v1/schemas/{namespace}/{slug}/access-group"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "POST /v1/schemas/{namespace}/{slug}/access-group"
+                ));
             }
         }
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.schemas().access_group().delete_schema("example", "example", AccessGroup {
-                access_group_slug: "xxx".to_string(),
-            }).send().await?;
+            let _ = client
+                .schemas()
+                .access_group()
+                .delete_schema(
+                    "example",
+                    "example",
+                    AccessGroup {
+                        access_group_slug: "xxx".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "DELETE /v1/schemas/{namespace}/{slug}/access-group"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "DELETE /v1/schemas/{namespace}/{slug}/access-group"
+                ));
             }
         }
     }
@@ -324,9 +467,11 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.login_portals().update("example", LoginPortalsUpdateBody {
-                title: None,
-            }).send().await?;
+            let _ = client
+                .login_portals()
+                .update("example", LoginPortalsUpdateBody { title: None })
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -350,39 +495,43 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.login_portals().create(LoginPortalsCreateBody {
-                title: "".to_string(),
-                slug: "".to_string(),
-                email: LoginPortalEmail {
-                    logo: "".to_string(),
-                    logo_size: "100".to_string(),
-                    button_text: "Login".to_string(),
-                    message: "Click to access private documentation hosted by scalar.com".to_string(),
-                    title: "Private Docs".to_string(),
-                    main_color: "#2a2f45".to_string(),
-                    main_background: "#f6f6f6".to_string(),
-                    card_color: "2a2f45".to_string(),
-                    card_background: "#fff".to_string(),
-                    button_color: "#fff".to_string(),
-                    button_background: "#0f0f0f".to_string(),
-                },
-                page: LoginPortalPage {
-                    title: "Scalar Private Docs".to_string(),
-                    description: "Login to access your documentation".to_string(),
-                    head: "".to_string(),
-                    script: "".to_string(),
-                    theme: "".to_string(),
-                    company_name: "".to_string(),
-                    logo: "".to_string(),
-                    logo_url: "".to_string(),
-                    favicon: "".to_string(),
-                    terms_link: "".to_string(),
-                    privacy_link: "".to_string(),
-                    form_title: "Scalar Private Docs".to_string(),
-                    form_description: "Login to access your documentation".to_string(),
-                    form_image: "".to_string(),
-                },
-            }).send().await?;
+            let _ = client
+                .login_portals()
+                .create(LoginPortalsCreateBody {
+                    title: "".to_string(),
+                    slug: "".to_string(),
+                    email: LoginPortalEmail {
+                        logo: "".to_string(),
+                        logo_size: "100".to_string(),
+                        button_text: "Login".to_string(),
+                        message: "Click to access private documentation hosted by scalar.com".to_string(),
+                        title: "Private Docs".to_string(),
+                        main_color: "#2a2f45".to_string(),
+                        main_background: "#f6f6f6".to_string(),
+                        card_color: "2a2f45".to_string(),
+                        card_background: "#fff".to_string(),
+                        button_color: "#fff".to_string(),
+                        button_background: "#0f0f0f".to_string(),
+                    },
+                    page: LoginPortalPage {
+                        title: "Scalar Private Docs".to_string(),
+                        description: "Login to access your documentation".to_string(),
+                        head: "".to_string(),
+                        script: "".to_string(),
+                        theme: "".to_string(),
+                        company_name: "".to_string(),
+                        logo: "".to_string(),
+                        logo_url: "".to_string(),
+                        favicon: "".to_string(),
+                        terms_link: "".to_string(),
+                        privacy_link: "".to_string(),
+                        form_title: "Scalar Private Docs".to_string(),
+                        form_description: "Login to access your documentation".to_string(),
+                        form_image: "".to_string(),
+                    },
+                })
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -418,13 +567,20 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.rules().create_ruleset("example", RulesCreateRulesetBody {
-                title: "".to_string(),
-                description: None,
-                slug: "".to_string(),
-                is_private: None,
-                document: "".to_string(),
-            }).send().await?;
+            let _ = client
+                .rules()
+                .create_ruleset(
+                    "example",
+                    RulesCreateRulesetBody {
+                        title: "".to_string(),
+                        description: None,
+                        slug: "".to_string(),
+                        is_private: None,
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -436,13 +592,21 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.rules().update_ruleset("example", "example", RulesUpdateRulesetBody {
-                namespace: None,
-                slug: None,
-                title: None,
-                description: None,
-                is_private: None,
-            }).send().await?;
+            let _ = client
+                .rules()
+                .update_ruleset(
+                    "example",
+                    "example",
+                    RulesUpdateRulesetBody {
+                        namespace: None,
+                        slug: None,
+                        title: None,
+                        description: None,
+                        is_private: None,
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -466,7 +630,11 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.rules().retrieve_ruleset_document("example", "example").send().await?;
+            let _ = client
+                .rules()
+                .retrieve_ruleset_document("example", "example")
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -478,29 +646,51 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.rules().create_ruleset_access_group("example", "example", AccessGroup {
-                access_group_slug: "xxx".to_string(),
-            }).send().await?;
+            let _ = client
+                .rules()
+                .create_ruleset_access_group(
+                    "example",
+                    "example",
+                    AccessGroup {
+                        access_group_slug: "xxx".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "POST /v1/rulesets/{namespace}/{slug}/access-group"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "POST /v1/rulesets/{namespace}/{slug}/access-group"
+                ));
             }
         }
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.rules().delete_ruleset_access_group("example", "example", AccessGroup {
-                access_group_slug: "xxx".to_string(),
-            }).send().await?;
+            let _ = client
+                .rules()
+                .delete_ruleset_access_group(
+                    "example",
+                    "example",
+                    AccessGroup {
+                        access_group_slug: "xxx".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "DELETE /v1/rulesets/{namespace}/{slug}/access-group"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "DELETE /v1/rulesets/{namespace}/{slug}/access-group"
+                ));
             }
         }
     }
@@ -518,12 +708,16 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.themes().create(ThemesCreateBody {
-                name: "".to_string(),
-                description: None,
-                slug: "".to_string(),
-                document: "".to_string(),
-            }).send().await?;
+            let _ = client
+                .themes()
+                .create(ThemesCreateBody {
+                    name: "".to_string(),
+                    description: None,
+                    slug: "".to_string(),
+                    document: "".to_string(),
+                })
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -535,10 +729,17 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.themes().update("example", ThemesUpdateBody {
-                name: None,
-                description: None,
-            }).send().await?;
+            let _ = client
+                .themes()
+                .update(
+                    "example",
+                    ThemesUpdateBody {
+                        name: None,
+                        description: None,
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -550,9 +751,16 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.themes().replace_document("example", ThemesReplaceDocumentBody {
-                document: "".to_string(),
-            }).send().await?;
+            let _ = client
+                .themes()
+                .replace_document(
+                    "example",
+                    ThemesReplaceDocumentBody {
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -612,13 +820,17 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.scalar_docs().create_guide(ScalarDocsCreateGuideBody {
-                name: "".to_string(),
-                slug: None,
-                is_private: false,
-                allowed_users: vec![],
-                allowed_domains: vec![],
-            }).send().await?;
+            let _ = client
+                .scalar_docs()
+                .create_guide(ScalarDocsCreateGuideBody {
+                    name: "".to_string(),
+                    slug: None,
+                    is_private: false,
+                    allowed_users: vec![],
+                    allowed_domains: vec![],
+                })
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -654,9 +866,13 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.authentication().exchange_personal_token(AuthenticationExchangePersonalTokenBody {
-                personal_token: "".to_string(),
-            }).send().await?;
+            let _ = client
+                .authentication()
+                .exchange_personal_token(AuthenticationExchangePersonalTokenBody {
+                    personal_token: "".to_string(),
+                })
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -687,5 +903,8 @@ async fn smoke() {
 /// back, which is what this smoke verifies; the response body itself is the
 /// server's concern, not the SDK's.
 fn is_smoke_failure(error: &Error) -> bool {
-    matches!(error, Error::Transport(_) | Error::Config(_) | Error::MissingParameter(_))
+    matches!(
+        error,
+        Error::Transport(_) | Error::Config(_) | Error::MissingParameter(_)
+    )
 }

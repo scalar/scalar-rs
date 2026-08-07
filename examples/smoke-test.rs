@@ -102,15 +102,22 @@ async fn main() {
     if selected(&filter, "createApiDocument", "/v1/apis/{namespace}") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.registry().create_api_document("example", RegistryCreateApiDocumentBody {
-                title: "".to_string(),
-                description: None,
-                version: "x".to_string(),
-                slug: "".to_string(),
-                ruleset: None,
-                is_private: None,
-                document: "".to_string(),
-            }).send().await?;
+            let _ = client
+                .registry()
+                .create_api_document(
+                    "example",
+                    RegistryCreateApiDocumentBody {
+                        title: "".to_string(),
+                        description: None,
+                        version: "x".to_string(),
+                        slug: "".to_string(),
+                        ruleset: None,
+                        is_private: None,
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -134,12 +141,20 @@ async fn main() {
     if selected(&filter, "updateApiDocument", "/v1/apis/{namespace}/{slug}") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.registry().update_api_document("example", "example", RegistryUpdateApiDocumentBody {
-                title: None,
-                description: None,
-                is_private: None,
-                ruleset: None,
-            }).send().await?;
+            let _ = client
+                .registry()
+                .update_api_document(
+                    "example",
+                    "example",
+                    RegistryUpdateApiDocumentBody {
+                        title: None,
+                        description: None,
+                        is_private: None,
+                        ruleset: None,
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -163,7 +178,11 @@ async fn main() {
     if selected(&filter, "deleteApiDocument", "/v1/apis/{namespace}/{slug}") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.registry().delete_api_document("example", "example").send().await?;
+            let _ = client
+                .registry()
+                .delete_api_document("example", "example")
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -184,10 +203,18 @@ async fn main() {
             error,
         });
     }
-    if selected(&filter, "retrieveApiDocumentVersion", "/v1/apis/{namespace}/{slug}/version/{semver}") {
+    if selected(
+        &filter,
+        "retrieveApiDocumentVersion",
+        "/v1/apis/{namespace}/{slug}/version/{semver}",
+    ) {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.registry().retrieve_api_document_version("example", "example", "example").send().await?;
+            let _ = client
+                .registry()
+                .retrieve_api_document_version("example", "example", "example")
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -208,13 +235,26 @@ async fn main() {
             error,
         });
     }
-    if selected(&filter, "updateApiDocumentVersion", "/v1/apis/{namespace}/{slug}/version/{semver}") {
+    if selected(
+        &filter,
+        "updateApiDocumentVersion",
+        "/v1/apis/{namespace}/{slug}/version/{semver}",
+    ) {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.registry().update_api_document_version("example", "example", "example", RegistryUpdateApiDocumentVersionBody {
-                document: "".to_string(),
-                last_known_version_sha: None,
-            }).send().await?;
+            let _ = client
+                .registry()
+                .update_api_document_version(
+                    "example",
+                    "example",
+                    "example",
+                    RegistryUpdateApiDocumentVersionBody {
+                        document: "".to_string(),
+                        last_known_version_sha: None,
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -235,10 +275,18 @@ async fn main() {
             error,
         });
     }
-    if selected(&filter, "deleteApiDocumentVersion", "/v1/apis/{namespace}/{slug}/version/{semver}") {
+    if selected(
+        &filter,
+        "deleteApiDocumentVersion",
+        "/v1/apis/{namespace}/{slug}/version/{semver}",
+    ) {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.registry().delete_api_document_version("example", "example", "example").send().await?;
+            let _ = client
+                .registry()
+                .delete_api_document_version("example", "example", "example")
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -259,10 +307,18 @@ async fn main() {
             error,
         });
     }
-    if selected(&filter, "listApiDocumentVersionMetadata", "/v1/apis/{namespace}/{slug}/version/{semver}/metadata") {
+    if selected(
+        &filter,
+        "listApiDocumentVersionMetadata",
+        "/v1/apis/{namespace}/{slug}/version/{semver}/metadata",
+    ) {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.registry().list_api_document_version_metadata("example", "example", "example").send().await?;
+            let _ = client
+                .registry()
+                .list_api_document_version_metadata("example", "example", "example")
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -283,15 +339,27 @@ async fn main() {
             error,
         });
     }
-    if selected(&filter, "createApiDocumentVersion", "/v1/apis/{namespace}/{slug}/version") {
+    if selected(
+        &filter,
+        "createApiDocumentVersion",
+        "/v1/apis/{namespace}/{slug}/version",
+    ) {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.registry().create_api_document_version("example", "example", RegistryCreateApiDocumentVersionBody {
-                version: "x".to_string(),
-                document: "".to_string(),
-                force: None,
-                last_known_version_sha: None,
-            }).send().await?;
+            let _ = client
+                .registry()
+                .create_api_document_version(
+                    "example",
+                    "example",
+                    RegistryCreateApiDocumentVersionBody {
+                        version: "x".to_string(),
+                        document: "".to_string(),
+                        force: None,
+                        last_known_version_sha: None,
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -312,12 +380,24 @@ async fn main() {
             error,
         });
     }
-    if selected(&filter, "createApiDocumentAccessGroup", "/v1/apis/{namespace}/{slug}/access-group") {
+    if selected(
+        &filter,
+        "createApiDocumentAccessGroup",
+        "/v1/apis/{namespace}/{slug}/access-group",
+    ) {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.registry().create_api_document_access_group("example", "example", AccessGroup {
-                access_group_slug: "xxx".to_string(),
-            }).send().await?;
+            let _ = client
+                .registry()
+                .create_api_document_access_group(
+                    "example",
+                    "example",
+                    AccessGroup {
+                        access_group_slug: "xxx".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -338,12 +418,24 @@ async fn main() {
             error,
         });
     }
-    if selected(&filter, "deleteApiDocumentAccessGroup", "/v1/apis/{namespace}/{slug}/access-group") {
+    if selected(
+        &filter,
+        "deleteApiDocumentAccessGroup",
+        "/v1/apis/{namespace}/{slug}/access-group",
+    ) {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.registry().delete_api_document_access_group("example", "example", AccessGroup {
-                access_group_slug: "xxx".to_string(),
-            }).send().await?;
+            let _ = client
+                .registry()
+                .delete_api_document_access_group(
+                    "example",
+                    "example",
+                    AccessGroup {
+                        access_group_slug: "xxx".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -391,14 +483,21 @@ async fn main() {
     if selected(&filter, "create", "/v1/schemas/{namespace}") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.schemas().create("example", SchemasCreateBody {
-                title: "".to_string(),
-                description: None,
-                version: "x".to_string(),
-                slug: "".to_string(),
-                is_private: None,
-                document: "".to_string(),
-            }).send().await?;
+            let _ = client
+                .schemas()
+                .create(
+                    "example",
+                    SchemasCreateBody {
+                        title: "".to_string(),
+                        description: None,
+                        version: "x".to_string(),
+                        slug: "".to_string(),
+                        is_private: None,
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -422,11 +521,19 @@ async fn main() {
     if selected(&filter, "update", "/v1/schemas/{namespace}/{slug}") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.schemas().update("example", "example", SchemasUpdateBody {
-                title: None,
-                description: None,
-                is_private: None,
-            }).send().await?;
+            let _ = client
+                .schemas()
+                .update(
+                    "example",
+                    "example",
+                    SchemasUpdateBody {
+                        title: None,
+                        description: None,
+                        is_private: None,
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -471,10 +578,19 @@ async fn main() {
             error,
         });
     }
-    if selected(&filter, "retrieveSchema", "/v1/schemas/{namespace}/{slug}/version/{semver}") {
+    if selected(
+        &filter,
+        "retrieveSchema",
+        "/v1/schemas/{namespace}/{slug}/version/{semver}",
+    ) {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.schemas().version().retrieve_schema("example", "example", "example").send().await?;
+            let _ = client
+                .schemas()
+                .version()
+                .retrieve_schema("example", "example", "example")
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -495,10 +611,19 @@ async fn main() {
             error,
         });
     }
-    if selected(&filter, "deleteSchema", "/v1/schemas/{namespace}/{slug}/version/{semver}") {
+    if selected(
+        &filter,
+        "deleteSchema",
+        "/v1/schemas/{namespace}/{slug}/version/{semver}",
+    ) {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.schemas().version().delete_schema("example", "example", "example").send().await?;
+            let _ = client
+                .schemas()
+                .version()
+                .delete_schema("example", "example", "example")
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -522,10 +647,19 @@ async fn main() {
     if selected(&filter, "createSchema", "/v1/schemas/{namespace}/{slug}/version") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.schemas().version().create_schema("example", "example", VersionCreateSchemaBody {
-                version: "x".to_string(),
-                document: "".to_string(),
-            }).send().await?;
+            let _ = client
+                .schemas()
+                .version()
+                .create_schema(
+                    "example",
+                    "example",
+                    VersionCreateSchemaBody {
+                        version: "x".to_string(),
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -549,9 +683,18 @@ async fn main() {
     if selected(&filter, "createSchema", "/v1/schemas/{namespace}/{slug}/access-group") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.schemas().access_group().create_schema("example", "example", AccessGroup {
-                access_group_slug: "xxx".to_string(),
-            }).send().await?;
+            let _ = client
+                .schemas()
+                .access_group()
+                .create_schema(
+                    "example",
+                    "example",
+                    AccessGroup {
+                        access_group_slug: "xxx".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -575,9 +718,18 @@ async fn main() {
     if selected(&filter, "deleteSchema", "/v1/schemas/{namespace}/{slug}/access-group") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.schemas().access_group().delete_schema("example", "example", AccessGroup {
-                access_group_slug: "xxx".to_string(),
-            }).send().await?;
+            let _ = client
+                .schemas()
+                .access_group()
+                .delete_schema(
+                    "example",
+                    "example",
+                    AccessGroup {
+                        access_group_slug: "xxx".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -625,9 +777,11 @@ async fn main() {
     if selected(&filter, "update", "/v1/login-portals/{slug}") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.login_portals().update("example", LoginPortalsUpdateBody {
-                title: None,
-            }).send().await?;
+            let _ = client
+                .login_portals()
+                .update("example", LoginPortalsUpdateBody { title: None })
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -675,39 +829,43 @@ async fn main() {
     if selected(&filter, "create", "/v1/login-portals") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.login_portals().create(LoginPortalsCreateBody {
-                title: "".to_string(),
-                slug: "".to_string(),
-                email: LoginPortalEmail {
-                    logo: "".to_string(),
-                    logo_size: "100".to_string(),
-                    button_text: "Login".to_string(),
-                    message: "Click to access private documentation hosted by scalar.com".to_string(),
-                    title: "Private Docs".to_string(),
-                    main_color: "#2a2f45".to_string(),
-                    main_background: "#f6f6f6".to_string(),
-                    card_color: "2a2f45".to_string(),
-                    card_background: "#fff".to_string(),
-                    button_color: "#fff".to_string(),
-                    button_background: "#0f0f0f".to_string(),
-                },
-                page: LoginPortalPage {
-                    title: "Scalar Private Docs".to_string(),
-                    description: "Login to access your documentation".to_string(),
-                    head: "".to_string(),
-                    script: "".to_string(),
-                    theme: "".to_string(),
-                    company_name: "".to_string(),
-                    logo: "".to_string(),
-                    logo_url: "".to_string(),
-                    favicon: "".to_string(),
-                    terms_link: "".to_string(),
-                    privacy_link: "".to_string(),
-                    form_title: "Scalar Private Docs".to_string(),
-                    form_description: "Login to access your documentation".to_string(),
-                    form_image: "".to_string(),
-                },
-            }).send().await?;
+            let _ = client
+                .login_portals()
+                .create(LoginPortalsCreateBody {
+                    title: "".to_string(),
+                    slug: "".to_string(),
+                    email: LoginPortalEmail {
+                        logo: "".to_string(),
+                        logo_size: "100".to_string(),
+                        button_text: "Login".to_string(),
+                        message: "Click to access private documentation hosted by scalar.com".to_string(),
+                        title: "Private Docs".to_string(),
+                        main_color: "#2a2f45".to_string(),
+                        main_background: "#f6f6f6".to_string(),
+                        card_color: "2a2f45".to_string(),
+                        card_background: "#fff".to_string(),
+                        button_color: "#fff".to_string(),
+                        button_background: "#0f0f0f".to_string(),
+                    },
+                    page: LoginPortalPage {
+                        title: "Scalar Private Docs".to_string(),
+                        description: "Login to access your documentation".to_string(),
+                        head: "".to_string(),
+                        script: "".to_string(),
+                        theme: "".to_string(),
+                        company_name: "".to_string(),
+                        logo: "".to_string(),
+                        logo_url: "".to_string(),
+                        favicon: "".to_string(),
+                        terms_link: "".to_string(),
+                        privacy_link: "".to_string(),
+                        form_title: "Scalar Private Docs".to_string(),
+                        form_description: "Login to access your documentation".to_string(),
+                        form_image: "".to_string(),
+                    },
+                })
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -779,13 +937,20 @@ async fn main() {
     if selected(&filter, "createRuleset", "/v1/rulesets/{namespace}") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.rules().create_ruleset("example", RulesCreateRulesetBody {
-                title: "".to_string(),
-                description: None,
-                slug: "".to_string(),
-                is_private: None,
-                document: "".to_string(),
-            }).send().await?;
+            let _ = client
+                .rules()
+                .create_ruleset(
+                    "example",
+                    RulesCreateRulesetBody {
+                        title: "".to_string(),
+                        description: None,
+                        slug: "".to_string(),
+                        is_private: None,
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -809,13 +974,21 @@ async fn main() {
     if selected(&filter, "updateRuleset", "/v1/rulesets/{namespace}/{slug}") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.rules().update_ruleset("example", "example", RulesUpdateRulesetBody {
-                namespace: None,
-                slug: None,
-                title: None,
-                description: None,
-                is_private: None,
-            }).send().await?;
+            let _ = client
+                .rules()
+                .update_ruleset(
+                    "example",
+                    "example",
+                    RulesUpdateRulesetBody {
+                        namespace: None,
+                        slug: None,
+                        title: None,
+                        description: None,
+                        is_private: None,
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -863,7 +1036,11 @@ async fn main() {
     if selected(&filter, "retrieveRulesetDocument", "/v1/rulesets/{namespace}/{slug}") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.rules().retrieve_ruleset_document("example", "example").send().await?;
+            let _ = client
+                .rules()
+                .retrieve_ruleset_document("example", "example")
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -884,12 +1061,24 @@ async fn main() {
             error,
         });
     }
-    if selected(&filter, "createRulesetAccessGroup", "/v1/rulesets/{namespace}/{slug}/access-group") {
+    if selected(
+        &filter,
+        "createRulesetAccessGroup",
+        "/v1/rulesets/{namespace}/{slug}/access-group",
+    ) {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.rules().create_ruleset_access_group("example", "example", AccessGroup {
-                access_group_slug: "xxx".to_string(),
-            }).send().await?;
+            let _ = client
+                .rules()
+                .create_ruleset_access_group(
+                    "example",
+                    "example",
+                    AccessGroup {
+                        access_group_slug: "xxx".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -910,12 +1099,24 @@ async fn main() {
             error,
         });
     }
-    if selected(&filter, "deleteRulesetAccessGroup", "/v1/rulesets/{namespace}/{slug}/access-group") {
+    if selected(
+        &filter,
+        "deleteRulesetAccessGroup",
+        "/v1/rulesets/{namespace}/{slug}/access-group",
+    ) {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.rules().delete_ruleset_access_group("example", "example", AccessGroup {
-                access_group_slug: "xxx".to_string(),
-            }).send().await?;
+            let _ = client
+                .rules()
+                .delete_ruleset_access_group(
+                    "example",
+                    "example",
+                    AccessGroup {
+                        access_group_slug: "xxx".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -963,12 +1164,16 @@ async fn main() {
     if selected(&filter, "create", "/v1/themes") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.themes().create(ThemesCreateBody {
-                name: "".to_string(),
-                description: None,
-                slug: "".to_string(),
-                document: "".to_string(),
-            }).send().await?;
+            let _ = client
+                .themes()
+                .create(ThemesCreateBody {
+                    name: "".to_string(),
+                    description: None,
+                    slug: "".to_string(),
+                    document: "".to_string(),
+                })
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -992,10 +1197,17 @@ async fn main() {
     if selected(&filter, "update", "/v1/themes/{slug}") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.themes().update("example", ThemesUpdateBody {
-                name: None,
-                description: None,
-            }).send().await?;
+            let _ = client
+                .themes()
+                .update(
+                    "example",
+                    ThemesUpdateBody {
+                        name: None,
+                        description: None,
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -1019,9 +1231,16 @@ async fn main() {
     if selected(&filter, "replaceDocument", "/v1/themes/{slug}") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.themes().replace_document("example", ThemesReplaceDocumentBody {
-                document: "".to_string(),
-            }).send().await?;
+            let _ = client
+                .themes()
+                .replace_document(
+                    "example",
+                    ThemesReplaceDocumentBody {
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -1141,13 +1360,17 @@ async fn main() {
     if selected(&filter, "createGuide", "/v1/guides") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.scalar_docs().create_guide(ScalarDocsCreateGuideBody {
-                name: "".to_string(),
-                slug: None,
-                is_private: false,
-                allowed_users: vec![],
-                allowed_domains: vec![],
-            }).send().await?;
+            let _ = client
+                .scalar_docs()
+                .create_guide(ScalarDocsCreateGuideBody {
+                    name: "".to_string(),
+                    slug: None,
+                    is_private: false,
+                    allowed_users: vec![],
+                    allowed_domains: vec![],
+                })
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -1219,9 +1442,13 @@ async fn main() {
     if selected(&filter, "exchangePersonalToken", "/v1/auth/exchange") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
-            let _ = client.authentication().exchange_personal_token(AuthenticationExchangePersonalTokenBody {
-                personal_token: "".to_string(),
-            }).send().await?;
+            let _ = client
+                .authentication()
+                .exchange_personal_token(AuthenticationExchangePersonalTokenBody {
+                    personal_token: "".to_string(),
+                })
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -1269,7 +1496,11 @@ async fn main() {
 
     let passed = results.iter().filter(|result| result.status == "passed").count();
     let failed = results.iter().filter(|result| result.status == "failed").count();
-    let report = SmokeReport { total: results.len(), failed, results };
+    let report = SmokeReport {
+        total: results.len(),
+        failed,
+        results,
+    };
 
     if let Some(path) = report_path {
         let json = serde_json::to_string(&report).expect("serialize smoke report");
@@ -1278,8 +1509,14 @@ async fn main() {
         for result in &report.results {
             match result.status.as_str() {
                 "passed" => println!("PASS {} ({} {})", result.operation, result.method, result.path),
-                "skipped" => println!("SKIP {} ({} {}): {}", result.operation, result.method, result.path, result.error),
-                _ => eprintln!("FAIL {} ({} {})\n{}", result.operation, result.method, result.path, result.error),
+                "skipped" => println!(
+                    "SKIP {} ({} {}): {}",
+                    result.operation, result.method, result.path, result.error
+                ),
+                _ => eprintln!(
+                    "FAIL {} ({} {})\n{}",
+                    result.operation, result.method, result.path, result.error
+                ),
             }
         }
     }
@@ -1297,5 +1534,8 @@ async fn main() {
 /// back, which is what this smoke verifies; the synthetic response body the
 /// mock returns is not the SDK's concern.
 fn is_smoke_failure(error: &Error) -> bool {
-    matches!(error, Error::Transport(_) | Error::Config(_) | Error::MissingParameter(_))
+    matches!(
+        error,
+        Error::Transport(_) | Error::Config(_) | Error::MissingParameter(_)
+    )
 }

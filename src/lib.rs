@@ -67,18 +67,36 @@
 //! ### Read more
 //!
 //! - [@scalar/sdk on npm](https://www.npmjs.com/package/@scalar/sdk)
+//!
+#![doc = include_str!("../README.md")]
 
+pub mod client;
 pub mod error;
+#[doc(hidden)]
 pub mod http;
 pub mod models;
-pub mod client;
 pub mod resources;
+pub mod transport;
+#[doc(hidden)]
+pub mod transport_reqwest;
 
-pub use models::{AccessGroup, ActiveDeployment, ApiDocument, AuthenticationExchangePersonalTokenBody, AuthenticationExchangePersonalTokenResponse, BadRequestError, Email, ForbiddenError, GithubProject, GithubProjectRepository, InternalServerError, LoginPortal, LoginPortalEmail, LoginPortalPage, LoginPortalsCreateBody, LoginPortalsRetrieveResponse, LoginPortalsUpdateBody, ManagedDocVersion, ManagedDocVersionEmbedStatus, ManagedSchemaVersion, Method, Namespace, Nanoid, NotFoundError, RegistryCreateApiDocumentBody, RegistryCreateApiDocumentResponse, RegistryCreateApiDocumentVersionBody, RegistryUpdateApiDocumentBody, RegistryUpdateApiDocumentVersionBody, RegistryUpdateApiDocumentVersionResponse, Rule, RulesCreateRulesetBody, RulesUpdateRulesetBody, ScalarDocsCreateGuideBody, ScalarDocsCreateGuideResponse, ScalarDocsPublishGuideResponse, Schema, SchemasCreateBody, SchemasUpdateBody, Slug, Team, TeamImage, TeamName, TeamSummary, Theme, ThemesCreateBody, ThemesReplaceDocumentBody, ThemesUpdateBody, Timestamp, Uid, UnauthorizedError, UnprocessableEntityError, User, Version, VersionCreateSchemaBody};
+pub use client::Environment;
 pub use client::Scalar;
 pub use client::ScalarBuilder;
-pub use client::Environment;
 pub use error::{ApiError, Error};
+pub use models::{
+    AccessGroup, ActiveDeployment, ApiDocument, AuthenticationExchangePersonalTokenBody,
+    AuthenticationExchangePersonalTokenResponse, BadRequestError, Email, ForbiddenError, GithubProject,
+    GithubProjectRepository, InternalServerError, LoginPortal, LoginPortalEmail, LoginPortalPage,
+    LoginPortalsCreateBody, LoginPortalsRetrieveResponse, LoginPortalsUpdateBody, ManagedDocVersion,
+    ManagedDocVersionEmbedStatus, ManagedSchemaVersion, Method, Namespace, Nanoid, NotFoundError,
+    RegistryCreateApiDocumentBody, RegistryCreateApiDocumentResponse, RegistryCreateApiDocumentVersionBody,
+    RegistryUpdateApiDocumentBody, RegistryUpdateApiDocumentVersionBody, RegistryUpdateApiDocumentVersionResponse,
+    Rule, RulesCreateRulesetBody, RulesUpdateRulesetBody, ScalarDocsCreateGuideBody, ScalarDocsCreateGuideResponse,
+    ScalarDocsPublishGuideResponse, Schema, SchemasCreateBody, SchemasUpdateBody, Slug, Team, TeamImage, TeamName,
+    TeamSummary, Theme, ThemesCreateBody, ThemesReplaceDocumentBody, ThemesUpdateBody, Timestamp, Uid,
+    UnauthorizedError, UnprocessableEntityError, User, Version, VersionCreateSchemaBody,
+};
 
 /// The version of this crate, matching the published package version.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

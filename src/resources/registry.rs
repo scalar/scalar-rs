@@ -22,52 +22,101 @@ impl Registry {
     }
 
     /// Create API Document
-    pub fn create_api_document(&self, namespace: impl Into<String>, body: crate::models::RegistryCreateApiDocumentBody) -> CreateApiDocumentRequest {
+    pub fn create_api_document(
+        &self,
+        namespace: impl Into<String>,
+        body: crate::models::RegistryCreateApiDocumentBody,
+    ) -> CreateApiDocumentRequest {
         CreateApiDocumentRequest::new(self.client.clone(), namespace.into(), body)
     }
 
     /// Update API Document metadata
-    pub fn update_api_document(&self, namespace: impl Into<String>, slug: impl Into<String>, body: crate::models::RegistryUpdateApiDocumentBody) -> UpdateApiDocumentRequest {
+    pub fn update_api_document(
+        &self,
+        namespace: impl Into<String>,
+        slug: impl Into<String>,
+        body: crate::models::RegistryUpdateApiDocumentBody,
+    ) -> UpdateApiDocumentRequest {
         UpdateApiDocumentRequest::new(self.client.clone(), namespace.into(), slug.into(), body)
     }
 
     /// Delete API Document
-    pub fn delete_api_document(&self, namespace: impl Into<String>, slug: impl Into<String>) -> DeleteApiDocumentRequest {
+    pub fn delete_api_document(
+        &self,
+        namespace: impl Into<String>,
+        slug: impl Into<String>,
+    ) -> DeleteApiDocumentRequest {
         DeleteApiDocumentRequest::new(self.client.clone(), namespace.into(), slug.into())
     }
 
     /// Get API Document
-    pub fn retrieve_api_document_version(&self, namespace: impl Into<String>, slug: impl Into<String>, semver: impl Into<String>) -> RetrieveApiDocumentVersionRequest {
+    pub fn retrieve_api_document_version(
+        &self,
+        namespace: impl Into<String>,
+        slug: impl Into<String>,
+        semver: impl Into<String>,
+    ) -> RetrieveApiDocumentVersionRequest {
         RetrieveApiDocumentVersionRequest::new(self.client.clone(), namespace.into(), slug.into(), semver.into())
     }
 
     /// Update API Document version
-    pub fn update_api_document_version(&self, namespace: impl Into<String>, slug: impl Into<String>, semver: impl Into<String>, body: crate::models::RegistryUpdateApiDocumentVersionBody) -> UpdateApiDocumentVersionRequest {
+    pub fn update_api_document_version(
+        &self,
+        namespace: impl Into<String>,
+        slug: impl Into<String>,
+        semver: impl Into<String>,
+        body: crate::models::RegistryUpdateApiDocumentVersionBody,
+    ) -> UpdateApiDocumentVersionRequest {
         UpdateApiDocumentVersionRequest::new(self.client.clone(), namespace.into(), slug.into(), semver.into(), body)
     }
 
     /// Delete API Document version
-    pub fn delete_api_document_version(&self, namespace: impl Into<String>, slug: impl Into<String>, semver: impl Into<String>) -> DeleteApiDocumentVersionRequest {
+    pub fn delete_api_document_version(
+        &self,
+        namespace: impl Into<String>,
+        slug: impl Into<String>,
+        semver: impl Into<String>,
+    ) -> DeleteApiDocumentVersionRequest {
         DeleteApiDocumentVersionRequest::new(self.client.clone(), namespace.into(), slug.into(), semver.into())
     }
 
     /// Get API Document version metadata
-    pub fn list_api_document_version_metadata(&self, namespace: impl Into<String>, slug: impl Into<String>, semver: impl Into<String>) -> ListApiDocumentVersionMetadataRequest {
+    pub fn list_api_document_version_metadata(
+        &self,
+        namespace: impl Into<String>,
+        slug: impl Into<String>,
+        semver: impl Into<String>,
+    ) -> ListApiDocumentVersionMetadataRequest {
         ListApiDocumentVersionMetadataRequest::new(self.client.clone(), namespace.into(), slug.into(), semver.into())
     }
 
     /// Create API Document version
-    pub fn create_api_document_version(&self, namespace: impl Into<String>, slug: impl Into<String>, body: crate::models::RegistryCreateApiDocumentVersionBody) -> CreateApiDocumentVersionRequest {
+    pub fn create_api_document_version(
+        &self,
+        namespace: impl Into<String>,
+        slug: impl Into<String>,
+        body: crate::models::RegistryCreateApiDocumentVersionBody,
+    ) -> CreateApiDocumentVersionRequest {
         CreateApiDocumentVersionRequest::new(self.client.clone(), namespace.into(), slug.into(), body)
     }
 
     /// Add access group
-    pub fn create_api_document_access_group(&self, namespace: impl Into<String>, slug: impl Into<String>, body: crate::models::AccessGroup) -> CreateApiDocumentAccessGroupRequest {
+    pub fn create_api_document_access_group(
+        &self,
+        namespace: impl Into<String>,
+        slug: impl Into<String>,
+        body: crate::models::AccessGroup,
+    ) -> CreateApiDocumentAccessGroupRequest {
         CreateApiDocumentAccessGroupRequest::new(self.client.clone(), namespace.into(), slug.into(), body)
     }
 
     /// Remove access group
-    pub fn delete_api_document_access_group(&self, namespace: impl Into<String>, slug: impl Into<String>, body: crate::models::AccessGroup) -> DeleteApiDocumentAccessGroupRequest {
+    pub fn delete_api_document_access_group(
+        &self,
+        namespace: impl Into<String>,
+        slug: impl Into<String>,
+        body: crate::models::AccessGroup,
+    ) -> DeleteApiDocumentAccessGroupRequest {
         DeleteApiDocumentAccessGroupRequest::new(self.client.clone(), namespace.into(), slug.into(), body)
     }
 }
@@ -76,23 +125,66 @@ impl Registry {
 #[must_use = "a request builder does nothing until `.send().await` is called"]
 pub struct ListAllApiDocumentsRequest {
     client: crate::client::Scalar,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl ListAllApiDocumentsRequest {
     fn new(client: crate::client::Scalar) -> Self {
         Self {
             client,
+            timeout: None,
+            max_retries: None,
         }
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
     pub async fn send(self) -> Result<Vec<crate::models::ApiDocument>, crate::error::Error> {
         let path = "/v1/apis".to_string();
         let query: Vec<(String, String)> = Vec::new();
         let headers: Vec<(String, String)> = Vec::new();
         let body: Option<&serde_json::Value> = None;
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send::<Vec<crate::models::ApiDocument>, _>(reqwest::Method::GET, &path, &query, &headers, body, true)
+            .send::<Vec<crate::models::ApiDocument>, _>(
+                http::Method::GET,
+                &path,
+                &query,
+                &headers,
+                body,
+                true,
+                overrides,
+            )
             .await
     }
 }
@@ -101,6 +193,8 @@ impl ListAllApiDocumentsRequest {
 pub struct ListApiDocumentsRequest {
     client: crate::client::Scalar,
     namespace: String,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl ListApiDocumentsRequest {
@@ -108,17 +202,58 @@ impl ListApiDocumentsRequest {
         Self {
             client,
             namespace,
+            timeout: None,
+            max_retries: None,
         }
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
     pub async fn send(self) -> Result<Vec<crate::models::ApiDocument>, crate::error::Error> {
         let path = format!("/v1/apis/{}", crate::http::encode_path_param(&self.namespace));
         let query: Vec<(String, String)> = Vec::new();
         let headers: Vec<(String, String)> = Vec::new();
         let body: Option<&serde_json::Value> = None;
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send::<Vec<crate::models::ApiDocument>, _>(reqwest::Method::GET, &path, &query, &headers, body, true)
+            .send::<Vec<crate::models::ApiDocument>, _>(
+                http::Method::GET,
+                &path,
+                &query,
+                &headers,
+                body,
+                true,
+                overrides,
+            )
             .await
     }
 }
@@ -129,15 +264,23 @@ pub struct CreateApiDocumentRequest {
     namespace: String,
     body: crate::models::RegistryCreateApiDocumentBody,
     idempotency_key: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl CreateApiDocumentRequest {
-    fn new(client: crate::client::Scalar, namespace: String, body: crate::models::RegistryCreateApiDocumentBody) -> Self {
+    fn new(
+        client: crate::client::Scalar,
+        namespace: String,
+        body: crate::models::RegistryCreateApiDocumentBody,
+    ) -> Self {
         Self {
             client,
             namespace,
             body,
             idempotency_key: None,
+            timeout: None,
+            max_retries: None,
         }
     }
 
@@ -147,7 +290,34 @@ impl CreateApiDocumentRequest {
         self
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
     pub async fn send(self) -> Result<crate::models::RegistryCreateApiDocumentResponse, crate::error::Error> {
         let path = format!("/v1/apis/{}", crate::http::encode_path_param(&self.namespace));
         let query: Vec<(String, String)> = Vec::new();
@@ -156,8 +326,20 @@ impl CreateApiDocumentRequest {
             headers.push(("Idempotency-Key".to_string(), key));
         }
         let body = Some(&self.body);
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send::<crate::models::RegistryCreateApiDocumentResponse, _>(reqwest::Method::POST, &path, &query, &headers, body, true)
+            .send::<crate::models::RegistryCreateApiDocumentResponse, _>(
+                http::Method::POST,
+                &path,
+                &query,
+                &headers,
+                body,
+                true,
+                overrides,
+            )
             .await
     }
 }
@@ -169,16 +351,25 @@ pub struct UpdateApiDocumentRequest {
     slug: String,
     body: crate::models::RegistryUpdateApiDocumentBody,
     idempotency_key: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl UpdateApiDocumentRequest {
-    fn new(client: crate::client::Scalar, namespace: String, slug: String, body: crate::models::RegistryUpdateApiDocumentBody) -> Self {
+    fn new(
+        client: crate::client::Scalar,
+        namespace: String,
+        slug: String,
+        body: crate::models::RegistryUpdateApiDocumentBody,
+    ) -> Self {
         Self {
             client,
             namespace,
             slug,
             body,
             idempotency_key: None,
+            timeout: None,
+            max_retries: None,
         }
     }
 
@@ -188,17 +379,52 @@ impl UpdateApiDocumentRequest {
         self
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
-        let path = format!("/v1/apis/{}/{}", crate::http::encode_path_param(&self.namespace), crate::http::encode_path_param(&self.slug));
+        let path = format!(
+            "/v1/apis/{}/{}",
+            crate::http::encode_path_param(&self.namespace),
+            crate::http::encode_path_param(&self.slug)
+        );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
             headers.push(("Idempotency-Key".to_string(), key));
         }
         let body = Some(&self.body);
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send::<serde_json::Value, _>(reqwest::Method::PATCH, &path, &query, &headers, body, true)
+            .send::<serde_json::Value, _>(http::Method::PATCH, &path, &query, &headers, body, true, overrides)
             .await
     }
 }
@@ -209,6 +435,8 @@ pub struct DeleteApiDocumentRequest {
     namespace: String,
     slug: String,
     idempotency_key: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl DeleteApiDocumentRequest {
@@ -218,6 +446,8 @@ impl DeleteApiDocumentRequest {
             namespace,
             slug,
             idempotency_key: None,
+            timeout: None,
+            max_retries: None,
         }
     }
 
@@ -227,17 +457,52 @@ impl DeleteApiDocumentRequest {
         self
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
-        let path = format!("/v1/apis/{}/{}", crate::http::encode_path_param(&self.namespace), crate::http::encode_path_param(&self.slug));
+        let path = format!(
+            "/v1/apis/{}/{}",
+            crate::http::encode_path_param(&self.namespace),
+            crate::http::encode_path_param(&self.slug)
+        );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
             headers.push(("Idempotency-Key".to_string(), key));
         }
         let body: Option<&serde_json::Value> = None;
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send::<serde_json::Value, _>(reqwest::Method::DELETE, &path, &query, &headers, body, true)
+            .send::<serde_json::Value, _>(http::Method::DELETE, &path, &query, &headers, body, true, overrides)
             .await
     }
 }
@@ -248,6 +513,8 @@ pub struct RetrieveApiDocumentVersionRequest {
     namespace: String,
     slug: String,
     semver: String,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl RetrieveApiDocumentVersionRequest {
@@ -257,17 +524,54 @@ impl RetrieveApiDocumentVersionRequest {
             namespace,
             slug,
             semver,
+            timeout: None,
+            max_retries: None,
         }
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
     pub async fn send(self) -> Result<bytes::Bytes, crate::error::Error> {
-        let path = format!("/v1/apis/{}/{}/version/{}", crate::http::encode_path_param(&self.namespace), crate::http::encode_path_param(&self.slug), crate::http::encode_path_param(&self.semver));
+        let path = format!(
+            "/v1/apis/{}/{}/version/{}",
+            crate::http::encode_path_param(&self.namespace),
+            crate::http::encode_path_param(&self.slug),
+            crate::http::encode_path_param(&self.semver)
+        );
         let query: Vec<(String, String)> = Vec::new();
-        let headers: Vec<(String, String)> = Vec::new();
+        let mut headers: Vec<(String, String)> = Vec::new();
+        headers.push(("Accept".to_string(), "text/plain".to_string()));
         let body: Option<&serde_json::Value> = None;
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send_bytes(reqwest::Method::GET, &path, &query, &headers, body, true)
+            .send_bytes(http::Method::GET, &path, &query, &headers, body, true, overrides)
             .await
     }
 }
@@ -280,10 +584,18 @@ pub struct UpdateApiDocumentVersionRequest {
     semver: String,
     body: crate::models::RegistryUpdateApiDocumentVersionBody,
     idempotency_key: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl UpdateApiDocumentVersionRequest {
-    fn new(client: crate::client::Scalar, namespace: String, slug: String, semver: String, body: crate::models::RegistryUpdateApiDocumentVersionBody) -> Self {
+    fn new(
+        client: crate::client::Scalar,
+        namespace: String,
+        slug: String,
+        semver: String,
+        body: crate::models::RegistryUpdateApiDocumentVersionBody,
+    ) -> Self {
         Self {
             client,
             namespace,
@@ -291,6 +603,8 @@ impl UpdateApiDocumentVersionRequest {
             semver,
             body,
             idempotency_key: None,
+            timeout: None,
+            max_retries: None,
         }
     }
 
@@ -300,17 +614,61 @@ impl UpdateApiDocumentVersionRequest {
         self
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
     pub async fn send(self) -> Result<crate::models::RegistryUpdateApiDocumentVersionResponse, crate::error::Error> {
-        let path = format!("/v1/apis/{}/{}/version/{}", crate::http::encode_path_param(&self.namespace), crate::http::encode_path_param(&self.slug), crate::http::encode_path_param(&self.semver));
+        let path = format!(
+            "/v1/apis/{}/{}/version/{}",
+            crate::http::encode_path_param(&self.namespace),
+            crate::http::encode_path_param(&self.slug),
+            crate::http::encode_path_param(&self.semver)
+        );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
             headers.push(("Idempotency-Key".to_string(), key));
         }
         let body = Some(&self.body);
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send::<crate::models::RegistryUpdateApiDocumentVersionResponse, _>(reqwest::Method::PATCH, &path, &query, &headers, body, true)
+            .send::<crate::models::RegistryUpdateApiDocumentVersionResponse, _>(
+                http::Method::PATCH,
+                &path,
+                &query,
+                &headers,
+                body,
+                true,
+                overrides,
+            )
             .await
     }
 }
@@ -322,6 +680,8 @@ pub struct DeleteApiDocumentVersionRequest {
     slug: String,
     semver: String,
     idempotency_key: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl DeleteApiDocumentVersionRequest {
@@ -332,6 +692,8 @@ impl DeleteApiDocumentVersionRequest {
             slug,
             semver,
             idempotency_key: None,
+            timeout: None,
+            max_retries: None,
         }
     }
 
@@ -341,17 +703,53 @@ impl DeleteApiDocumentVersionRequest {
         self
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
-        let path = format!("/v1/apis/{}/{}/version/{}", crate::http::encode_path_param(&self.namespace), crate::http::encode_path_param(&self.slug), crate::http::encode_path_param(&self.semver));
+        let path = format!(
+            "/v1/apis/{}/{}/version/{}",
+            crate::http::encode_path_param(&self.namespace),
+            crate::http::encode_path_param(&self.slug),
+            crate::http::encode_path_param(&self.semver)
+        );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
             headers.push(("Idempotency-Key".to_string(), key));
         }
         let body: Option<&serde_json::Value> = None;
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send::<serde_json::Value, _>(reqwest::Method::DELETE, &path, &query, &headers, body, true)
+            .send::<serde_json::Value, _>(http::Method::DELETE, &path, &query, &headers, body, true, overrides)
             .await
     }
 }
@@ -362,6 +760,8 @@ pub struct ListApiDocumentVersionMetadataRequest {
     namespace: String,
     slug: String,
     semver: String,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl ListApiDocumentVersionMetadataRequest {
@@ -371,17 +771,63 @@ impl ListApiDocumentVersionMetadataRequest {
             namespace,
             slug,
             semver,
+            timeout: None,
+            max_retries: None,
         }
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
     pub async fn send(self) -> Result<crate::models::ManagedDocVersion, crate::error::Error> {
-        let path = format!("/v1/apis/{}/{}/version/{}/metadata", crate::http::encode_path_param(&self.namespace), crate::http::encode_path_param(&self.slug), crate::http::encode_path_param(&self.semver));
+        let path = format!(
+            "/v1/apis/{}/{}/version/{}/metadata",
+            crate::http::encode_path_param(&self.namespace),
+            crate::http::encode_path_param(&self.slug),
+            crate::http::encode_path_param(&self.semver)
+        );
         let query: Vec<(String, String)> = Vec::new();
         let headers: Vec<(String, String)> = Vec::new();
         let body: Option<&serde_json::Value> = None;
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send::<crate::models::ManagedDocVersion, _>(reqwest::Method::GET, &path, &query, &headers, body, true)
+            .send::<crate::models::ManagedDocVersion, _>(
+                http::Method::GET,
+                &path,
+                &query,
+                &headers,
+                body,
+                true,
+                overrides,
+            )
             .await
     }
 }
@@ -393,16 +839,25 @@ pub struct CreateApiDocumentVersionRequest {
     slug: String,
     body: crate::models::RegistryCreateApiDocumentVersionBody,
     idempotency_key: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl CreateApiDocumentVersionRequest {
-    fn new(client: crate::client::Scalar, namespace: String, slug: String, body: crate::models::RegistryCreateApiDocumentVersionBody) -> Self {
+    fn new(
+        client: crate::client::Scalar,
+        namespace: String,
+        slug: String,
+        body: crate::models::RegistryCreateApiDocumentVersionBody,
+    ) -> Self {
         Self {
             client,
             namespace,
             slug,
             body,
             idempotency_key: None,
+            timeout: None,
+            max_retries: None,
         }
     }
 
@@ -412,17 +867,60 @@ impl CreateApiDocumentVersionRequest {
         self
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
     pub async fn send(self) -> Result<crate::models::ManagedDocVersion, crate::error::Error> {
-        let path = format!("/v1/apis/{}/{}/version", crate::http::encode_path_param(&self.namespace), crate::http::encode_path_param(&self.slug));
+        let path = format!(
+            "/v1/apis/{}/{}/version",
+            crate::http::encode_path_param(&self.namespace),
+            crate::http::encode_path_param(&self.slug)
+        );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
             headers.push(("Idempotency-Key".to_string(), key));
         }
         let body = Some(&self.body);
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send::<crate::models::ManagedDocVersion, _>(reqwest::Method::POST, &path, &query, &headers, body, true)
+            .send::<crate::models::ManagedDocVersion, _>(
+                http::Method::POST,
+                &path,
+                &query,
+                &headers,
+                body,
+                true,
+                overrides,
+            )
             .await
     }
 }
@@ -434,6 +932,8 @@ pub struct CreateApiDocumentAccessGroupRequest {
     slug: String,
     body: crate::models::AccessGroup,
     idempotency_key: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl CreateApiDocumentAccessGroupRequest {
@@ -444,6 +944,8 @@ impl CreateApiDocumentAccessGroupRequest {
             slug,
             body,
             idempotency_key: None,
+            timeout: None,
+            max_retries: None,
         }
     }
 
@@ -453,17 +955,52 @@ impl CreateApiDocumentAccessGroupRequest {
         self
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
-        let path = format!("/v1/apis/{}/{}/access-group", crate::http::encode_path_param(&self.namespace), crate::http::encode_path_param(&self.slug));
+        let path = format!(
+            "/v1/apis/{}/{}/access-group",
+            crate::http::encode_path_param(&self.namespace),
+            crate::http::encode_path_param(&self.slug)
+        );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
             headers.push(("Idempotency-Key".to_string(), key));
         }
         let body = Some(&self.body);
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send::<serde_json::Value, _>(reqwest::Method::POST, &path, &query, &headers, body, true)
+            .send::<serde_json::Value, _>(http::Method::POST, &path, &query, &headers, body, true, overrides)
             .await
     }
 }
@@ -475,6 +1012,8 @@ pub struct DeleteApiDocumentAccessGroupRequest {
     slug: String,
     body: crate::models::AccessGroup,
     idempotency_key: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
 }
 
 impl DeleteApiDocumentAccessGroupRequest {
@@ -485,6 +1024,8 @@ impl DeleteApiDocumentAccessGroupRequest {
             slug,
             body,
             idempotency_key: None,
+            timeout: None,
+            max_retries: None,
         }
     }
 
@@ -494,17 +1035,52 @@ impl DeleteApiDocumentAccessGroupRequest {
         self
     }
 
+    /// Overrides the client's request deadline (connection setup +
+    /// time-to-response-headers) for this request only. The bound is
+    /// **per attempt** — each retry gets a fresh deadline — so with
+    /// retries enabled total wall time can exceed the value set here.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
     /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
-        let path = format!("/v1/apis/{}/{}/access-group", crate::http::encode_path_param(&self.namespace), crate::http::encode_path_param(&self.slug));
+        let path = format!(
+            "/v1/apis/{}/{}/access-group",
+            crate::http::encode_path_param(&self.namespace),
+            crate::http::encode_path_param(&self.slug)
+        );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
             headers.push(("Idempotency-Key".to_string(), key));
         }
         let body = Some(&self.body);
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
         self.client
-            .send::<serde_json::Value, _>(reqwest::Method::DELETE, &path, &query, &headers, body, true)
+            .send::<serde_json::Value, _>(http::Method::DELETE, &path, &query, &headers, body, true, overrides)
             .await
     }
 }
