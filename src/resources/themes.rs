@@ -445,8 +445,7 @@ impl RetrieveRequest {
     pub async fn send(self) -> Result<bytes::Bytes, crate::error::Error> {
         let path = format!("/v1/themes/{}", crate::http::encode_path_param(&self.slug));
         let query: Vec<(String, String)> = Vec::new();
-        let mut headers: Vec<(String, String)> = Vec::new();
-        headers.push(("Accept".to_string(), "text/plain".to_string()));
+        let headers: Vec<(String, String)> = vec![("Accept".to_string(), "text/plain".to_string())];
         let body: Option<&serde_json::Value> = None;
         let overrides = crate::client::RequestOverrides {
             timeout: self.timeout,
