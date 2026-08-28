@@ -10,14 +10,14 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-scalar-sdk = "0.2.0" # x-release-please-version
+scalar-rs = "0.2.0" # x-release-please-version
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 ```
 
 Or install via cargo:
 
 ```sh
-cargo add scalar-sdk
+cargo add scalar-rs
 cargo add tokio --features rt-multi-thread,macros
 ```
 
@@ -27,7 +27,7 @@ The client is asynchronous, with `reqwest` as the default HTTP backend
 (swappable — see "Bring your own HTTP client" below):
 
 ```rust,ignore
-use scalar_sdk::*;
+use scalar_rs::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -48,7 +48,7 @@ The builder accepts every credential this API takes, and `from_env` reads
 them from the environment instead:
 
 ```rust,no_run
-use scalar_sdk::Scalar;
+use scalar_rs::Scalar;
 
 async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let client = Scalar::builder().bearer_auth("…").build()?;
@@ -74,7 +74,7 @@ result of `send().await` to distinguish API errors (with status and decoded
 body) from transport and decoding failures:
 
 ```rust,no_run
-use scalar_sdk::Error;
+use scalar_rs::Error;
 
 fn report<T>(result: Result<T, Error>) {
     match result {
@@ -97,8 +97,8 @@ Every request flows through the `transport::Transport` trait — one
 configured client:
 
 ```rust,no_run
-use scalar_sdk::Scalar;
-use scalar_sdk::transport::ReqwestTransport;
+use scalar_rs::Scalar;
+use scalar_rs::transport::ReqwestTransport;
 
 fn configure() -> Result<(), Box<dyn std::error::Error>> {
     let http_client = reqwest::Client::builder().build()?;
@@ -113,7 +113,7 @@ To replace reqwest entirely, implement `Transport` for your backend and
 drop the default features:
 
 ```sh
-cargo add scalar-sdk --no-default-features --features tokio
+cargo add scalar-rs --no-default-features --features tokio
 ```
 
 Re-enabling the `reqwest` feature on top of `--no-default-features` also
@@ -134,11 +134,11 @@ response queue and full request capture, so tests drive the real client
 without a network:
 
 ```sh
-cargo add --dev scalar-sdk --features mock
+cargo add --dev scalar-rs --features mock
 ```
 
 ```rust,ignore
-use scalar_sdk::transport::{InstantSleep, MockTransport};
+use scalar_rs::transport::{InstantSleep, MockTransport};
 
 let mock = MockTransport::new();
 mock.enqueue(200, r#"{"id":"example"}"#);
@@ -168,14 +168,14 @@ credential the client could not obtain — a failed OAuth token exchange that
 another configured credential covered for — is reported at `warn`.
 
 ```sh
-cargo add scalar-sdk --features tracing
+cargo add scalar-rs --features tracing
 ```
 
 This crate emits events only and never installs a subscriber — your binary
 does that, e.g. with `tracing-subscriber`:
 
 ```sh
-RUST_LOG=scalar_sdk=debug cargo run
+RUST_LOG=scalar_rs=debug cargo run
 ```
 
 Credentials never reach an event: URLs are logged with their query string
@@ -214,7 +214,7 @@ on Windows. To use the platform TLS stack (Schannel, Secure Transport)
 instead:
 
 ```sh
-cargo add scalar-sdk --no-default-features --features reqwest,native-tls
+cargo add scalar-rs --no-default-features --features reqwest,native-tls
 ```
 
 ## Reusing the client

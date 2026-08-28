@@ -7,8 +7,8 @@
 
 use std::time::Duration;
 
-use scalar_sdk::transport::{BoxFuture, InstantSleep, MockTransport, SdkBody, Transport, TransportError};
-use scalar_sdk::*;
+use scalar_rs::transport::{BoxFuture, InstantSleep, MockTransport, SdkBody, Transport, TransportError};
+use scalar_rs::*;
 
 /// A response body the generated decode layer accepts for the operation
 /// under test.
