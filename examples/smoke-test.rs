@@ -8,7 +8,7 @@
 //! `SCALAR_SMOKE_FILTER` of comma-separated operation/path substrings.
 #![allow(unused)]
 
-use scalar_sdk::*;
+use scalar_rs::*;
 
 #[derive(serde::Serialize)]
 struct SmokeResult {

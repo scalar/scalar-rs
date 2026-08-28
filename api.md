@@ -65,7 +65,7 @@ Complete reference of every operation, grouped by resource. See [the README](./R
 ## Setup
 
 ```rust
-use scalar_sdk::*;
+use scalar_rs::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

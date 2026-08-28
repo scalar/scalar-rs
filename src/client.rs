@@ -20,7 +20,7 @@ const DEFAULT_MAX_RETRIES: u32 = 2;
 // unbounded size. In `body_deadline` it bounds reading a buffered response
 // body, but only one small by construction, never a binary download.
 const DEFAULT_TIMEOUT: Duration = Duration::from_secs(60);
-const USER_AGENT: &str = concat!("scalar-sdk/", env!("CARGO_PKG_VERSION"));
+const USER_AGENT: &str = concat!("scalar-rs/", env!("CARGO_PKG_VERSION"));
 // Default `Accept` for the JSON APIs that make up almost every operation.
 // A static `HeaderValue` so the insert costs no allocation and can never fail.
 const JSON_ACCEPT: http::HeaderValue = http::HeaderValue::from_static("application/json");

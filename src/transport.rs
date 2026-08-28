@@ -71,7 +71,7 @@ pub use crate::transport_reqwest::ReqwestTransport;
 /// ```no_run
 /// use std::sync::Arc;
 ///
-/// use scalar_sdk::transport::{BoxFuture, SdkBody, Transport, TransportError, TransportErrorKind};
+/// use scalar_rs::transport::{BoxFuture, SdkBody, Transport, TransportError, TransportErrorKind};
 ///
 /// #[derive(Debug)]
 /// struct MyTransport;
@@ -536,7 +536,7 @@ impl std::error::Error for TransportError {
 /// # Examples
 ///
 /// ```no_run
-/// use scalar_sdk::transport::{MockTransport, SdkBody, Transport};
+/// use scalar_rs::transport::{MockTransport, SdkBody, Transport};
 ///
 /// # async fn demo() {
 /// let mock = MockTransport::new();

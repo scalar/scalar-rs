@@ -6,7 +6,7 @@
 //! bare `cargo test` just confirms the generated surface compiles.
 #![allow(unused)]
 
-use scalar_sdk::*;
+use scalar_rs::*;
 
 #[tokio::test]
 async fn smoke() {
