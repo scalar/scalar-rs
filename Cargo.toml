@@ -6,8 +6,8 @@ rust-version = "1.85"
 description = "Rust library to access the Scalar API"
 authors = ["Scalar"]
 license = "Apache-2.0"
-repository = "https://github.com/scalar/scalar-rust"
-homepage = "https://github.com/scalar/scalar-rust"
+repository = "https://github.com/scalar/scalar-rs"
+homepage = "https://github.com/scalar/scalar-rs"
 keywords = ["api", "sdk", "client"]
 categories = ["api-bindings"]
 
