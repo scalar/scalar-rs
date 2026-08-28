@@ -91,8 +91,8 @@ jobs:
       - name: Publish to crates.io
         run: |
           VERSION="$(sed -n 's/^version = "\(.*\)"$/\1/p' Cargo.toml | head -n1)"
-          if curl -sf -A "scalar-sdk-release" "https://crates.io/api/v1/crates/scalar-sdk/${VERSION}" -o /dev/null; then
-            echo "scalar-sdk@${VERSION} already on crates.io, skipping"
+          if curl -sf -A "scalar-sdk-release" "https://crates.io/api/v1/crates/scalar-rs/${VERSION}" -o /dev/null; then
+            echo "scalar-rs@${VERSION} already on crates.io, skipping"
           else
             cargo publish
           fi
