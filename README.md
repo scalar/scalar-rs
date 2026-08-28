@@ -1,6 +1,6 @@
-# Scalar API
+# Scalar
 
-This library provides convenient access to the Scalar API from asynchronous Rust.
+This library provides convenient access to the Scalar REST API from asynchronous Rust.
 
 The full API of this library can be found in [api.md](./api.md).
 
@@ -10,14 +10,14 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-scalar-rs = "0.2.0" # x-release-please-version
+scalar-sdk = "0.2.0" # x-release-please-version
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 ```
 
 Or install via cargo:
 
 ```sh
-cargo add scalar-rs
+cargo add scalar-sdk
 cargo add tokio --features rt-multi-thread,macros
 ```
 
@@ -27,13 +27,11 @@ The client is asynchronous, with `reqwest` as the default HTTP backend
 (swappable — see "Bring your own HTTP client" below):
 
 ```rust,ignore
-use scalar_rs::*;
+use scalar_sdk::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let client = Scalar::builder()
-        .bearer_token(std::env::var("SCALAR_BEARER_TOKEN")?)
-        .build()?;
+    let client = Scalar::builder().bearer_auth(std::env::var("BEARER_AUTH")?).build()?;
 
     let response = client.registry().list_all_api_documents().send().await?;
 
@@ -50,10 +48,10 @@ The builder accepts every credential this API takes, and `from_env` reads
 them from the environment instead:
 
 ```rust,no_run
-use scalar_rs::Scalar;
+use scalar_sdk::Scalar;
 
 async fn run() -> Result<(), Box<dyn std::error::Error>> {
-    let client = Scalar::builder().bearer_token("…").build()?;
+    let client = Scalar::builder().bearer_auth("…").build()?;
 
     // Or, reading credentials from the environment:
     let client = Scalar::from_env()?;
@@ -67,7 +65,7 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
 Credentials can be set on the builder or read from the environment by
 `from_env`:
 
-- `bearer_token` — environment variable `SCALAR_BEARER_TOKEN`
+- `bearer_auth` — environment variable `BEARER_AUTH`
 
 ## Error handling
 
@@ -76,7 +74,7 @@ result of `send().await` to distinguish API errors (with status and decoded
 body) from transport and decoding failures:
 
 ```rust,no_run
-use scalar_rs::Error;
+use scalar_sdk::Error;
 
 fn report<T>(result: Result<T, Error>) {
     match result {
@@ -99,8 +97,8 @@ Every request flows through the `transport::Transport` trait — one
 configured client:
 
 ```rust,no_run
-use scalar_rs::Scalar;
-use scalar_rs::transport::ReqwestTransport;
+use scalar_sdk::Scalar;
+use scalar_sdk::transport::ReqwestTransport;
 
 fn configure() -> Result<(), Box<dyn std::error::Error>> {
     let http_client = reqwest::Client::builder().build()?;
@@ -115,7 +113,7 @@ To replace reqwest entirely, implement `Transport` for your backend and
 drop the default features:
 
 ```sh
-cargo add scalar-rs --no-default-features --features tokio
+cargo add scalar-sdk --no-default-features --features tokio
 ```
 
 Re-enabling the `reqwest` feature on top of `--no-default-features` also
@@ -136,11 +134,11 @@ response queue and full request capture, so tests drive the real client
 without a network:
 
 ```sh
-cargo add --dev scalar-rs --features mock
+cargo add --dev scalar-sdk --features mock
 ```
 
 ```rust,ignore
-use scalar_rs::transport::{InstantSleep, MockTransport};
+use scalar_sdk::transport::{InstantSleep, MockTransport};
 
 let mock = MockTransport::new();
 mock.enqueue(200, r#"{"id":"example"}"#);
@@ -170,14 +168,14 @@ credential the client could not obtain — a failed OAuth token exchange that
 another configured credential covered for — is reported at `warn`.
 
 ```sh
-cargo add scalar-rs --features tracing
+cargo add scalar-sdk --features tracing
 ```
 
 This crate emits events only and never installs a subscriber — your binary
 does that, e.g. with `tracing-subscriber`:
 
 ```sh
-RUST_LOG=scalar_rs=debug cargo run
+RUST_LOG=scalar_sdk=debug cargo run
 ```
 
 Credentials never reach an event: URLs are logged with their query string
@@ -216,7 +214,7 @@ on Windows. To use the platform TLS stack (Schannel, Secure Transport)
 instead:
 
 ```sh
-cargo add scalar-rs --no-default-features --features reqwest,native-tls
+cargo add scalar-sdk --no-default-features --features reqwest,native-tls
 ```
 
 ## Reusing the client
@@ -236,7 +234,9 @@ Response bodies are untrusted, so the runtime bounds them by default:
   are consumed incrementally and are exempt.
 - Each attempt carries a 60-second deadline unless one is set explicitly; it
   covers request-body upload through response headers, and every retry gets a
-  fresh one.
+  fresh one. Reading a *buffered* response body is bounded the same way, so a
+  server that sends headers and then stalls cannot hang the call. Streaming
+  responses are exempt.
 - The bundled backend follows **no** redirects: a followed redirect can
   re-send credentials to a host the caller never chose. A next-page link that
   points at another origin is refused for the same reason.

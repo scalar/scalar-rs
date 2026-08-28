@@ -8,13 +8,16 @@
 //! `SCALAR_SMOKE_FILTER` of comma-separated operation/path substrings.
 #![allow(unused)]
 
-use scalar_rs::*;
+use scalar_sdk::*;
 
 #[derive(serde::Serialize)]
 struct SmokeResult {
     operation: String,
     method: String,
     path: String,
+    /// Which of an operation's two calls this is; empty when it contributed only one.
+    #[serde(skip_serializing_if = "String::is_empty")]
+    label: String,
     status: String,
     #[serde(rename = "durationMs")]
     duration_ms: i64,
@@ -70,6 +73,7 @@ async fn main() {
             operation: "listAllApiDocuments".to_string(),
             method: "GET".to_string(),
             path: "/v1/apis".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -94,6 +98,7 @@ async fn main() {
             operation: "listApiDocuments".to_string(),
             method: "GET".to_string(),
             path: "/v1/apis/{namespace}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -133,6 +138,47 @@ async fn main() {
             operation: "createApiDocument".to_string(),
             method: "POST".to_string(),
             path: "/v1/apis/{namespace}".to_string(),
+            label: "required params".to_string(),
+            status: status.to_string(),
+            duration_ms,
+            error,
+        });
+    }
+    if selected(&filter, "createApiDocument", "/v1/apis/{namespace}") {
+        let started = std::time::Instant::now();
+        let result: Result<(), Error> = async {
+            let _ = client
+                .registry()
+                .create_api_document(
+                    "example",
+                    RegistryCreateApiDocumentBody {
+                        title: "".to_string(),
+                        description: Some("".to_string()),
+                        version: "x".to_string(),
+                        slug: "".to_string(),
+                        ruleset: Some("".to_string()),
+                        is_private: Some(false),
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        let duration_ms = started.elapsed().as_millis() as i64;
+        let (status, error) = match result {
+            Ok(()) => ("passed", String::new()),
+            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
+            // A response came back (API error or decode mismatch): the request
+            // reached the server, which is what this smoke verifies.
+            Err(_) => ("passed", String::new()),
+        };
+        results.push(SmokeResult {
+            operation: "createApiDocument".to_string(),
+            method: "POST".to_string(),
+            path: "/v1/apis/{namespace}".to_string(),
+            label: "all params".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -170,6 +216,45 @@ async fn main() {
             operation: "updateApiDocument".to_string(),
             method: "PATCH".to_string(),
             path: "/v1/apis/{namespace}/{slug}".to_string(),
+            label: "required params".to_string(),
+            status: status.to_string(),
+            duration_ms,
+            error,
+        });
+    }
+    if selected(&filter, "updateApiDocument", "/v1/apis/{namespace}/{slug}") {
+        let started = std::time::Instant::now();
+        let result: Result<(), Error> = async {
+            let _ = client
+                .registry()
+                .update_api_document(
+                    "example",
+                    "example",
+                    RegistryUpdateApiDocumentBody {
+                        title: Some("".to_string()),
+                        description: Some("".to_string()),
+                        is_private: Some(false),
+                        ruleset: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        let duration_ms = started.elapsed().as_millis() as i64;
+        let (status, error) = match result {
+            Ok(()) => ("passed", String::new()),
+            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
+            // A response came back (API error or decode mismatch): the request
+            // reached the server, which is what this smoke verifies.
+            Err(_) => ("passed", String::new()),
+        };
+        results.push(SmokeResult {
+            operation: "updateApiDocument".to_string(),
+            method: "PATCH".to_string(),
+            path: "/v1/apis/{namespace}/{slug}".to_string(),
+            label: "all params".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -198,6 +283,7 @@ async fn main() {
             operation: "deleteApiDocument".to_string(),
             method: "DELETE".to_string(),
             path: "/v1/apis/{namespace}/{slug}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -230,6 +316,7 @@ async fn main() {
             operation: "retrieveApiDocumentVersion".to_string(),
             method: "GET".to_string(),
             path: "/v1/apis/{namespace}/{slug}/version/{semver}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -270,6 +357,48 @@ async fn main() {
             operation: "updateApiDocumentVersion".to_string(),
             method: "PATCH".to_string(),
             path: "/v1/apis/{namespace}/{slug}/version/{semver}".to_string(),
+            label: "required params".to_string(),
+            status: status.to_string(),
+            duration_ms,
+            error,
+        });
+    }
+    if selected(
+        &filter,
+        "updateApiDocumentVersion",
+        "/v1/apis/{namespace}/{slug}/version/{semver}",
+    ) {
+        let started = std::time::Instant::now();
+        let result: Result<(), Error> = async {
+            let _ = client
+                .registry()
+                .update_api_document_version(
+                    "example",
+                    "example",
+                    "example",
+                    RegistryUpdateApiDocumentVersionBody {
+                        document: "".to_string(),
+                        last_known_version_sha: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        let duration_ms = started.elapsed().as_millis() as i64;
+        let (status, error) = match result {
+            Ok(()) => ("passed", String::new()),
+            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
+            // A response came back (API error or decode mismatch): the request
+            // reached the server, which is what this smoke verifies.
+            Err(_) => ("passed", String::new()),
+        };
+        results.push(SmokeResult {
+            operation: "updateApiDocumentVersion".to_string(),
+            method: "PATCH".to_string(),
+            path: "/v1/apis/{namespace}/{slug}/version/{semver}".to_string(),
+            label: "all params".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -302,6 +431,7 @@ async fn main() {
             operation: "deleteApiDocumentVersion".to_string(),
             method: "DELETE".to_string(),
             path: "/v1/apis/{namespace}/{slug}/version/{semver}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -334,6 +464,7 @@ async fn main() {
             operation: "listApiDocumentVersionMetadata".to_string(),
             method: "GET".to_string(),
             path: "/v1/apis/{namespace}/{slug}/version/{semver}/metadata".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -375,6 +506,49 @@ async fn main() {
             operation: "createApiDocumentVersion".to_string(),
             method: "POST".to_string(),
             path: "/v1/apis/{namespace}/{slug}/version".to_string(),
+            label: "required params".to_string(),
+            status: status.to_string(),
+            duration_ms,
+            error,
+        });
+    }
+    if selected(
+        &filter,
+        "createApiDocumentVersion",
+        "/v1/apis/{namespace}/{slug}/version",
+    ) {
+        let started = std::time::Instant::now();
+        let result: Result<(), Error> = async {
+            let _ = client
+                .registry()
+                .create_api_document_version(
+                    "example",
+                    "example",
+                    RegistryCreateApiDocumentVersionBody {
+                        version: "x".to_string(),
+                        document: "".to_string(),
+                        force: Some(false),
+                        last_known_version_sha: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        let duration_ms = started.elapsed().as_millis() as i64;
+        let (status, error) = match result {
+            Ok(()) => ("passed", String::new()),
+            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
+            // A response came back (API error or decode mismatch): the request
+            // reached the server, which is what this smoke verifies.
+            Err(_) => ("passed", String::new()),
+        };
+        results.push(SmokeResult {
+            operation: "createApiDocumentVersion".to_string(),
+            method: "POST".to_string(),
+            path: "/v1/apis/{namespace}/{slug}/version".to_string(),
+            label: "all params".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -413,6 +587,7 @@ async fn main() {
             operation: "createApiDocumentAccessGroup".to_string(),
             method: "POST".to_string(),
             path: "/v1/apis/{namespace}/{slug}/access-group".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -451,6 +626,7 @@ async fn main() {
             operation: "deleteApiDocumentAccessGroup".to_string(),
             method: "DELETE".to_string(),
             path: "/v1/apis/{namespace}/{slug}/access-group".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -475,6 +651,7 @@ async fn main() {
             operation: "list".to_string(),
             method: "GET".to_string(),
             path: "/v1/schemas/{namespace}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -513,6 +690,46 @@ async fn main() {
             operation: "create".to_string(),
             method: "POST".to_string(),
             path: "/v1/schemas/{namespace}".to_string(),
+            label: "required params".to_string(),
+            status: status.to_string(),
+            duration_ms,
+            error,
+        });
+    }
+    if selected(&filter, "create", "/v1/schemas/{namespace}") {
+        let started = std::time::Instant::now();
+        let result: Result<(), Error> = async {
+            let _ = client
+                .schemas()
+                .create(
+                    "example",
+                    SchemasCreateBody {
+                        title: "".to_string(),
+                        description: Some("".to_string()),
+                        version: "x".to_string(),
+                        slug: "".to_string(),
+                        is_private: Some(false),
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        let duration_ms = started.elapsed().as_millis() as i64;
+        let (status, error) = match result {
+            Ok(()) => ("passed", String::new()),
+            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
+            // A response came back (API error or decode mismatch): the request
+            // reached the server, which is what this smoke verifies.
+            Err(_) => ("passed", String::new()),
+        };
+        results.push(SmokeResult {
+            operation: "create".to_string(),
+            method: "POST".to_string(),
+            path: "/v1/schemas/{namespace}".to_string(),
+            label: "all params".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -549,6 +766,44 @@ async fn main() {
             operation: "update".to_string(),
             method: "PATCH".to_string(),
             path: "/v1/schemas/{namespace}/{slug}".to_string(),
+            label: "required params".to_string(),
+            status: status.to_string(),
+            duration_ms,
+            error,
+        });
+    }
+    if selected(&filter, "update", "/v1/schemas/{namespace}/{slug}") {
+        let started = std::time::Instant::now();
+        let result: Result<(), Error> = async {
+            let _ = client
+                .schemas()
+                .update(
+                    "example",
+                    "example",
+                    SchemasUpdateBody {
+                        title: Some("".to_string()),
+                        description: Some("".to_string()),
+                        is_private: Some(false),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        let duration_ms = started.elapsed().as_millis() as i64;
+        let (status, error) = match result {
+            Ok(()) => ("passed", String::new()),
+            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
+            // A response came back (API error or decode mismatch): the request
+            // reached the server, which is what this smoke verifies.
+            Err(_) => ("passed", String::new()),
+        };
+        results.push(SmokeResult {
+            operation: "update".to_string(),
+            method: "PATCH".to_string(),
+            path: "/v1/schemas/{namespace}/{slug}".to_string(),
+            label: "all params".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -573,22 +828,19 @@ async fn main() {
             operation: "delete".to_string(),
             method: "DELETE".to_string(),
             path: "/v1/schemas/{namespace}/{slug}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
         });
     }
-    if selected(
-        &filter,
-        "retrieveSchema",
-        "/v1/schemas/{namespace}/{slug}/version/{semver}",
-    ) {
+    if selected(&filter, "retrieve", "/v1/schemas/{namespace}/{slug}/version/{semver}") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
             let _ = client
                 .schemas()
                 .version()
-                .retrieve_schema("example", "example", "example")
+                .retrieve("example", "example", "example")
                 .send()
                 .await?;
             Ok(())
@@ -603,25 +855,22 @@ async fn main() {
             Err(_) => ("passed", String::new()),
         };
         results.push(SmokeResult {
-            operation: "retrieveSchema".to_string(),
+            operation: "retrieve".to_string(),
             method: "GET".to_string(),
             path: "/v1/schemas/{namespace}/{slug}/version/{semver}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
         });
     }
-    if selected(
-        &filter,
-        "deleteSchema",
-        "/v1/schemas/{namespace}/{slug}/version/{semver}",
-    ) {
+    if selected(&filter, "delete", "/v1/schemas/{namespace}/{slug}/version/{semver}") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
             let _ = client
                 .schemas()
                 .version()
-                .delete_schema("example", "example", "example")
+                .delete("example", "example", "example")
                 .send()
                 .await?;
             Ok(())
@@ -636,24 +885,25 @@ async fn main() {
             Err(_) => ("passed", String::new()),
         };
         results.push(SmokeResult {
-            operation: "deleteSchema".to_string(),
+            operation: "delete".to_string(),
             method: "DELETE".to_string(),
             path: "/v1/schemas/{namespace}/{slug}/version/{semver}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
         });
     }
-    if selected(&filter, "createSchema", "/v1/schemas/{namespace}/{slug}/version") {
+    if selected(&filter, "create", "/v1/schemas/{namespace}/{slug}/version") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
             let _ = client
                 .schemas()
                 .version()
-                .create_schema(
+                .create(
                     "example",
                     "example",
-                    VersionCreateSchemaBody {
+                    VersionCreateBody {
                         version: "x".to_string(),
                         document: "".to_string(),
                     },
@@ -672,21 +922,22 @@ async fn main() {
             Err(_) => ("passed", String::new()),
         };
         results.push(SmokeResult {
-            operation: "createSchema".to_string(),
+            operation: "create".to_string(),
             method: "POST".to_string(),
             path: "/v1/schemas/{namespace}/{slug}/version".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
         });
     }
-    if selected(&filter, "createSchema", "/v1/schemas/{namespace}/{slug}/access-group") {
+    if selected(&filter, "create", "/v1/schemas/{namespace}/{slug}/access-group") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
             let _ = client
                 .schemas()
                 .access_group()
-                .create_schema(
+                .create(
                     "example",
                     "example",
                     AccessGroup {
@@ -707,21 +958,22 @@ async fn main() {
             Err(_) => ("passed", String::new()),
         };
         results.push(SmokeResult {
-            operation: "createSchema".to_string(),
+            operation: "create".to_string(),
             method: "POST".to_string(),
             path: "/v1/schemas/{namespace}/{slug}/access-group".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
         });
     }
-    if selected(&filter, "deleteSchema", "/v1/schemas/{namespace}/{slug}/access-group") {
+    if selected(&filter, "delete", "/v1/schemas/{namespace}/{slug}/access-group") {
         let started = std::time::Instant::now();
         let result: Result<(), Error> = async {
             let _ = client
                 .schemas()
                 .access_group()
-                .delete_schema(
+                .delete(
                     "example",
                     "example",
                     AccessGroup {
@@ -742,9 +994,10 @@ async fn main() {
             Err(_) => ("passed", String::new()),
         };
         results.push(SmokeResult {
-            operation: "deleteSchema".to_string(),
+            operation: "delete".to_string(),
             method: "DELETE".to_string(),
             path: "/v1/schemas/{namespace}/{slug}/access-group".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -769,6 +1022,7 @@ async fn main() {
             operation: "retrieve".to_string(),
             method: "GET".to_string(),
             path: "/v1/login-portals/{slug}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -797,6 +1051,41 @@ async fn main() {
             operation: "update".to_string(),
             method: "PATCH".to_string(),
             path: "/v1/login-portals/{slug}".to_string(),
+            label: "required params".to_string(),
+            status: status.to_string(),
+            duration_ms,
+            error,
+        });
+    }
+    if selected(&filter, "update", "/v1/login-portals/{slug}") {
+        let started = std::time::Instant::now();
+        let result: Result<(), Error> = async {
+            let _ = client
+                .login_portals()
+                .update(
+                    "example",
+                    LoginPortalsUpdateBody {
+                        title: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        let duration_ms = started.elapsed().as_millis() as i64;
+        let (status, error) = match result {
+            Ok(()) => ("passed", String::new()),
+            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
+            // A response came back (API error or decode mismatch): the request
+            // reached the server, which is what this smoke verifies.
+            Err(_) => ("passed", String::new()),
+        };
+        results.push(SmokeResult {
+            operation: "update".to_string(),
+            method: "PATCH".to_string(),
+            path: "/v1/login-portals/{slug}".to_string(),
+            label: "all params".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -821,6 +1110,7 @@ async fn main() {
             operation: "delete".to_string(),
             method: "DELETE".to_string(),
             path: "/v1/login-portals/{slug}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -881,6 +1171,7 @@ async fn main() {
             operation: "create".to_string(),
             method: "POST".to_string(),
             path: "/v1/login-portals".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -905,6 +1196,7 @@ async fn main() {
             operation: "list".to_string(),
             method: "GET".to_string(),
             path: "/v1/login-portals".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -929,6 +1221,7 @@ async fn main() {
             operation: "listRulesets".to_string(),
             method: "GET".to_string(),
             path: "/v1/rulesets/{namespace}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -966,6 +1259,45 @@ async fn main() {
             operation: "createRuleset".to_string(),
             method: "POST".to_string(),
             path: "/v1/rulesets/{namespace}".to_string(),
+            label: "required params".to_string(),
+            status: status.to_string(),
+            duration_ms,
+            error,
+        });
+    }
+    if selected(&filter, "createRuleset", "/v1/rulesets/{namespace}") {
+        let started = std::time::Instant::now();
+        let result: Result<(), Error> = async {
+            let _ = client
+                .rules()
+                .create_ruleset(
+                    "example",
+                    RulesCreateRulesetBody {
+                        title: "".to_string(),
+                        description: Some("".to_string()),
+                        slug: "".to_string(),
+                        is_private: Some(false),
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        let duration_ms = started.elapsed().as_millis() as i64;
+        let (status, error) = match result {
+            Ok(()) => ("passed", String::new()),
+            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
+            // A response came back (API error or decode mismatch): the request
+            // reached the server, which is what this smoke verifies.
+            Err(_) => ("passed", String::new()),
+        };
+        results.push(SmokeResult {
+            operation: "createRuleset".to_string(),
+            method: "POST".to_string(),
+            path: "/v1/rulesets/{namespace}".to_string(),
+            label: "all params".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1004,6 +1336,46 @@ async fn main() {
             operation: "updateRuleset".to_string(),
             method: "PATCH".to_string(),
             path: "/v1/rulesets/{namespace}/{slug}".to_string(),
+            label: "required params".to_string(),
+            status: status.to_string(),
+            duration_ms,
+            error,
+        });
+    }
+    if selected(&filter, "updateRuleset", "/v1/rulesets/{namespace}/{slug}") {
+        let started = std::time::Instant::now();
+        let result: Result<(), Error> = async {
+            let _ = client
+                .rules()
+                .update_ruleset(
+                    "example",
+                    "example",
+                    RulesUpdateRulesetBody {
+                        namespace: Some("".to_string()),
+                        slug: Some("".to_string()),
+                        title: Some("".to_string()),
+                        description: Some("".to_string()),
+                        is_private: Some(false),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        let duration_ms = started.elapsed().as_millis() as i64;
+        let (status, error) = match result {
+            Ok(()) => ("passed", String::new()),
+            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
+            // A response came back (API error or decode mismatch): the request
+            // reached the server, which is what this smoke verifies.
+            Err(_) => ("passed", String::new()),
+        };
+        results.push(SmokeResult {
+            operation: "updateRuleset".to_string(),
+            method: "PATCH".to_string(),
+            path: "/v1/rulesets/{namespace}/{slug}".to_string(),
+            label: "all params".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1028,6 +1400,7 @@ async fn main() {
             operation: "deleteRuleset".to_string(),
             method: "DELETE".to_string(),
             path: "/v1/rulesets/{namespace}/{slug}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1056,6 +1429,7 @@ async fn main() {
             operation: "retrieveRulesetDocument".to_string(),
             method: "GET".to_string(),
             path: "/v1/rulesets/{namespace}/{slug}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1094,6 +1468,7 @@ async fn main() {
             operation: "createRulesetAccessGroup".to_string(),
             method: "POST".to_string(),
             path: "/v1/rulesets/{namespace}/{slug}/access-group".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1132,6 +1507,7 @@ async fn main() {
             operation: "deleteRulesetAccessGroup".to_string(),
             method: "DELETE".to_string(),
             path: "/v1/rulesets/{namespace}/{slug}/access-group".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1156,6 +1532,7 @@ async fn main() {
             operation: "list".to_string(),
             method: "GET".to_string(),
             path: "/v1/themes".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1189,6 +1566,41 @@ async fn main() {
             operation: "create".to_string(),
             method: "POST".to_string(),
             path: "/v1/themes".to_string(),
+            label: "required params".to_string(),
+            status: status.to_string(),
+            duration_ms,
+            error,
+        });
+    }
+    if selected(&filter, "create", "/v1/themes") {
+        let started = std::time::Instant::now();
+        let result: Result<(), Error> = async {
+            let _ = client
+                .themes()
+                .create(ThemesCreateBody {
+                    name: "".to_string(),
+                    description: Some("".to_string()),
+                    slug: "".to_string(),
+                    document: "".to_string(),
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        let duration_ms = started.elapsed().as_millis() as i64;
+        let (status, error) = match result {
+            Ok(()) => ("passed", String::new()),
+            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
+            // A response came back (API error or decode mismatch): the request
+            // reached the server, which is what this smoke verifies.
+            Err(_) => ("passed", String::new()),
+        };
+        results.push(SmokeResult {
+            operation: "create".to_string(),
+            method: "POST".to_string(),
+            path: "/v1/themes".to_string(),
+            label: "all params".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1223,6 +1635,42 @@ async fn main() {
             operation: "update".to_string(),
             method: "PATCH".to_string(),
             path: "/v1/themes/{slug}".to_string(),
+            label: "required params".to_string(),
+            status: status.to_string(),
+            duration_ms,
+            error,
+        });
+    }
+    if selected(&filter, "update", "/v1/themes/{slug}") {
+        let started = std::time::Instant::now();
+        let result: Result<(), Error> = async {
+            let _ = client
+                .themes()
+                .update(
+                    "example",
+                    ThemesUpdateBody {
+                        name: Some("".to_string()),
+                        description: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        let duration_ms = started.elapsed().as_millis() as i64;
+        let (status, error) = match result {
+            Ok(()) => ("passed", String::new()),
+            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
+            // A response came back (API error or decode mismatch): the request
+            // reached the server, which is what this smoke verifies.
+            Err(_) => ("passed", String::new()),
+        };
+        results.push(SmokeResult {
+            operation: "update".to_string(),
+            method: "PATCH".to_string(),
+            path: "/v1/themes/{slug}".to_string(),
+            label: "all params".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1256,6 +1704,7 @@ async fn main() {
             operation: "replaceDocument".to_string(),
             method: "PUT".to_string(),
             path: "/v1/themes/{slug}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1280,6 +1729,7 @@ async fn main() {
             operation: "delete".to_string(),
             method: "DELETE".to_string(),
             path: "/v1/themes/{slug}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1304,6 +1754,7 @@ async fn main() {
             operation: "retrieve".to_string(),
             method: "GET".to_string(),
             path: "/v1/themes/{slug}".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1328,6 +1779,7 @@ async fn main() {
             operation: "list".to_string(),
             method: "GET".to_string(),
             path: "/v1/teams".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1352,6 +1804,7 @@ async fn main() {
             operation: "listGuides".to_string(),
             method: "GET".to_string(),
             path: "/v1/guides".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1386,6 +1839,42 @@ async fn main() {
             operation: "createGuide".to_string(),
             method: "POST".to_string(),
             path: "/v1/guides".to_string(),
+            label: "required params".to_string(),
+            status: status.to_string(),
+            duration_ms,
+            error,
+        });
+    }
+    if selected(&filter, "createGuide", "/v1/guides") {
+        let started = std::time::Instant::now();
+        let result: Result<(), Error> = async {
+            let _ = client
+                .scalar_docs()
+                .create_guide(ScalarDocsCreateGuideBody {
+                    name: "".to_string(),
+                    slug: Some("xxx".to_string()),
+                    is_private: false,
+                    allowed_users: vec![],
+                    allowed_domains: vec![],
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        let duration_ms = started.elapsed().as_millis() as i64;
+        let (status, error) = match result {
+            Ok(()) => ("passed", String::new()),
+            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
+            // A response came back (API error or decode mismatch): the request
+            // reached the server, which is what this smoke verifies.
+            Err(_) => ("passed", String::new()),
+        };
+        results.push(SmokeResult {
+            operation: "createGuide".to_string(),
+            method: "POST".to_string(),
+            path: "/v1/guides".to_string(),
+            label: "all params".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1410,6 +1899,7 @@ async fn main() {
             operation: "publishGuide".to_string(),
             method: "POST".to_string(),
             path: "/v1/guides/{slug}/publish".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1434,6 +1924,7 @@ async fn main() {
             operation: "list".to_string(),
             method: "GET".to_string(),
             path: "/v1/namespaces".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1464,6 +1955,7 @@ async fn main() {
             operation: "exchangePersonalToken".to_string(),
             method: "POST".to_string(),
             path: "/v1/auth/exchange".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -1488,6 +1980,7 @@ async fn main() {
             operation: "listCurrentUser".to_string(),
             method: "GET".to_string(),
             path: "/v1/auth/me".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
