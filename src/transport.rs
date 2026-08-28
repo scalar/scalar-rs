@@ -15,8 +15,8 @@
 //! logic: the runtime races `Sleep::sleep` against `Transport::execute`, which
 //! means a BYO transport cannot silently drop deadlines.
 //!
-//! For tests, the `mock` cargo feature provides [`MockTransport`] (an ordered
-//! in-process response queue with request capture) and [`InstantSleep`] so
+//! For tests, the `mock` cargo feature provides `MockTransport` (an ordered
+//! in-process response queue with request capture) and `InstantSleep` so
 //! retry tests run in microseconds without a network or a timer.
 
 use std::fmt;
@@ -71,7 +71,7 @@ pub use crate::transport_reqwest::ReqwestTransport;
 /// ```no_run
 /// use std::sync::Arc;
 ///
-/// use scalar_rs::transport::{BoxFuture, SdkBody, Transport, TransportError, TransportErrorKind};
+/// use scalar_sdk::transport::{BoxFuture, SdkBody, Transport, TransportError, TransportErrorKind};
 ///
 /// #[derive(Debug)]
 /// struct MyTransport;
@@ -139,7 +139,7 @@ impl<T: Transport + ?Sized> Transport for Box<T> {
 /// Do **not** implement this with a ready future to "disable" timers in
 /// production code — a ready `sleep` turns retry backoff into a hot loop. The
 /// only ready-future implementation this crate ships is the test-only
-/// [`InstantSleep`] behind the `mock` feature.
+/// `InstantSleep` behind the `mock` feature.
 pub trait Sleep: Send + Sync + fmt::Debug {
     /// Resolves after at least `duration` has elapsed.
     fn sleep(&self, duration: Duration) -> BoxFuture<'static, ()>;
@@ -536,7 +536,7 @@ impl std::error::Error for TransportError {
 /// # Examples
 ///
 /// ```no_run
-/// use scalar_rs::transport::{MockTransport, SdkBody, Transport};
+/// use scalar_sdk::transport::{MockTransport, SdkBody, Transport};
 ///
 /// # async fn demo() {
 /// let mock = MockTransport::new();

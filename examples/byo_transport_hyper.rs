@@ -16,8 +16,8 @@ use hyper_util::client::legacy::Client;
 use hyper_util::client::legacy::connect::HttpConnector;
 use hyper_util::rt::TokioExecutor;
 
-use scalar_rs::transport::{BoxFuture, SdkBody, Transport, TransportError, TransportErrorKind};
-use scalar_rs::*;
+use scalar_sdk::transport::{BoxFuture, SdkBody, Transport, TransportError, TransportErrorKind};
+use scalar_sdk::*;
 
 /// Environment variable naming the server the guarded `main` dials.
 const BASE_URL_ENV: &str = "SCALAR_BASE_URL";

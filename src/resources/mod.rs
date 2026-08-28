@@ -14,39 +14,48 @@ pub mod themes;
 pub mod version;
 
 impl crate::client::Scalar {
-    pub fn registry(&self) -> crate::resources::registry::Registry {
-        crate::resources::registry::Registry::new(self.clone())
+    /// Registry
+    pub fn registry(&self) -> crate::resources::registry::RegistryResource {
+        crate::resources::registry::RegistryResource::new(self.clone())
     }
 
-    pub fn schemas(&self) -> crate::resources::schemas::Schemas {
-        crate::resources::schemas::Schemas::new(self.clone())
+    /// Schemas
+    pub fn schemas(&self) -> crate::resources::schemas::SchemasResource {
+        crate::resources::schemas::SchemasResource::new(self.clone())
     }
 
-    pub fn login_portals(&self) -> crate::resources::login_portals::LoginPortals {
-        crate::resources::login_portals::LoginPortals::new(self.clone())
+    /// Login Portals
+    pub fn login_portals(&self) -> crate::resources::login_portals::LoginPortalsResource {
+        crate::resources::login_portals::LoginPortalsResource::new(self.clone())
     }
 
-    pub fn rules(&self) -> crate::resources::rules::Rules {
-        crate::resources::rules::Rules::new(self.clone())
+    /// Rules
+    pub fn rules(&self) -> crate::resources::rules::RulesResource {
+        crate::resources::rules::RulesResource::new(self.clone())
     }
 
-    pub fn themes(&self) -> crate::resources::themes::Themes {
-        crate::resources::themes::Themes::new(self.clone())
+    /// Themes
+    pub fn themes(&self) -> crate::resources::themes::ThemesResource {
+        crate::resources::themes::ThemesResource::new(self.clone())
     }
 
-    pub fn teams(&self) -> crate::resources::teams::Teams {
-        crate::resources::teams::Teams::new(self.clone())
+    /// Teams
+    pub fn teams(&self) -> crate::resources::teams::TeamsResource {
+        crate::resources::teams::TeamsResource::new(self.clone())
     }
 
-    pub fn scalar_docs(&self) -> crate::resources::scalar_docs::ScalarDocs {
-        crate::resources::scalar_docs::ScalarDocs::new(self.clone())
+    /// Scalar Docs
+    pub fn scalar_docs(&self) -> crate::resources::scalar_docs::ScalarDocsResource {
+        crate::resources::scalar_docs::ScalarDocsResource::new(self.clone())
     }
 
-    pub fn namespaces(&self) -> crate::resources::namespaces::Namespaces {
-        crate::resources::namespaces::Namespaces::new(self.clone())
+    /// Namespaces
+    pub fn namespaces(&self) -> crate::resources::namespaces::NamespacesResource {
+        crate::resources::namespaces::NamespacesResource::new(self.clone())
     }
 
-    pub fn authentication(&self) -> crate::resources::authentication::Authentication {
-        crate::resources::authentication::Authentication::new(self.clone())
+    /// Authentication
+    pub fn authentication(&self) -> crate::resources::authentication::AuthenticationResource {
+        crate::resources::authentication::AuthenticationResource::new(self.clone())
     }
 }

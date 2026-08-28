@@ -10,8 +10,8 @@
 //! ```
 #![allow(unused)]
 
-use scalar_rs::transport::{InstantSleep, MockTransport};
-use scalar_rs::*;
+use scalar_sdk::transport::{InstantSleep, MockTransport};
+use scalar_sdk::*;
 
 /// A response body the generated decode layer accepts for the operation
 /// this example drives.

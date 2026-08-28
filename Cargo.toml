@@ -1,10 +1,13 @@
 [package]
-name = "scalar-rs"
+name = "scalar-sdk"
 version = "0.1.0" # x-release-please-version
 edition = "2024"
 rust-version = "1.85"
-description = "API for managing Scalar platform resources."
+description = "Rust library to access the Scalar API"
+authors = ["Scalar"]
 license = "Apache-2.0"
+repository = "https://github.com/scalar/scalar-rust"
+homepage = "https://github.com/scalar/scalar-rust"
 keywords = ["api", "sdk", "client"]
 categories = ["api-bindings"]
 

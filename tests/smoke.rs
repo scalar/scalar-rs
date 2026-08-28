@@ -6,7 +6,7 @@
 //! bare `cargo test` just confirms the generated surface compiles.
 #![allow(unused)]
 
-use scalar_rs::*;
+use scalar_sdk::*;
 
 #[tokio::test]
 async fn smoke() {
@@ -62,7 +62,34 @@ async fn smoke() {
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "POST /v1/apis/{namespace}"));
+                failures.push(format!("{}: {error}", "POST /v1/apis/{namespace} [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .registry()
+                .create_api_document(
+                    "example",
+                    RegistryCreateApiDocumentBody {
+                        title: "".to_string(),
+                        description: Some("".to_string()),
+                        version: "x".to_string(),
+                        slug: "".to_string(),
+                        ruleset: Some("".to_string()),
+                        is_private: Some(false),
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/apis/{namespace} [all params]"));
             }
         }
     }
@@ -87,7 +114,35 @@ async fn smoke() {
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "PATCH /v1/apis/{namespace}/{slug}"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "PATCH /v1/apis/{namespace}/{slug} [required params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .registry()
+                .update_api_document(
+                    "example",
+                    "example",
+                    RegistryUpdateApiDocumentBody {
+                        title: Some("".to_string()),
+                        description: Some("".to_string()),
+                        is_private: Some(false),
+                        ruleset: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "PATCH /v1/apis/{namespace}/{slug} [all params]"));
             }
         }
     }
@@ -148,7 +203,34 @@ async fn smoke() {
             if is_smoke_failure(&error) {
                 failures.push(format!(
                     "{}: {error}",
-                    "PATCH /v1/apis/{namespace}/{slug}/version/{semver}"
+                    "PATCH /v1/apis/{namespace}/{slug}/version/{semver} [required params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .registry()
+                .update_api_document_version(
+                    "example",
+                    "example",
+                    "example",
+                    RegistryUpdateApiDocumentVersionBody {
+                        document: "".to_string(),
+                        last_known_version_sha: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "PATCH /v1/apis/{namespace}/{slug}/version/{semver} [all params]"
                 ));
             }
         }
@@ -212,7 +294,38 @@ async fn smoke() {
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "POST /v1/apis/{namespace}/{slug}/version"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "POST /v1/apis/{namespace}/{slug}/version [required params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .registry()
+                .create_api_document_version(
+                    "example",
+                    "example",
+                    RegistryCreateApiDocumentVersionBody {
+                        version: "x".to_string(),
+                        document: "".to_string(),
+                        force: Some(false),
+                        last_known_version_sha: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "POST /v1/apis/{namespace}/{slug}/version [all params]"
+                ));
             }
         }
     }
@@ -297,7 +410,33 @@ async fn smoke() {
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "POST /v1/schemas/{namespace}"));
+                failures.push(format!("{}: {error}", "POST /v1/schemas/{namespace} [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .schemas()
+                .create(
+                    "example",
+                    SchemasCreateBody {
+                        title: "".to_string(),
+                        description: Some("".to_string()),
+                        version: "x".to_string(),
+                        slug: "".to_string(),
+                        is_private: Some(false),
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/schemas/{namespace} [all params]"));
             }
         }
     }
@@ -321,7 +460,37 @@ async fn smoke() {
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "PATCH /v1/schemas/{namespace}/{slug}"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "PATCH /v1/schemas/{namespace}/{slug} [required params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .schemas()
+                .update(
+                    "example",
+                    "example",
+                    SchemasUpdateBody {
+                        title: Some("".to_string()),
+                        description: Some("".to_string()),
+                        is_private: Some(false),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "PATCH /v1/schemas/{namespace}/{slug} [all params]"
+                ));
             }
         }
     }
@@ -342,7 +511,7 @@ async fn smoke() {
             let _ = client
                 .schemas()
                 .version()
-                .retrieve_schema("example", "example", "example")
+                .retrieve("example", "example", "example")
                 .send()
                 .await?;
             Ok(())
@@ -362,7 +531,7 @@ async fn smoke() {
             let _ = client
                 .schemas()
                 .version()
-                .delete_schema("example", "example", "example")
+                .delete("example", "example", "example")
                 .send()
                 .await?;
             Ok(())
@@ -382,10 +551,10 @@ async fn smoke() {
             let _ = client
                 .schemas()
                 .version()
-                .create_schema(
+                .create(
                     "example",
                     "example",
-                    VersionCreateSchemaBody {
+                    VersionCreateBody {
                         version: "x".to_string(),
                         document: "".to_string(),
                     },
@@ -406,7 +575,7 @@ async fn smoke() {
             let _ = client
                 .schemas()
                 .access_group()
-                .create_schema(
+                .create(
                     "example",
                     "example",
                     AccessGroup {
@@ -432,7 +601,7 @@ async fn smoke() {
             let _ = client
                 .schemas()
                 .access_group()
-                .delete_schema(
+                .delete(
                     "example",
                     "example",
                     AccessGroup {
@@ -477,7 +646,31 @@ async fn smoke() {
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "PATCH /v1/login-portals/{slug}"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "PATCH /v1/login-portals/{slug} [required params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .login_portals()
+                .update(
+                    "example",
+                    LoginPortalsUpdateBody {
+                        title: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "PATCH /v1/login-portals/{slug} [all params]"));
             }
         }
     }
@@ -586,7 +779,35 @@ async fn smoke() {
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "POST /v1/rulesets/{namespace}"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "POST /v1/rulesets/{namespace} [required params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .rules()
+                .create_ruleset(
+                    "example",
+                    RulesCreateRulesetBody {
+                        title: "".to_string(),
+                        description: Some("".to_string()),
+                        slug: "".to_string(),
+                        is_private: Some(false),
+                        document: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/rulesets/{namespace} [all params]"));
             }
         }
     }
@@ -612,7 +833,39 @@ async fn smoke() {
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "PATCH /v1/rulesets/{namespace}/{slug}"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "PATCH /v1/rulesets/{namespace}/{slug} [required params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .rules()
+                .update_ruleset(
+                    "example",
+                    "example",
+                    RulesUpdateRulesetBody {
+                        namespace: Some("".to_string()),
+                        slug: Some("".to_string()),
+                        title: Some("".to_string()),
+                        description: Some("".to_string()),
+                        is_private: Some(false),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "PATCH /v1/rulesets/{namespace}/{slug} [all params]"
+                ));
             }
         }
     }
@@ -723,7 +976,28 @@ async fn smoke() {
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "POST /v1/themes"));
+                failures.push(format!("{}: {error}", "POST /v1/themes [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .themes()
+                .create(ThemesCreateBody {
+                    name: "".to_string(),
+                    description: Some("".to_string()),
+                    slug: "".to_string(),
+                    document: "".to_string(),
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/themes [all params]"));
             }
         }
     }
@@ -745,7 +1019,29 @@ async fn smoke() {
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "PATCH /v1/themes/{slug}"));
+                failures.push(format!("{}: {error}", "PATCH /v1/themes/{slug} [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .themes()
+                .update(
+                    "example",
+                    ThemesUpdateBody {
+                        name: Some("".to_string()),
+                        description: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "PATCH /v1/themes/{slug} [all params]"));
             }
         }
     }
@@ -836,7 +1132,29 @@ async fn smoke() {
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "POST /v1/guides"));
+                failures.push(format!("{}: {error}", "POST /v1/guides [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .scalar_docs()
+                .create_guide(ScalarDocsCreateGuideBody {
+                    name: "".to_string(),
+                    slug: Some("xxx".to_string()),
+                    is_private: false,
+                    allowed_users: vec![],
+                    allowed_domains: vec![],
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/guides [all params]"));
             }
         }
     }
