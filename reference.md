@@ -1,4 +1,4 @@
-# ScalarApi Rust SDK Reference
+# Scalar Rust SDK Reference
 
 ## Operations
 
@@ -138,7 +138,7 @@ Delete a shared component
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### client.schemas().version().retrieve_schema(…)
+### client.schemas().version().retrieve(…)
 
 Get a shared component document
 
@@ -146,7 +146,7 @@ Get a shared component document
 - Response body: `text/plain`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### client.schemas().version().delete_schema(…)
+### client.schemas().version().delete(…)
 
 Delete a shared component version
 
@@ -154,7 +154,7 @@ Delete a shared component version
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### client.schemas().version().create_schema(…)
+### client.schemas().version().create(…)
 
 Create a shared component version
 
@@ -163,7 +163,7 @@ Create a shared component version
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### client.schemas().access_group().create_schema(…)
+### client.schemas().access_group().create(…)
 
 Add shared component access group
 
@@ -172,7 +172,7 @@ Add shared component access group
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### client.schemas().access_group().delete_schema(…)
+### client.schemas().access_group().delete(…)
 
 Remove shared component access group
 

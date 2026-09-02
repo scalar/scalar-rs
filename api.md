@@ -79,13 +79,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## `Registry`
 
+Registry
+
 ### List all API Documents
 
 List all API documents across every namespace the caller can access.
 
 | Direction | Type |
 | --- | --- |
-| Response | [`Vec<ApiDocument>`](./src/models.rs) |
+| Response | [`Vec<ApiDocument>`](./src/models/registry.rs) |
 
 ```rust
 let response = client.registry().list_all_api_documents().send().await?;
@@ -97,7 +99,7 @@ List API documents in a namespace.
 
 | Direction | Type |
 | --- | --- |
-| Response | [`Vec<ApiDocument>`](./src/models.rs) |
+| Response | [`Vec<ApiDocument>`](./src/models/registry.rs) |
 
 ```rust
 let response = client.registry().list_api_documents("example").send().await?;
@@ -109,8 +111,8 @@ Create an API document.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`RegistryCreateApiDocumentBody`](./src/models.rs) |
-| Response | [`RegistryCreateApiDocumentResponse`](./src/models.rs) |
+| Request | [`RegistryCreateApiDocumentBody`](./src/models/registry.rs) |
+| Response | [`RegistryCreateApiDocumentResponse`](./src/models/registry.rs) |
 
 ```rust
 let response = client
@@ -137,7 +139,7 @@ Update metadata for an API document.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`RegistryUpdateApiDocumentBody`](./src/models.rs) |
+| Request | [`RegistryUpdateApiDocumentBody`](./src/models/registry.rs) |
 | Response | `serde_json::Value` |
 
 ```rust
@@ -195,8 +197,8 @@ Update the registry file content for an API document version.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`RegistryUpdateApiDocumentVersionBody`](./src/models.rs) |
-| Response | [`RegistryUpdateApiDocumentVersionResponse`](./src/models.rs) |
+| Request | [`RegistryUpdateApiDocumentVersionBody`](./src/models/registry.rs) |
+| Response | [`RegistryUpdateApiDocumentVersionResponse`](./src/models/registry.rs) |
 
 ```rust
 let response = client
@@ -236,7 +238,7 @@ Get metadata (uid, content shas, version sha, tags) for a specific API document 
 
 | Direction | Type |
 | --- | --- |
-| Response | [`ManagedDocVersion`](./src/models.rs) |
+| Response | [`ManagedDocVersion`](./src/models/shared.rs) |
 
 ```rust
 let response = client
@@ -252,8 +254,8 @@ Create a new API document version.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`RegistryCreateApiDocumentVersionBody`](./src/models.rs) |
-| Response | [`ManagedDocVersion`](./src/models.rs) |
+| Request | [`RegistryCreateApiDocumentVersionBody`](./src/models/registry.rs) |
+| Response | [`ManagedDocVersion`](./src/models/shared.rs) |
 
 ```rust
 let response = client
@@ -278,7 +280,7 @@ Add an access group to an API document.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`AccessGroup`](./src/models.rs) |
+| Request | [`AccessGroup`](./src/models/registry.rs) |
 | Response | `serde_json::Value` |
 
 ```rust
@@ -301,7 +303,7 @@ Remove an access group from an API document.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`AccessGroup`](./src/models.rs) |
+| Request | [`AccessGroup`](./src/models/registry.rs) |
 | Response | `serde_json::Value` |
 
 ```rust
@@ -320,13 +322,15 @@ let response = client
 
 ## `Schemas`
 
+Schemas
+
 ### List all shared components
 
 List schemas in a namespace.
 
 | Direction | Type |
 | --- | --- |
-| Response | [`Vec<Schema>`](./src/models.rs) |
+| Response | [`Vec<Schema>`](./src/models/schemas.rs) |
 
 ```rust
 let response = client.schemas().list("example").send().await?;
@@ -338,8 +342,8 @@ Create a schema in a namespace.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`SchemasCreateBody`](./src/models.rs) |
-| Response | [`Uid`](./src/models.rs) |
+| Request | [`SchemasCreateBody`](./src/models/schemas.rs) |
+| Response | [`Uid`](./src/models/shared.rs) |
 
 ```rust
 let response = client
@@ -365,7 +369,7 @@ Update schema metadata.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`SchemasUpdateBody`](./src/models.rs) |
+| Request | [`SchemasUpdateBody`](./src/models/schemas.rs) |
 | Response | `serde_json::Value` |
 
 ```rust
@@ -398,6 +402,8 @@ let response = client.schemas().delete("example", "example").send().await?;
 
 ### `Schemas Version`
 
+Schemas
+
 #### Get a shared component document
 
 Get a specific schema version document.
@@ -410,7 +416,7 @@ Get a specific schema version document.
 let response = client
     .schemas()
     .version()
-    .retrieve_schema("example", "example", "example")
+    .retrieve("example", "example", "example")
     .send()
     .await?;
 ```
@@ -427,7 +433,7 @@ Delete a schema version.
 let response = client
     .schemas()
     .version()
-    .delete_schema("example", "example", "example")
+    .delete("example", "example", "example")
     .send()
     .await?;
 ```
@@ -438,17 +444,17 @@ Create a schema version.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`VersionCreateSchemaBody`](./src/models.rs) |
-| Response | [`Uid`](./src/models.rs) |
+| Request | [`VersionCreateBody`](./src/models/version.rs) |
+| Response | [`Uid`](./src/models/shared.rs) |
 
 ```rust
 let response = client
     .schemas()
     .version()
-    .create_schema(
+    .create(
         "example",
         "example",
-        VersionCreateSchemaBody {
+        VersionCreateBody {
             version: "x".to_string(),
             document: "".to_string(),
         },
@@ -459,20 +465,22 @@ let response = client
 
 ### `Schemas AccessGroup`
 
+Schemas
+
 #### Add shared component access group
 
 Add an access group to a schema.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`AccessGroup`](./src/models.rs) |
+| Request | [`AccessGroup`](./src/models/registry.rs) |
 | Response | `serde_json::Value` |
 
 ```rust
 let response = client
     .schemas()
     .access_group()
-    .create_schema(
+    .create(
         "example",
         "example",
         AccessGroup {
@@ -489,14 +497,14 @@ Remove an access group from a schema.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`AccessGroup`](./src/models.rs) |
+| Request | [`AccessGroup`](./src/models/registry.rs) |
 | Response | `serde_json::Value` |
 
 ```rust
 let response = client
     .schemas()
     .access_group()
-    .delete_schema(
+    .delete(
         "example",
         "example",
         AccessGroup {
@@ -509,13 +517,15 @@ let response = client
 
 ## `LoginPortals`
 
+Login Portals
+
 ### Get a login portal
 
 Get a login portal by slug.
 
 | Direction | Type |
 | --- | --- |
-| Response | [`LoginPortalsRetrieveResponse`](./src/models.rs) |
+| Response | [`LoginPortalsRetrieveResponse`](./src/models/login_portals.rs) |
 
 ```rust
 let response = client.login_portals().retrieve("example").send().await?;
@@ -527,7 +537,7 @@ Update metadata for a login portal.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`LoginPortalsUpdateBody`](./src/models.rs) |
+| Request | [`LoginPortalsUpdateBody`](./src/models/login_portals.rs) |
 | Response | `serde_json::Value` |
 
 ```rust
@@ -556,8 +566,8 @@ Create a login portal for the current team.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`LoginPortalsCreateBody`](./src/models.rs) |
-| Response | [`Uid`](./src/models.rs) |
+| Request | [`LoginPortalsCreateBody`](./src/models/login_portals.rs) |
+| Response | [`Uid`](./src/models/shared.rs) |
 
 ```rust
 let response = client
@@ -605,7 +615,7 @@ List all login portals for the current team.
 
 | Direction | Type |
 | --- | --- |
-| Response | [`Vec<LoginPortal>`](./src/models.rs) |
+| Response | [`Vec<LoginPortal>`](./src/models/login_portals.rs) |
 
 ```rust
 let response = client.login_portals().list().send().await?;
@@ -613,13 +623,15 @@ let response = client.login_portals().list().send().await?;
 
 ## `Rules`
 
+Rules
+
 ### List all rules
 
 List all rulesets in a namespace.
 
 | Direction | Type |
 | --- | --- |
-| Response | [`Vec<Rule>`](./src/models.rs) |
+| Response | [`Vec<Rule>`](./src/models/rules.rs) |
 
 ```rust
 let response = client.rules().list_rulesets("example").send().await?;
@@ -631,8 +643,8 @@ Create a rule in a namespace.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`RulesCreateRulesetBody`](./src/models.rs) |
-| Response | [`Uid`](./src/models.rs) |
+| Request | [`RulesCreateRulesetBody`](./src/models/rules.rs) |
+| Response | [`Uid`](./src/models/shared.rs) |
 
 ```rust
 let response = client
@@ -657,7 +669,7 @@ Update rule metadata by slug.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`RulesUpdateRulesetBody`](./src/models.rs) |
+| Request | [`RulesUpdateRulesetBody`](./src/models/rules.rs) |
 | Response | `serde_json::Value` |
 
 ```rust
@@ -712,7 +724,7 @@ Grant an access group to a rule.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`AccessGroup`](./src/models.rs) |
+| Request | [`AccessGroup`](./src/models/registry.rs) |
 | Response | `serde_json::Value` |
 
 ```rust
@@ -735,7 +747,7 @@ Remove an access group from a rule.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`AccessGroup`](./src/models.rs) |
+| Request | [`AccessGroup`](./src/models/registry.rs) |
 | Response | `serde_json::Value` |
 
 ```rust
@@ -754,13 +766,15 @@ let response = client
 
 ## `Themes`
 
+Themes
+
 ### List all themes
 
 List all team themes.
 
 | Direction | Type |
 | --- | --- |
-| Response | [`Vec<Theme>`](./src/models.rs) |
+| Response | [`Vec<Theme>`](./src/models/themes.rs) |
 
 ```rust
 let response = client.themes().list().send().await?;
@@ -772,8 +786,8 @@ Create a team theme.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`ThemesCreateBody`](./src/models.rs) |
-| Response | [`Uid`](./src/models.rs) |
+| Request | [`ThemesCreateBody`](./src/models/themes.rs) |
+| Response | [`Uid`](./src/models/shared.rs) |
 
 ```rust
 let response = client
@@ -794,7 +808,7 @@ Update theme metadata.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`ThemesUpdateBody`](./src/models.rs) |
+| Request | [`ThemesUpdateBody`](./src/models/themes.rs) |
 | Response | `serde_json::Value` |
 
 ```rust
@@ -817,7 +831,7 @@ Replace the theme document.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`ThemesReplaceDocumentBody`](./src/models.rs) |
+| Request | [`ThemesReplaceDocumentBody`](./src/models/themes.rs) |
 | Response | `serde_json::Value` |
 
 ```rust
@@ -859,13 +873,15 @@ let response = client.themes().retrieve("example").send().await?;
 
 ## `Teams`
 
+Teams
+
 ### List teams
 
 List all available teams
 
 | Direction | Type |
 | --- | --- |
-| Response | [`Vec<Team>`](./src/models.rs) |
+| Response | [`Vec<Team>`](./src/models/teams.rs) |
 
 ```rust
 let response = client.teams().list().send().await?;
@@ -873,13 +889,15 @@ let response = client.teams().list().send().await?;
 
 ## `ScalarDocs`
 
+Scalar Docs
+
 ### List all projects
 
 List all guide projects.
 
 | Direction | Type |
 | --- | --- |
-| Response | [`Vec<GithubProject>`](./src/models.rs) |
+| Response | [`Vec<GithubProject>`](./src/models/scalar_docs.rs) |
 
 ```rust
 let response = client.scalar_docs().list_guides().send().await?;
@@ -891,8 +909,8 @@ Create a guide project.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`ScalarDocsCreateGuideBody`](./src/models.rs) |
-| Response | [`ScalarDocsCreateGuideResponse`](./src/models.rs) |
+| Request | [`ScalarDocsCreateGuideBody`](./src/models/scalar_docs.rs) |
+| Response | [`ScalarDocsCreateGuideResponse`](./src/models/scalar_docs.rs) |
 
 ```rust
 let response = client
@@ -914,13 +932,15 @@ Start a new publish process.
 
 | Direction | Type |
 | --- | --- |
-| Response | [`ScalarDocsPublishGuideResponse`](./src/models.rs) |
+| Response | [`ScalarDocsPublishGuideResponse`](./src/models/scalar_docs.rs) |
 
 ```rust
 let response = client.scalar_docs().publish_guide("example").send().await?;
 ```
 
 ## `Namespaces`
+
+Namespaces
 
 ### List namespaces
 
@@ -936,14 +956,16 @@ let response = client.namespaces().list().send().await?;
 
 ## `Authentication`
 
+Authentication
+
 ### Exchange token
 
 Exchange an API key for an access token.
 
 | Direction | Type |
 | --- | --- |
-| Request | [`AuthenticationExchangePersonalTokenBody`](./src/models.rs) |
-| Response | [`AuthenticationExchangePersonalTokenResponse`](./src/models.rs) |
+| Request | [`AuthenticationExchangePersonalTokenBody`](./src/models/authentication.rs) |
+| Response | [`AuthenticationExchangePersonalTokenResponse`](./src/models/authentication.rs) |
 
 ```rust
 let response = client
@@ -961,7 +983,7 @@ Get the authenticated user, including their available teams and theme.
 
 | Direction | Type |
 | --- | --- |
-| Response | [`User`](./src/models.rs) |
+| Response | [`User`](./src/models/authentication.rs) |
 
 ```rust
 let response = client.authentication().list_current_user().send().await?;

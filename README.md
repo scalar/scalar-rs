@@ -1,6 +1,6 @@
-# Scalar API
+# Scalar
 
-This library provides convenient access to the Scalar API from asynchronous Rust.
+This library provides convenient access to the Scalar REST API from asynchronous Rust.
 
 The full API of this library can be found in [api.md](./api.md).
 
@@ -10,7 +10,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-scalar-rs = "0.2.0" # x-release-please-version
+scalar-rs = "0.3.0" # x-release-please-version
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 ```
 
@@ -31,9 +31,7 @@ use scalar_rs::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let client = Scalar::builder()
-        .bearer_token(std::env::var("SCALAR_BEARER_TOKEN")?)
-        .build()?;
+    let client = Scalar::builder().bearer_auth(std::env::var("BEARER_AUTH")?).build()?;
 
     let response = client.registry().list_all_api_documents().send().await?;
 
@@ -53,7 +51,7 @@ them from the environment instead:
 use scalar_rs::Scalar;
 
 async fn run() -> Result<(), Box<dyn std::error::Error>> {
-    let client = Scalar::builder().bearer_token("…").build()?;
+    let client = Scalar::builder().bearer_auth("…").build()?;
 
     // Or, reading credentials from the environment:
     let client = Scalar::from_env()?;
@@ -67,7 +65,7 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
 Credentials can be set on the builder or read from the environment by
 `from_env`:
 
-- `bearer_token` — environment variable `SCALAR_BEARER_TOKEN`
+- `bearer_auth` — environment variable `BEARER_AUTH`
 
 ## Error handling
 
@@ -236,7 +234,9 @@ Response bodies are untrusted, so the runtime bounds them by default:
   are consumed incrementally and are exempt.
 - Each attempt carries a 60-second deadline unless one is set explicitly; it
   covers request-body upload through response headers, and every retry gets a
-  fresh one.
+  fresh one. Reading a *buffered* response body is bounded the same way, so a
+  server that sends headers and then stalls cannot hang the call. Streaming
+  responses are exempt.
 - The bundled backend follows **no** redirects: a followed redirect can
   re-send credentials to a host the caller never chose. A next-page link that
   points at another origin is refused for the same reason.

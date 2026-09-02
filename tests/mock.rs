@@ -40,7 +40,7 @@ async fn authenticates_requests_with_configured_credentials() {
         .transport(mock.clone())
         .sleeper(InstantSleep)
         .max_retries(0)
-        .bearer_token("test-bearer-token")
+        .bearer_auth("test-bearer-auth")
         .build()
         .expect("client builds");
     let result: Result<(), Error> = async {
@@ -55,10 +55,7 @@ async fn authenticates_requests_with_configured_credentials() {
         .headers
         .get(::http::header::AUTHORIZATION)
         .expect("authorization header");
-    assert_eq!(
-        authorization.to_str().expect("ascii header"),
-        "Bearer test-bearer-token"
-    );
+    assert_eq!(authorization.to_str().expect("ascii header"), "Bearer test-bearer-auth");
 }
 
 /// A 429 followed by a 200: the runtime replays this crate's anchor
