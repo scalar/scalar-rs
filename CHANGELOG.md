@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.3.0](https://github.com/scalar/scalar-rs/compare/v0.2.0...v0.3.0) (2026-09-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* **api:** 6 breaking changes to the SDK surface.
+    - Renamed SDK from `ScalarApi` to `Scalar`.
+    - Removed operation `schemas.version.retrieveSchema` (`GET /v1/schemas/{namespace}/{slug}/version/{semver}`).
+    - Removed operation `schemas.version.deleteSchema` (`DELETE /v1/schemas/{namespace}/{slug}/version/{semver}`).
+    - Removed operation `schemas.version.createSchema` (`POST /v1/schemas/{namespace}/{slug}/version`).
+    - Removed operation `schemas.accessGroup.createSchema` (`POST /v1/schemas/{namespace}/{slug}/access-group`).
+    - Removed operation `schemas.accessGroup.deleteSchema` (`DELETE /v1/schemas/{namespace}/{slug}/access-group`).
+
+### Features
+
+* **api:** update SDK name (+11 more changes) ([5c05476](https://github.com/scalar/scalar-rs/commit/5c054762e1582b88ddd426b2e8c7cada6fa10fd5))
+
+
+### Chores
+
+* **api:** regenerate SDK ([f4e82a9](https://github.com/scalar/scalar-rs/commit/f4e82a9c3a669dec3cbdf57f9351e1b35c6de958))
+* **api:** regenerate SDK ([c6d7d9c](https://github.com/scalar/scalar-rs/commit/c6d7d9cbd0f847040062864fd5fb48c16d8f98c4))
+* **api:** update generated SDK content ([eaabbf2](https://github.com/scalar/scalar-rs/commit/eaabbf290211e9117905cdd108658dd3f17eae7e))
+* **api:** update generated SDK content ([0ad32ff](https://github.com/scalar/scalar-rs/commit/0ad32ff331222f05ebb83b55570a081a3091a439))
+
 ## [0.2.0](https://github.com/scalar/scalar-rs/compare/v0.1.0...v0.2.0) (2026-08-07)
 
 
