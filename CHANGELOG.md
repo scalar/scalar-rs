@@ -1,5 +1,37 @@
 # Changelog
 
+## [0.3.1](https://github.com/scalar/scalar-rs/compare/v0.3.1...v0.3.1) (2026-09-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* **api:** Schema `timestamp` shape changed.
+* **api:** 6 breaking changes to the SDK surface.
+    - Renamed SDK from `ScalarApi` to `Scalar`.
+    - Removed operation `schemas.version.retrieveSchema` (`GET /v1/schemas/{namespace}/{slug}/version/{semver}`).
+    - Removed operation `schemas.version.deleteSchema` (`DELETE /v1/schemas/{namespace}/{slug}/version/{semver}`).
+    - Removed operation `schemas.version.createSchema` (`POST /v1/schemas/{namespace}/{slug}/version`).
+    - Removed operation `schemas.accessGroup.createSchema` (`POST /v1/schemas/{namespace}/{slug}/access-group`).
+    - Removed operation `schemas.accessGroup.deleteSchema` (`DELETE /v1/schemas/{namespace}/{slug}/access-group`).
+
+### Features
+
+* **api:** initial SDK generation ([64f9473](https://github.com/scalar/scalar-rs/commit/64f94737c7e5e3536ee4b949c6ef9672a4a08f05))
+* **api:** update schema timestamp (+1 more change) ([0f864c8](https://github.com/scalar/scalar-rs/commit/0f864c88b412123c7e38494a94c3f7464a0b0c42))
+* **api:** update SDK name (+11 more changes) ([5c05476](https://github.com/scalar/scalar-rs/commit/5c054762e1582b88ddd426b2e8c7cada6fa10fd5))
+
+
+### Chores
+
+* **api:** regenerate SDK ([f4e82a9](https://github.com/scalar/scalar-rs/commit/f4e82a9c3a669dec3cbdf57f9351e1b35c6de958))
+* **api:** regenerate SDK ([c6d7d9c](https://github.com/scalar/scalar-rs/commit/c6d7d9cbd0f847040062864fd5fb48c16d8f98c4))
+* **api:** regenerate SDK ([85534d5](https://github.com/scalar/scalar-rs/commit/85534d55f2416ac3ebf4dc9f45211ed6fd3266bd))
+* **api:** regenerate SDK ([53a694a](https://github.com/scalar/scalar-rs/commit/53a694ad5e608ec2a7e80ba63d463774aab203c3))
+* **api:** update generated SDK content ([eaabbf2](https://github.com/scalar/scalar-rs/commit/eaabbf290211e9117905cdd108658dd3f17eae7e))
+* **api:** update generated SDK content ([0ad32ff](https://github.com/scalar/scalar-rs/commit/0ad32ff331222f05ebb83b55570a081a3091a439))
+* release 0.3.1 ([00c5ca7](https://github.com/scalar/scalar-rs/commit/00c5ca785b8ccacec8676a3ce4891a4903351b41))
+* release 0.3.1 ([2908fac](https://github.com/scalar/scalar-rs/commit/2908fac501f3274411e8c48dd9467510fada5be1))
+
 ## [0.3.1](https://github.com/scalar/scalar-rs/compare/v0.3.0...v0.3.1) (2026-09-15)
 
 
