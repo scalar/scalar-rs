@@ -224,7 +224,7 @@ impl RetryPolicy {
 
 /// Sends a request through `transport`, retrying transient failures.
 ///
-/// The request is replayed via [`clone_request`] for each attempt; a
+/// The request is replayed via `clone_request` for each attempt; a
 /// non-replayable body (a one-shot stream, where [`SdkBody::try_replay`]
 /// returns `None`) disables retries and is sent exactly once — use
 /// `SdkBody::from_retryable_stream` to opt a streamed upload into retries.
@@ -241,11 +241,12 @@ impl RetryPolicy {
 /// to buffered non-multipart request bodies and passes `None` for streaming
 /// and multipart uploads (an explicit caller-set timeout is passed for every
 /// request — the caller asked for it). Once headers arrive the response body
-/// is a stream, and a slow or long-lived body (SSE, large download) is never
-/// deadline-killed.
+/// is a stream and leaves this function unbounded: a *streamed* body (SSE,
+/// download) is never deadline-killed, while a *buffered* one is bounded
+/// separately by [`read_with_deadline`].
 ///
 /// `keyed` is set by the caller when the request carries an idempotency key, so
-/// a possibly-processed failure (see [`should_retry_status`]) on a
+/// a possibly-processed failure (see `should_retry_status`) on a
 /// non-idempotent method (POST/PATCH) can still be safely replayed — the
 /// server deduplicates the retry by that key.
 ///
@@ -341,8 +342,9 @@ pub async fn send_with_retries(
 /// transport future cancels the in-flight request. The race covers everything
 /// up to response headers, request-body upload included (which is why the
 /// client only defaults a deadline for buffered bodies); the response *body*
-/// is a stream consumed after this function returns and is intentionally
-/// outside the race.
+/// is a stream consumed after this function returns, bounded separately by
+/// [`read_with_deadline`] when it is buffered and left unbounded when it is
+/// streamed.
 async fn execute_with_deadline(
     transport: &dyn Transport,
     sleep: &dyn Sleep,
@@ -359,6 +361,53 @@ async fn execute_with_deadline(
                 format!("no response headers within the {limit:?} deadline"),
             )),
         },
+    }
+}
+
+/// Bounds a buffered response-body read by `deadline`.
+///
+/// [`send_with_retries`] races the transport against the deadline only up to
+/// response **headers**; the body is a stream consumed afterwards, deliberately
+/// left unbounded so SSE and long downloads are not killed mid-flight. That is
+/// right for streaming and wrong for everything else — a server that sends
+/// headers and then stalls hangs an ordinary [`decode_json`] forever, and the
+/// response size cap does not help because it bounds memory, not time.
+///
+/// Wrapping the *decode* rather than the transport is what keeps streaming
+/// opted out for free: streamed responses are handed back raw and never come
+/// through here.
+///
+/// This sits *outside* [`send_with_retries`] on purpose, so a body timeout gets
+/// zero retries — the request already reached the server and may not be
+/// idempotent — while a stalled header phase still gets `max_retries` attempts.
+///
+/// # Errors
+///
+/// Returns [`Error::Transport`] with [`TransportErrorKind::Timeout`] when the
+/// body did not finish arriving within `deadline`, and otherwise whatever the
+/// wrapped read returned. The bound covers the non-success path too, so a server
+/// that sends a failing status and then stalls its error body reports that
+/// timeout rather than the [`Error::Api`] the status announced — waiting for
+/// that body is exactly the hang this exists to stop.
+pub async fn read_with_deadline<T>(
+    sleep: &dyn Sleep,
+    deadline: Option<Duration>,
+    read: impl std::future::Future<Output = Result<T, Error>>,
+) -> Result<T, Error> {
+    let Some(limit) = deadline else {
+        return read.await;
+    };
+    // `select` needs both futures `Unpin`; pinning to the stack gives that
+    // without an allocation. Losing the race drops the read future, which
+    // cancels the in-flight body stream.
+    let read = std::pin::pin!(read);
+    let timer = std::pin::pin!(sleep.sleep(limit));
+    match select(read, timer).await {
+        Either::Left((result, _timer)) => result,
+        Either::Right(((), _read)) => Err(Error::from(TransportError::new(
+            TransportErrorKind::Timeout,
+            format!("response body not fully received within the {limit:?} deadline"),
+        ))),
     }
 }
 
@@ -437,7 +486,7 @@ pub(crate) async fn collect_truncated(body: SdkBody, cap: usize) -> (Bytes, bool
 /// Success bodies are deserialized into `T`. For operations that return no
 /// content, use [`decode_empty`] instead so an empty 2xx body is not fed to a
 /// JSON deserializer. `cap` bounds how many body bytes are buffered (see
-/// [`collect_capped`]).
+/// `collect_capped`).
 ///
 /// # Errors
 ///
@@ -486,7 +535,7 @@ pub async fn decode_json<T: DeserializeOwned>(response: http::Response<SdkBody>,
 /// Used for operations whose success response is a non-JSON payload
 /// (`application/octet-stream`, `text/csv`, etc.): the bytes are returned
 /// verbatim rather than fed to a JSON deserializer. `cap` bounds how many body
-/// bytes are buffered (see [`collect_capped`]).
+/// bytes are buffered (see `collect_capped`).
 ///
 /// # Errors
 ///
@@ -516,7 +565,7 @@ pub async fn decode_bytes(response: http::Response<SdkBody>, cap: usize) -> Resu
 
 /// Consumes a no-content response, mapping non-success statuses to [`ApiError`].
 ///
-/// `cap` bounds how many error-body bytes are kept (see [`collect_truncated`]);
+/// `cap` bounds how many error-body bytes are kept (see `collect_truncated`);
 /// a success response's body is drained (bounded) rather than parsed, so a
 /// keep-alive connection stays reusable even when a "no content" operation
 /// returns stray body bytes.
@@ -733,6 +782,35 @@ pub fn scalar_value<T: Serialize>(value: &T) -> String {
     match serde_json::to_value(value) {
         Ok(serde_json::Value::String(text)) => text,
         Ok(serde_json::Value::Null) => String::new(),
+        // A `type: number` param is an `f64`, so `to_string` renders `limit=100.0`
+        // where the document means `limit=100`. Model fields get the same
+        // treatment through `crate::number`, but a builder param never passes
+        // through a model, so the rule is applied here too. Inlined rather than
+        // shared with `crate::number`: that module is capability-gated and this
+        // one is unconditional core runtime.
+        Ok(serde_json::Value::Number(number)) => {
+            // An `integer` param already holds the exact value in `i64`/`u64`, so
+            // it is rendered straight from there. Routing it through `f64` first
+            // would round it: `9007199254740993` (2^53 + 1) is not representable,
+            // and the nearest `f64` is 2^53 — which still passes the "is this an
+            // exact integer" guard below and would silently ship an off-by-one.
+            if let Some(integer) = number.as_i64() {
+                integer.to_string()
+            } else if let Some(unsigned) = number.as_u64() {
+                unsigned.to_string()
+            } else {
+                // Only a genuine `f64` reaches here, so the reshape below cannot
+                // lose an integer that a wider type was holding exactly.
+                match number.as_f64() {
+                    Some(float)
+                        if float.is_finite() && float.fract() == 0.0 && float.abs() <= 9_007_199_254_740_992.0 =>
+                    {
+                        (float as i64).to_string()
+                    }
+                    _ => number.to_string(),
+                }
+            }
+        }
         Ok(other) => other.to_string(),
         Err(_) => String::new(),
     }
@@ -1004,6 +1082,49 @@ mod tests {
     }
 
     #[test]
+    fn scalar_value_renders_integral_numbers_without_a_fractional_part() {
+        // A `type: number` param is an `f64`, and serde's own rendering would put
+        // `limit=100.0` on the wire where the document means `limit=100`.
+        assert_eq!(scalar_value(&100.0_f64), "100");
+        assert_eq!(scalar_value(&-100.0_f64), "-100");
+        // JSON has no signed zero to preserve.
+        assert_eq!(scalar_value(&-0.0_f64), "0");
+        // A genuinely fractional value keeps every digit.
+        assert_eq!(scalar_value(&1.5_f64), "1.5");
+        assert_eq!(scalar_value(&0.1_f64), "0.1");
+        // Past f64's exact-integer range an `as i64` cast stops describing the
+        // value the float actually holds, so the float rendering stands.
+        assert_eq!(scalar_value(&1e300_f64), serde_json::json!(1e300_f64).to_string());
+        // serde_json cannot represent a non-finite number, so it arrives as null
+        // and drops out — the same thing it did before integral rendering existed.
+        assert_eq!(scalar_value(&f64::NAN), "");
+        assert_eq!(scalar_value(&f64::INFINITY), "");
+    }
+
+    #[test]
+    fn scalar_value_keeps_full_precision_for_large_integer_params() {
+        // An `integer` param is read from `i64`/`u64` directly. Routing it through
+        // `f64` first silently rounds it: 2^53 + 1 has no `f64`, and the nearest
+        // one is 2^53 — which still looks like an exact integer, so the rounding
+        // would have shipped as a plausible-looking off-by-one.
+        assert_eq!(scalar_value(&9_007_199_254_740_993_i64), "9007199254740993");
+        assert_eq!(scalar_value(&-9_007_199_254_740_993_i64), "-9007199254740993");
+        assert_eq!(scalar_value(&9_007_199_254_740_993_u64), "9007199254740993");
+        // 2^53 itself is representable, and the boundary must not shift.
+        assert_eq!(scalar_value(&9_007_199_254_740_992_i64), "9007199254740992");
+        // The extremes of each width, including the `u64` range above `i64::MAX`
+        // that only `as_u64` can read.
+        assert_eq!(scalar_value(&i64::MAX), "9223372036854775807");
+        assert_eq!(scalar_value(&i64::MIN), "-9223372036854775808");
+        assert_eq!(scalar_value(&u64::MAX), "18446744073709551615");
+        assert_eq!(scalar_value(&9_223_372_036_854_775_808_u64), "9223372036854775808");
+        // Ordinary small integers are unchanged by the integer-first branch.
+        assert_eq!(scalar_value(&100_i64), "100");
+        assert_eq!(scalar_value(&-7_i32), "-7");
+        assert_eq!(scalar_value(&42_u32), "42");
+    }
+
+    #[test]
     fn deep_object_pairs_degrades_for_non_object_values() {
         // A loosely-typed param may hold anything at runtime; a scalar keeps the
         // plain `name=value` shape and a null drops out entirely.
@@ -1163,6 +1284,117 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn a_stalled_response_body_is_cut_off_by_the_deadline() {
+        // Headers arrive, then the body never finishes. `send_with_retries`
+        // races only up to headers, so without this bound a buffered decode
+        // waits forever — the size cap bounds memory, not time.
+        let stalled = futures_util::stream::pending::<Result<Bytes, TransportError>>();
+        let response = http::Response::builder()
+            .status(200)
+            .body(SdkBody::from_stream(stalled))
+            .expect("statically valid response parts must build");
+        let sleep = RecordingSleep::default();
+
+        let error = read_with_deadline(
+            &sleep,
+            Some(Duration::from_secs(1)),
+            decode_json::<serde_json::Value>(response, 1024),
+        )
+        .await
+        .expect_err("a body that never arrives must not resolve");
+
+        assert!(matches!(error, Error::Transport(_)), "{error:?}");
+        assert_eq!(sleep.delays(), vec![Duration::from_secs(1)]);
+    }
+
+    #[tokio::test]
+    async fn a_body_that_arrives_in_time_is_unaffected_by_the_deadline() {
+        let response = http::Response::builder()
+            .status(200)
+            .body(SdkBody::from_bytes(r#"{"ok":true}"#))
+            .expect("statically valid response parts must build");
+        let sleep = RecordingSleep::default();
+
+        let value: serde_json::Value =
+            read_with_deadline(&sleep, Some(Duration::from_secs(1)), decode_json(response, 1024))
+                .await
+                .expect("a buffered body decodes well within the deadline");
+
+        assert_eq!(value["ok"], serde_json::Value::Bool(true));
+    }
+
+    #[tokio::test]
+    async fn an_unset_deadline_leaves_the_read_unbounded() {
+        // `None` is the streaming carve-out's shape: the read future is awaited
+        // directly, with no timer racing it.
+        let response = http::Response::builder()
+            .status(200)
+            .body(SdkBody::from_bytes(r#"{"ok":true}"#))
+            .expect("statically valid response parts must build");
+        let sleep = RecordingSleep::default();
+
+        let value: serde_json::Value = read_with_deadline(&sleep, None, decode_json(response, 1024))
+            .await
+            .expect("an unbounded read still decodes");
+
+        assert_eq!(value["ok"], serde_json::Value::Bool(true));
+        assert!(sleep.delays().is_empty(), "no timer may be armed without a deadline");
+    }
+
+    #[tokio::test]
+    async fn a_non_success_body_under_a_deadline_still_reports_the_api_error() {
+        // The deadline wraps the whole decode, so it bounds error-body buffering
+        // too. An error body that does arrive must therefore keep reaching the
+        // caller as a status-carrying `Error::Api`, never flattened to a timeout.
+        let response = http::Response::builder()
+            .status(503)
+            .header("x-request-id", "req_503")
+            .body(SdkBody::from_bytes(r#"{"message":"upstream down"}"#))
+            .expect("statically valid response parts must build");
+        let sleep = RecordingSleep::default();
+
+        let error = read_with_deadline(
+            &sleep,
+            Some(Duration::from_secs(1)),
+            decode_json::<serde_json::Value>(response, 1024),
+        )
+        .await
+        .expect_err("a 503 must not decode as success");
+
+        match error {
+            Error::Api(api) => {
+                assert_eq!(api.status, 503);
+                assert_eq!(api.request_id.as_deref(), Some("req_503"));
+            }
+            other => panic!("expected Error::Api, got {other:?}"),
+        }
+    }
+
+    #[tokio::test]
+    async fn a_stalled_page_body_is_cut_off_by_the_deadline() {
+        // Pagination buffers each page the same way a single send buffers its
+        // body, and does it in a loop — an unbounded page read hangs a pager
+        // once per page. `page_from_response` lives in the generated client, so
+        // this stands in for it with the same `collect_capped` shape.
+        let stalled = futures_util::stream::pending::<Result<Bytes, TransportError>>();
+        let response = http::Response::builder()
+            .status(200)
+            .body(SdkBody::from_stream(stalled))
+            .expect("statically valid response parts must build");
+        let sleep = RecordingSleep::default();
+
+        let error = read_with_deadline(&sleep, Some(Duration::from_secs(2)), async move {
+            let (_parts, body) = response.into_parts();
+            collect_capped(body, 1024).await
+        })
+        .await
+        .expect_err("a page body that never arrives must not resolve");
+
+        assert!(matches!(error, Error::Transport(_)), "{error:?}");
+        assert_eq!(sleep.delays(), vec![Duration::from_secs(2)]);
+    }
+
+    #[tokio::test]
     async fn oversized_error_body_truncates_but_keeps_the_status() {
         // A 502 serving a body past the cap must stay a diagnosable ApiError
         // (status/headers/request id intact), never Error::ResponseTooLarge.
@@ -1236,21 +1468,22 @@ mod tests {
     #[cfg(feature = "tracing")]
     mod tracing_events {
         use super::*;
-        use std::sync::{Arc, Mutex};
+        use std::cell::RefCell;
+        use std::sync::OnceLock;
+
+        thread_local! {
+            /// Events seen on this thread while it is capturing, and `None` on
+            /// every thread that is not inside [`capture`] — which is what keeps
+            /// the rest of the suite's events out of an assertion here.
+            static CAPTURED: RefCell<Option<Vec<String>>> = const { RefCell::new(None) };
+        }
 
         /// A minimal `tracing::Subscriber` that renders every event it sees as
-        /// `target message field=value …` text.
+        /// `target message field=value …` text into the capturing thread's buffer.
         ///
         /// Hand-rolled rather than pulled from `tracing-subscriber`: proving
         /// redaction must not add a dev-dependency to every generated crate.
-        #[derive(Clone, Default)]
-        struct Capture(Arc<Mutex<Vec<String>>>);
-
-        impl Capture {
-            fn rendered(&self) -> String {
-                self.0.lock().expect("capture lock").join("\n")
-            }
-        }
+        struct Capture;
 
         /// Appends `name=value` for every field of an event, using the `Debug`
         /// fallback so string, integer, and `%`/`?` fields all render.
@@ -1277,9 +1510,16 @@ mod tests {
             fn record_follows_from(&self, _span: &tracing::span::Id, _follows: &tracing::span::Id) {}
 
             fn event(&self, event: &tracing::Event<'_>) {
-                let mut rendered = event.metadata().target().to_owned();
-                event.record(&mut Render(&mut rendered));
-                self.0.lock().expect("capture lock").push(rendered);
+                CAPTURED.with(|captured| {
+                    // Events reaching a thread that is not capturing are dropped:
+                    // this subscriber is global, so it also sees the events every
+                    // other test in this binary emits.
+                    if let Some(events) = captured.borrow_mut().as_mut() {
+                        let mut rendered = event.metadata().target().to_owned();
+                        event.record(&mut Render(&mut rendered));
+                        events.push(rendered);
+                    }
+                });
             }
 
             fn enter(&self, _span: &tracing::span::Id) {}
@@ -1287,12 +1527,37 @@ mod tests {
             fn exit(&self, _span: &tracing::span::Id) {}
         }
 
+        /// Runs `emit` with this thread capturing, and renders what it emitted.
+        ///
+        /// The subscriber is installed globally, once, rather than per-test with
+        /// `tracing::subscriber::with_default`. `tracing` resolves each callsite's
+        /// `Interest` the first time that callsite is reached and caches it for the
+        /// whole process, while `with_default` only registers a subscriber on the
+        /// calling thread: a sibling test racing through the same `trace::*`
+        /// callsite can therefore pin it to `Interest::never()`, and the event this
+        /// test asserts on is then dropped before any subscriber sees it. A global
+        /// subscriber that is unconditionally `enabled` makes every callsite resolve
+        /// to `Interest::always()` whichever thread reaches it first; the
+        /// thread-local buffer above, not the subscriber, is what scopes a capture
+        /// to one test.
+        fn capture(emit: impl FnOnce()) -> String {
+            static INSTALLED: OnceLock<()> = OnceLock::new();
+            INSTALLED.get_or_init(|| {
+                tracing::subscriber::set_global_default(Capture)
+                    .expect("this test binary installs no other global subscriber");
+            });
+            CAPTURED.with(|captured| *captured.borrow_mut() = Some(Vec::new()));
+            emit();
+            CAPTURED
+                .with(|captured| captured.borrow_mut().take())
+                .expect("the capture buffer was armed just above")
+                .join("\n")
+        }
+
         /// Every event the runtime emits for a retried request and a failed
-        /// decode, captured on one thread-local subscriber.
+        /// decode, captured on one thread.
         fn capture_request_and_decode_events() -> String {
-            let capture = Capture::default();
-            let sink = capture.clone();
-            tracing::subscriber::with_default(capture, || {
+            capture(|| {
                 let runtime = tokio::runtime::Builder::new_current_thread()
                     .build()
                     .expect("a current-thread runtime must build");
@@ -1321,7 +1586,6 @@ mod tests {
                         .await
                         .expect_err("an object is not a u64");
                 });
-                sink.rendered()
             })
         }
 
@@ -1370,10 +1634,7 @@ mod tests {
         /// alternative, and no part of the failed exchange's error.
         #[test]
         fn the_oauth_fallback_event_carries_no_fields() {
-            let capture = Capture::default();
-            let sink = capture.clone();
-            tracing::subscriber::with_default(capture, trace_oauth_fallback);
-            let rendered = sink.rendered();
+            let rendered = capture(trace_oauth_fallback);
             assert!(
                 rendered.contains("oauth token exchange failed"),
                 "fallback event missing: {rendered}"
