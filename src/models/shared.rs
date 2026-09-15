@@ -76,7 +76,7 @@ pub type Namespace = String;
 #[non_exhaustive]
 pub struct ManagedDocVersion {
     pub uid: String,
-    #[serde(rename = "createdAt")]
+    #[serde(rename = "createdAt", serialize_with = "crate::number::serialize")]
     pub created_at: f64,
     pub version: String,
     pub upgraded: bool,
