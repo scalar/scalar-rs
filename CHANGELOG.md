@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1](https://github.com/scalar/scalar-rs/compare/v0.3.0...v0.3.1) (2026-09-15)
+
+
+### Chores
+
+* release 0.3.1 ([00c5ca7](https://github.com/scalar/scalar-rs/commit/00c5ca785b8ccacec8676a3ce4891a4903351b41))
+* release 0.3.1 ([2908fac](https://github.com/scalar/scalar-rs/commit/2908fac501f3274411e8c48dd9467510fada5be1))
+
 ## [0.3.0](https://github.com/scalar/scalar-rs/compare/v0.2.0...v0.3.0) (2026-09-15)
 
 
