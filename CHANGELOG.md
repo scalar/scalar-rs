@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/scalar/scalar-rs/compare/v0.3.1...v0.3.2) (2026-09-15)
+
+
+### Chores
+
+* **api:** update generated SDK content ([e1962d2](https://github.com/scalar/scalar-rs/commit/e1962d28ae0651c5d29b91ba087a32dfc4dd7551))
+
 ## [0.3.1](https://github.com/scalar/scalar-rs/compare/v0.3.0...v0.3.1) (2026-09-15)
 
 
