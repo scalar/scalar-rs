@@ -7,6 +7,8 @@ pub mod error;
 #[doc(hidden)]
 pub mod http;
 pub mod models;
+#[doc(hidden)]
+pub mod number;
 pub mod resources;
 pub mod transport;
 #[doc(hidden)]

@@ -29,7 +29,12 @@ pub struct GithubProject {
     pub login_portal_uid: String,
     #[serde(rename = "activeThemeId")]
     pub active_theme_id: String,
-    #[serde(rename = "typesenseId", default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "typesenseId",
+        default,
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "crate::number::option::serialize"
+    )]
     pub typesense_id: Option<f64>,
     #[serde(rename = "isPrivate")]
     pub is_private: bool,
@@ -66,6 +71,7 @@ pub struct ActiveDeployment {
 pub struct GithubProjectRepository {
     #[serde(rename = "linkedBy")]
     pub linked_by: String,
+    #[serde(serialize_with = "crate::number::serialize")]
     pub id: f64,
     pub name: String,
     #[serde(rename = "configPath")]
