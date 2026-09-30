@@ -80,6 +80,8 @@ pub struct ManagedDocVersion {
     pub created_at: f64,
     pub version: String,
     pub upgraded: bool,
+    #[serde(rename = "endpointCount", default)]
+    pub endpoint_count: Option<i64>,
     #[serde(rename = "embedStatus", default)]
     pub embed_status: Option<ManagedDocVersionEmbedStatus>,
     pub tags: Vec<String>,
@@ -89,8 +91,6 @@ pub struct ManagedDocVersion {
     pub yaml_sha: Option<String>,
     #[serde(rename = "jsonSha", default, skip_serializing_if = "Option::is_none")]
     pub json_sha: Option<String>,
-    #[serde(rename = "versionSha", default, skip_serializing_if = "Option::is_none")]
-    pub version_sha: Option<String>,
 }
 
 pub type Timestamp = i64;

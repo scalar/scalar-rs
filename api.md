@@ -209,7 +209,6 @@ let response = client
         "example",
         RegistryUpdateApiDocumentVersionBody {
             document: "".to_string(),
-            last_known_version_sha: None,
         },
     )
     .send()
@@ -267,7 +266,6 @@ let response = client
             version: "x".to_string(),
             document: "".to_string(),
             force: None,
-            last_known_version_sha: None,
         },
     )
     .send()
@@ -290,7 +288,7 @@ let response = client
         "example",
         "example",
         AccessGroup {
-            access_group_slug: "xxx".to_string(),
+            access_group_slug: "x".to_string(),
         },
     )
     .send()
@@ -313,7 +311,7 @@ let response = client
         "example",
         "example",
         AccessGroup {
-            access_group_slug: "xxx".to_string(),
+            access_group_slug: "x".to_string(),
         },
     )
     .send()
@@ -445,7 +443,7 @@ Create a schema version.
 | Direction | Type |
 | --- | --- |
 | Request | [`VersionCreateBody`](./src/models/version.rs) |
-| Response | [`Uid`](./src/models/shared.rs) |
+| Response | [`VersionCreateResponse`](./src/models/version.rs) |
 
 ```rust
 let response = client
@@ -457,6 +455,7 @@ let response = client
         VersionCreateBody {
             version: "x".to_string(),
             document: "".to_string(),
+            force: None,
         },
     )
     .send()
@@ -484,7 +483,7 @@ let response = client
         "example",
         "example",
         AccessGroup {
-            access_group_slug: "xxx".to_string(),
+            access_group_slug: "x".to_string(),
         },
     )
     .send()
@@ -508,7 +507,7 @@ let response = client
         "example",
         "example",
         AccessGroup {
-            access_group_slug: "xxx".to_string(),
+            access_group_slug: "x".to_string(),
         },
     )
     .send()
@@ -583,7 +582,7 @@ let response = client
             title: "Private Docs".to_string(),
             main_color: "#2a2f45".to_string(),
             main_background: "#f6f6f6".to_string(),
-            card_color: "2a2f45".to_string(),
+            card_color: "#2a2f45".to_string(),
             card_background: "#fff".to_string(),
             button_color: "#fff".to_string(),
             button_background: "#0f0f0f".to_string(),
@@ -734,7 +733,7 @@ let response = client
         "example",
         "example",
         AccessGroup {
-            access_group_slug: "xxx".to_string(),
+            access_group_slug: "x".to_string(),
         },
     )
     .send()
@@ -757,7 +756,7 @@ let response = client
         "example",
         "example",
         AccessGroup {
-            access_group_slug: "xxx".to_string(),
+            access_group_slug: "x".to_string(),
         },
     )
     .send()

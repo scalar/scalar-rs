@@ -420,9 +420,9 @@ Get current user
 - `Team`
 - `TeamName`
 - `TeamImage`
+- `Email`
 - `GithubProject`
 - `ActiveDeployment`
 - `GithubProjectRepository`
-- `Email`
 - `TeamSummary`
 - `User`

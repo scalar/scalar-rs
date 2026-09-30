@@ -30,7 +30,7 @@ pub use models::{
     ScalarDocsCreateGuideBody, ScalarDocsCreateGuideResponse, ScalarDocsPublishGuideResponse, Schema,
     SchemasCreateBody, SchemasUpdateBody, Slug, Team, TeamImage, TeamName, TeamSummary, Theme, ThemesCreateBody,
     ThemesReplaceDocumentBody, ThemesUpdateBody, Timestamp, Uid, UnauthorizedError, UnprocessableEntityError, User,
-    Version, VersionCreateBody,
+    Version, VersionCreateBody, VersionCreateResponse,
 };
 
 /// The version of this crate, matching the published package version.
