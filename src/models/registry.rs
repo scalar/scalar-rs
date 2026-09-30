@@ -46,6 +46,8 @@ pub enum Method {
     Post,
     #[serde(rename = "put")]
     Put,
+    #[serde(rename = "query")]
+    Query,
     #[serde(rename = "trace")]
     Trace,
     /// A value not known to this version of the SDK, preserved verbatim.
@@ -64,6 +66,7 @@ impl Method {
             Self::Patch => "patch",
             Self::Post => "post",
             Self::Put => "put",
+            Self::Query => "query",
             Self::Trace => "trace",
             Self::Unknown(value) => value,
         }
@@ -86,6 +89,7 @@ impl From<&str> for Method {
             "patch" => Self::Patch,
             "post" => Self::Post,
             "put" => Self::Put,
+            "query" => Self::Query,
             "trace" => Self::Trace,
             other => Self::Unknown(other.to_owned()),
         }
@@ -112,8 +116,6 @@ pub struct RegistryCreateApiDocumentResponse {
     pub json_sha: String,
     #[serde(rename = "yamlSha")]
     pub yaml_sha: String,
-    #[serde(rename = "versionSha")]
-    pub version_sha: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -175,34 +177,11 @@ pub struct RegistryUpdateApiDocumentVersionResponse {
     pub json_sha: String,
     #[serde(rename = "yamlSha")]
     pub yaml_sha: String,
-    #[serde(rename = "versionSha")]
-    pub version_sha: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RegistryUpdateApiDocumentVersionBody {
     pub document: String,
-    #[serde(rename = "lastKnownVersionSha", default, skip_serializing_if = "Option::is_none")]
-    pub last_known_version_sha: Option<String>,
-}
-
-impl RegistryUpdateApiDocumentVersionBody {
-    /// Creates a new `RegistryUpdateApiDocumentVersionBody` from its required fields, leaving every optional one unset.
-    ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    ///
-    /// ```text
-    /// RegistryUpdateApiDocumentVersionBody {
-    ///     last_known_version_sha: Some(…),
-    ///     ..RegistryUpdateApiDocumentVersionBody::new(document)
-    /// }
-    /// ```
-    pub fn new(document: impl Into<String>) -> Self {
-        Self {
-            document: document.into(),
-            last_known_version_sha: None,
-        }
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -211,8 +190,6 @@ pub struct RegistryCreateApiDocumentVersionBody {
     pub document: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub force: Option<bool>,
-    #[serde(rename = "lastKnownVersionSha", default, skip_serializing_if = "Option::is_none")]
-    pub last_known_version_sha: Option<String>,
 }
 
 impl RegistryCreateApiDocumentVersionBody {
@@ -225,7 +202,6 @@ impl RegistryCreateApiDocumentVersionBody {
             version: version.into(),
             document: document.into(),
             force: None,
-            last_known_version_sha: None,
         }
     }
 }

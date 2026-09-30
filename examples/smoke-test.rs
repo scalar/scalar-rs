@@ -337,7 +337,6 @@ async fn main() {
                     "example",
                     RegistryUpdateApiDocumentVersionBody {
                         document: "".to_string(),
-                        last_known_version_sha: None,
                     },
                 )
                 .send()
@@ -357,48 +356,7 @@ async fn main() {
             operation: "updateApiDocumentVersion".to_string(),
             method: "PATCH".to_string(),
             path: "/v1/apis/{namespace}/{slug}/version/{semver}".to_string(),
-            label: "required params".to_string(),
-            status: status.to_string(),
-            duration_ms,
-            error,
-        });
-    }
-    if selected(
-        &filter,
-        "updateApiDocumentVersion",
-        "/v1/apis/{namespace}/{slug}/version/{semver}",
-    ) {
-        let started = std::time::Instant::now();
-        let result: Result<(), Error> = async {
-            let _ = client
-                .registry()
-                .update_api_document_version(
-                    "example",
-                    "example",
-                    "example",
-                    RegistryUpdateApiDocumentVersionBody {
-                        document: "".to_string(),
-                        last_known_version_sha: Some("".to_string()),
-                    },
-                )
-                .send()
-                .await?;
-            Ok(())
-        }
-        .await;
-        let duration_ms = started.elapsed().as_millis() as i64;
-        let (status, error) = match result {
-            Ok(()) => ("passed", String::new()),
-            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
-            // A response came back (API error or decode mismatch): the request
-            // reached the server, which is what this smoke verifies.
-            Err(_) => ("passed", String::new()),
-        };
-        results.push(SmokeResult {
-            operation: "updateApiDocumentVersion".to_string(),
-            method: "PATCH".to_string(),
-            path: "/v1/apis/{namespace}/{slug}/version/{semver}".to_string(),
-            label: "all params".to_string(),
+            label: "".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -486,7 +444,6 @@ async fn main() {
                         version: "x".to_string(),
                         document: "".to_string(),
                         force: None,
-                        last_known_version_sha: None,
                     },
                 )
                 .send()
@@ -528,7 +485,6 @@ async fn main() {
                         version: "x".to_string(),
                         document: "".to_string(),
                         force: Some(false),
-                        last_known_version_sha: Some("".to_string()),
                     },
                 )
                 .send()
@@ -567,7 +523,7 @@ async fn main() {
                     "example",
                     "example",
                     AccessGroup {
-                        access_group_slug: "xxx".to_string(),
+                        access_group_slug: "x".to_string(),
                     },
                 )
                 .send()
@@ -606,7 +562,7 @@ async fn main() {
                     "example",
                     "example",
                     AccessGroup {
-                        access_group_slug: "xxx".to_string(),
+                        access_group_slug: "x".to_string(),
                     },
                 )
                 .send()
@@ -906,6 +862,7 @@ async fn main() {
                     VersionCreateBody {
                         version: "x".to_string(),
                         document: "".to_string(),
+                        force: None,
                     },
                 )
                 .send()
@@ -925,7 +882,45 @@ async fn main() {
             operation: "create".to_string(),
             method: "POST".to_string(),
             path: "/v1/schemas/{namespace}/{slug}/version".to_string(),
-            label: "".to_string(),
+            label: "required params".to_string(),
+            status: status.to_string(),
+            duration_ms,
+            error,
+        });
+    }
+    if selected(&filter, "create", "/v1/schemas/{namespace}/{slug}/version") {
+        let started = std::time::Instant::now();
+        let result: Result<(), Error> = async {
+            let _ = client
+                .schemas()
+                .version()
+                .create(
+                    "example",
+                    "example",
+                    VersionCreateBody {
+                        version: "x".to_string(),
+                        document: "".to_string(),
+                        force: Some(false),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        let duration_ms = started.elapsed().as_millis() as i64;
+        let (status, error) = match result {
+            Ok(()) => ("passed", String::new()),
+            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
+            // A response came back (API error or decode mismatch): the request
+            // reached the server, which is what this smoke verifies.
+            Err(_) => ("passed", String::new()),
+        };
+        results.push(SmokeResult {
+            operation: "create".to_string(),
+            method: "POST".to_string(),
+            path: "/v1/schemas/{namespace}/{slug}/version".to_string(),
+            label: "all params".to_string(),
             status: status.to_string(),
             duration_ms,
             error,
@@ -941,7 +936,7 @@ async fn main() {
                     "example",
                     "example",
                     AccessGroup {
-                        access_group_slug: "xxx".to_string(),
+                        access_group_slug: "x".to_string(),
                     },
                 )
                 .send()
@@ -977,7 +972,7 @@ async fn main() {
                     "example",
                     "example",
                     AccessGroup {
-                        access_group_slug: "xxx".to_string(),
+                        access_group_slug: "x".to_string(),
                     },
                 )
                 .send()
@@ -1132,7 +1127,7 @@ async fn main() {
                         title: "Private Docs".to_string(),
                         main_color: "#2a2f45".to_string(),
                         main_background: "#f6f6f6".to_string(),
-                        card_color: "2a2f45".to_string(),
+                        card_color: "#2a2f45".to_string(),
                         card_background: "#fff".to_string(),
                         button_color: "#fff".to_string(),
                         button_background: "#0f0f0f".to_string(),
@@ -1448,7 +1443,7 @@ async fn main() {
                     "example",
                     "example",
                     AccessGroup {
-                        access_group_slug: "xxx".to_string(),
+                        access_group_slug: "x".to_string(),
                     },
                 )
                 .send()
@@ -1487,7 +1482,7 @@ async fn main() {
                     "example",
                     "example",
                     AccessGroup {
-                        access_group_slug: "xxx".to_string(),
+                        access_group_slug: "x".to_string(),
                     },
                 )
                 .send()
@@ -1852,7 +1847,7 @@ async fn main() {
                 .scalar_docs()
                 .create_guide(ScalarDocsCreateGuideBody {
                     name: "".to_string(),
-                    slug: Some("xxx".to_string()),
+                    slug: Some("x".to_string()),
                     is_private: false,
                     allowed_users: vec![],
                     allowed_domains: vec![],

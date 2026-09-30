@@ -191,7 +191,6 @@ async fn smoke() {
                     "example",
                     RegistryUpdateApiDocumentVersionBody {
                         document: "".to_string(),
-                        last_known_version_sha: None,
                     },
                 )
                 .send()
@@ -203,34 +202,7 @@ async fn smoke() {
             if is_smoke_failure(&error) {
                 failures.push(format!(
                     "{}: {error}",
-                    "PATCH /v1/apis/{namespace}/{slug}/version/{semver} [required params]"
-                ));
-            }
-        }
-    }
-    {
-        let result: Result<(), Error> = async {
-            let _ = client
-                .registry()
-                .update_api_document_version(
-                    "example",
-                    "example",
-                    "example",
-                    RegistryUpdateApiDocumentVersionBody {
-                        document: "".to_string(),
-                        last_known_version_sha: Some("".to_string()),
-                    },
-                )
-                .send()
-                .await?;
-            Ok(())
-        }
-        .await;
-        if let Err(error) = result {
-            if is_smoke_failure(&error) {
-                failures.push(format!(
-                    "{}: {error}",
-                    "PATCH /v1/apis/{namespace}/{slug}/version/{semver} [all params]"
+                    "PATCH /v1/apis/{namespace}/{slug}/version/{semver}"
                 ));
             }
         }
@@ -284,7 +256,6 @@ async fn smoke() {
                         version: "x".to_string(),
                         document: "".to_string(),
                         force: None,
-                        last_known_version_sha: None,
                     },
                 )
                 .send()
@@ -312,7 +283,6 @@ async fn smoke() {
                         version: "x".to_string(),
                         document: "".to_string(),
                         force: Some(false),
-                        last_known_version_sha: Some("".to_string()),
                     },
                 )
                 .send()
@@ -337,7 +307,7 @@ async fn smoke() {
                     "example",
                     "example",
                     AccessGroup {
-                        access_group_slug: "xxx".to_string(),
+                        access_group_slug: "x".to_string(),
                     },
                 )
                 .send()
@@ -359,7 +329,7 @@ async fn smoke() {
                     "example",
                     "example",
                     AccessGroup {
-                        access_group_slug: "xxx".to_string(),
+                        access_group_slug: "x".to_string(),
                     },
                 )
                 .send()
@@ -557,6 +527,7 @@ async fn smoke() {
                     VersionCreateBody {
                         version: "x".to_string(),
                         document: "".to_string(),
+                        force: None,
                     },
                 )
                 .send()
@@ -566,7 +537,38 @@ async fn smoke() {
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "POST /v1/schemas/{namespace}/{slug}/version"));
+                failures.push(format!(
+                    "{}: {error}",
+                    "POST /v1/schemas/{namespace}/{slug}/version [required params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .schemas()
+                .version()
+                .create(
+                    "example",
+                    "example",
+                    VersionCreateBody {
+                        version: "x".to_string(),
+                        document: "".to_string(),
+                        force: Some(false),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "POST /v1/schemas/{namespace}/{slug}/version [all params]"
+                ));
             }
         }
     }
@@ -579,7 +581,7 @@ async fn smoke() {
                     "example",
                     "example",
                     AccessGroup {
-                        access_group_slug: "xxx".to_string(),
+                        access_group_slug: "x".to_string(),
                     },
                 )
                 .send()
@@ -605,7 +607,7 @@ async fn smoke() {
                     "example",
                     "example",
                     AccessGroup {
-                        access_group_slug: "xxx".to_string(),
+                        access_group_slug: "x".to_string(),
                     },
                 )
                 .send()
@@ -701,7 +703,7 @@ async fn smoke() {
                         title: "Private Docs".to_string(),
                         main_color: "#2a2f45".to_string(),
                         main_background: "#f6f6f6".to_string(),
-                        card_color: "2a2f45".to_string(),
+                        card_color: "#2a2f45".to_string(),
                         card_background: "#fff".to_string(),
                         button_color: "#fff".to_string(),
                         button_background: "#0f0f0f".to_string(),
@@ -905,7 +907,7 @@ async fn smoke() {
                     "example",
                     "example",
                     AccessGroup {
-                        access_group_slug: "xxx".to_string(),
+                        access_group_slug: "x".to_string(),
                     },
                 )
                 .send()
@@ -930,7 +932,7 @@ async fn smoke() {
                     "example",
                     "example",
                     AccessGroup {
-                        access_group_slug: "xxx".to_string(),
+                        access_group_slug: "x".to_string(),
                     },
                 )
                 .send()
@@ -1142,7 +1144,7 @@ async fn smoke() {
                 .scalar_docs()
                 .create_guide(ScalarDocsCreateGuideBody {
                     name: "".to_string(),
-                    slug: Some("xxx".to_string()),
+                    slug: Some("x".to_string()),
                     is_private: false,
                     allowed_users: vec![],
                     allowed_domains: vec![],

@@ -256,7 +256,7 @@ impl CreateRequestBuilder {
     ///   be rendered into the request.
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
-    pub async fn send(self) -> Result<crate::models::Uid, crate::error::Error> {
+    pub async fn send(self) -> Result<crate::models::VersionCreateResponse, crate::error::Error> {
         let path = format!(
             "/v1/schemas/{}/{}/version",
             crate::http::encode_path_param(&self.namespace),
@@ -273,7 +273,15 @@ impl CreateRequestBuilder {
             max_retries: self.max_retries,
         };
         self.client
-            .send::<crate::models::Uid, _>(http::Method::POST, &path, &query, &headers, body, true, overrides)
+            .send::<crate::models::VersionCreateResponse, _>(
+                http::Method::POST,
+                &path,
+                &query,
+                &headers,
+                body,
+                true,
+                overrides,
+            )
             .await
     }
 }

@@ -48,6 +48,7 @@ impl Environment {
 #[derive(Clone, Default)]
 struct Auth {
     bearer_auth: Option<String>,
+    access_token: Option<String>,
 }
 
 impl Auth {
@@ -59,8 +60,14 @@ impl Auth {
     /// sensitive and never echoes them in errors; query credentials ride
     /// the URL's form-urlencoded serializer.
     fn apply(&self, headers: &mut http::HeaderMap, _url: &mut url::Url) -> Result<(), Error> {
-        if let Some(value) = &self.bearer_auth {
-            headers.insert(http::header::AUTHORIZATION, auth_value(&format!("Bearer {value}"))?);
+        if self.bearer_auth.is_some() {
+            if let Some(value) = &self.bearer_auth {
+                headers.insert(http::header::AUTHORIZATION, auth_value(&format!("Bearer {value}"))?);
+            }
+        } else if self.access_token.is_some() {
+            if let Some(value) = &self.access_token {
+                headers.insert(http::header::AUTHORIZATION, auth_value(&format!("Bearer {value}"))?);
+            }
         }
         Ok(())
     }
@@ -125,6 +132,9 @@ impl Scalar {
         }
         if let Some(value) = read_env("BEARER_AUTH") {
             builder = builder.bearer_auth(value);
+        }
+        if let Some(value) = read_env("SCALAR_ACCESS_TOKEN") {
+            builder = builder.access_token(value);
         }
         builder.build()
     }
@@ -354,6 +364,7 @@ pub struct ScalarBuilder {
     /// so the setters stay infallible without swallowing the mistake.
     invalid_header: Option<String>,
     bearer_auth: Option<String>,
+    access_token: Option<String>,
 }
 
 impl ScalarBuilder {
@@ -503,6 +514,12 @@ impl ScalarBuilder {
         self
     }
 
+    /// Authorization code with PKCE (S256), for apps acting on behalf of a Scalar user. Each scope implies the weaker ones.
+    pub fn access_token(mut self, value: impl Into<String>) -> Self {
+        self.access_token = Some(value.into());
+        self
+    }
+
     /// Builds the client, resolving the base URL, transport, and timer.
     ///
     /// # Errors
@@ -558,6 +575,7 @@ impl ScalarBuilder {
                 base_url,
                 auth: Auth {
                     bearer_auth: self.bearer_auth,
+                    access_token: self.access_token,
                 },
                 max_retries,
                 deadline,
