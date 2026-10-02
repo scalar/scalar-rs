@@ -5,8 +5,33 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
+///
+/// Response-only model, marked `#[non_exhaustive]`: fields may be added
+/// additively in future versions without a breaking release.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct VersionCreateResponse {
+    pub uid: String,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct VersionCreateBody {
     pub version: String,
     pub document: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub force: Option<bool>,
+}
+
+impl VersionCreateBody {
+    /// Creates a new `VersionCreateBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Pair it with struct-update syntax to set only the optionals you need:
+    /// `VersionCreateBody { force: Some(…), ..VersionCreateBody::new(version, document) }`.
+    pub fn new(version: impl Into<String>, document: impl Into<String>) -> Self {
+        Self {
+            version: version.into(),
+            document: document.into(),
+            force: None,
+        }
+    }
 }

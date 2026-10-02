@@ -2,16 +2,26 @@
 //! Resource sub-clients and root accessors.
 
 pub mod access_group;
+pub mod access_groups;
 pub mod authentication;
+pub mod domains;
+pub mod installations;
+pub mod invites;
 pub mod login_portals;
+pub mod mcp;
+pub mod members;
 pub mod namespaces;
 pub mod registry;
+pub mod repositories;
 pub mod rules;
 pub mod scalar_docs;
 pub mod schemas;
+pub mod sdks;
+pub mod servers;
 pub mod teams;
 pub mod themes;
 pub mod version;
+pub mod versions;
 
 impl crate::client::Scalar {
     /// Registry
@@ -27,6 +37,11 @@ impl crate::client::Scalar {
     /// Login Portals
     pub fn login_portals(&self) -> crate::resources::login_portals::LoginPortalsResource {
         crate::resources::login_portals::LoginPortalsResource::new(self.clone())
+    }
+
+    /// Access Groups
+    pub fn access_groups(&self) -> crate::resources::access_groups::AccessGroupsResource {
+        crate::resources::access_groups::AccessGroupsResource::new(self.clone())
     }
 
     /// Rules
@@ -57,5 +72,14 @@ impl crate::client::Scalar {
     /// Authentication
     pub fn authentication(&self) -> crate::resources::authentication::AuthenticationResource {
         crate::resources::authentication::AuthenticationResource::new(self.clone())
+    }
+
+    /// SDKs
+    pub fn sdks(&self) -> crate::resources::sdks::SdksResource {
+        crate::resources::sdks::SdksResource::new(self.clone())
+    }
+
+    pub fn mcp(&self) -> crate::resources::mcp::McpResource {
+        crate::resources::mcp::McpResource::new(self.clone())
     }
 }

@@ -27,6 +27,8 @@ pub struct GithubProject {
     pub last_published_uid: Option<String>,
     #[serde(rename = "loginPortalUid")]
     pub login_portal_uid: String,
+    #[serde(rename = "userInfoHookUrl")]
+    pub user_info_hook_url: String,
     #[serde(rename = "activeThemeId")]
     pub active_theme_id: String,
     #[serde(
@@ -40,8 +42,10 @@ pub struct GithubProject {
     pub is_private: bool,
     #[serde(rename = "agentEnabled")]
     pub agent_enabled: bool,
+    #[serde(rename = "analyticsEnabled")]
+    pub analytics_enabled: bool,
     #[serde(rename = "accessGroups")]
-    pub access_groups: serde_json::Value,
+    pub access_groups: String,
     pub slug: String,
     #[serde(rename = "publishStatus")]
     pub publish_status: String,
@@ -84,6 +88,33 @@ pub struct GithubProjectRepository {
     #[serde(rename = "prComments")]
     pub pr_comments: bool,
     pub expired: bool,
+}
+
+///
+/// Response-only model, marked `#[non_exhaustive]`: fields may be added
+/// additively in future versions without a breaking release.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct DocsProject {
+    pub uid: String,
+    pub name: String,
+    pub slug: String,
+    #[serde(rename = "isPrivate")]
+    pub is_private: bool,
+    #[serde(rename = "accessGroups")]
+    pub access_groups: String,
+    #[serde(rename = "loginPortalUid")]
+    pub login_portal_uid: String,
+    #[serde(rename = "activeThemeId")]
+    pub active_theme_id: String,
+    #[serde(rename = "agentEnabled")]
+    pub agent_enabled: bool,
+    #[serde(rename = "analyticsEnabled")]
+    pub analytics_enabled: bool,
+    #[serde(rename = "lastPublished", default)]
+    pub last_published: Option<i64>,
+    #[serde(rename = "publishStatus")]
+    pub publish_status: String,
 }
 
 ///
@@ -138,4 +169,303 @@ impl ScalarDocsCreateGuideBody {
 pub struct ScalarDocsPublishGuideResponse {
     #[serde(rename = "publishUid")]
     pub publish_uid: String,
+}
+
+///
+/// Response-only model, marked `#[non_exhaustive]`: fields may be added
+/// additively in future versions without a breaking release.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ScalarDocsListProjectsResponse {
+    pub data: Vec<DocsProject>,
+    #[serde(rename = "hasMore")]
+    pub has_more: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ScalarDocsCreateProjectBody {
+    pub name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub slug: Option<String>,
+    #[serde(rename = "isPrivate", default, skip_serializing_if = "Option::is_none")]
+    pub is_private: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub blank: Option<bool>,
+    pub provider: ScalarDocsCreateProjectBodyProvider,
+    #[serde(rename = "githubRepository", default, skip_serializing_if = "Option::is_none")]
+    pub github_repository: Option<ScalarDocsCreateProjectBodyGithubRepository>,
+    #[serde(rename = "bitbucketRepository", default, skip_serializing_if = "Option::is_none")]
+    pub bitbucket_repository: Option<ScalarDocsCreateProjectBodyBitbucketRepository>,
+}
+
+impl ScalarDocsCreateProjectBody {
+    /// Creates a new `ScalarDocsCreateProjectBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Pair it with struct-update syntax to set only the optionals you need:
+    /// `ScalarDocsCreateProjectBody { slug: Some(…), ..ScalarDocsCreateProjectBody::new(name, provider) }`.
+    pub fn new(name: impl Into<String>, provider: ScalarDocsCreateProjectBodyProvider) -> Self {
+        Self {
+            name: name.into(),
+            slug: None,
+            is_private: None,
+            blank: None,
+            provider,
+            github_repository: None,
+            bitbucket_repository: None,
+        }
+    }
+}
+
+/// Match on `as_str()` (or build one with `From<&str>`) when you need a value
+/// this SDK version does not know. Matching `Unknown(_)` directly is an
+/// anti-pattern: that arm silently stops matching once a future SDK release
+/// adds the real variant.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub enum ScalarDocsCreateProjectBodyProvider {
+    #[serde(rename = "forgejo")]
+    Forgejo,
+    #[serde(rename = "github")]
+    Github,
+    #[serde(rename = "bitbucket")]
+    Bitbucket,
+    /// A value not known to this version of the SDK, preserved verbatim.
+    #[serde(untagged)]
+    Unknown(String),
+}
+
+impl ScalarDocsCreateProjectBodyProvider {
+    /// The wire value this variant serializes to.
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Forgejo => "forgejo",
+            Self::Github => "github",
+            Self::Bitbucket => "bitbucket",
+            Self::Unknown(value) => value,
+        }
+    }
+}
+
+impl std::fmt::Display for ScalarDocsCreateProjectBodyProvider {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for ScalarDocsCreateProjectBodyProvider {
+    fn from(value: &str) -> Self {
+        match value {
+            "forgejo" => Self::Forgejo,
+            "github" => Self::Github,
+            "bitbucket" => Self::Bitbucket,
+            other => Self::Unknown(other.to_owned()),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ScalarDocsCreateProjectBodyGithubRepository {
+    #[serde(rename = "installationId")]
+    pub installation_id: i64,
+    #[serde(rename = "repoId")]
+    pub repo_id: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ScalarDocsCreateProjectBodyBitbucketRepository {
+    #[serde(rename = "workspaceUuid")]
+    pub workspace_uuid: String,
+    #[serde(rename = "repoUuid")]
+    pub repo_uuid: String,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+pub struct ScalarDocsUpdateProjectBody {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    #[serde(rename = "isPrivate", default, skip_serializing_if = "Option::is_none")]
+    pub is_private: Option<bool>,
+    #[serde(rename = "accessGroups", default, skip_serializing_if = "Option::is_none")]
+    pub access_groups: Option<Vec<String>>,
+    #[serde(rename = "loginPortalUid", default, skip_serializing_if = "Option::is_none")]
+    pub login_portal_uid: Option<ScalarDocsUpdateProjectBodyLoginPortalUid>,
+    #[serde(rename = "activeThemeId", default, skip_serializing_if = "Option::is_none")]
+    pub active_theme_id: Option<String>,
+    #[serde(rename = "agentEnabled", default, skip_serializing_if = "Option::is_none")]
+    pub agent_enabled: Option<bool>,
+    #[serde(rename = "analyticsEnabled", default, skip_serializing_if = "Option::is_none")]
+    pub analytics_enabled: Option<bool>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+#[non_exhaustive]
+pub enum ScalarDocsUpdateProjectBodyLoginPortalUid {
+    Nanoid(String),
+    Variant2(String),
+    /// A variant not recognized by this version of the SDK, preserved verbatim.
+    ///
+    /// Match the specific variants first. Matching this one directly is an
+    /// anti-pattern: that arm silently stops matching once a future SDK
+    /// release adds the real variant.
+    #[serde(untagged)]
+    Unknown(serde_json::Value),
+}
+
+///
+/// Response-only model, marked `#[non_exhaustive]`: fields may be added
+/// additively in future versions without a breaking release.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ScalarDocsPublishProjectResponse {
+    #[serde(rename = "publishUid")]
+    pub publish_uid: String,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+pub struct ScalarDocsPublishProjectBody {
+    #[serde(rename = "commitSha", default, skip_serializing_if = "Option::is_none")]
+    pub commit_sha: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub preview: Option<bool>,
+    #[serde(rename = "configPath", default, skip_serializing_if = "Option::is_none")]
+    pub config_path: Option<String>,
+}
+
+///
+/// Response-only model, marked `#[non_exhaustive]`: fields may be added
+/// additively in future versions without a breaking release.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ScalarDocsListProjectConfigResponse {
+    pub path: String,
+    pub content: String,
+    pub r#ref: String,
+    #[serde(rename = "baseToken")]
+    pub base_token: String,
+}
+
+///
+/// Response-only model, marked `#[non_exhaustive]`: fields may be added
+/// additively in future versions without a breaking release.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ScalarDocsUpdateProjectConfigResponse {
+    #[serde(rename = "commitSha", default)]
+    pub commit_sha: Option<String>,
+    pub r#ref: String,
+    #[serde(rename = "baseToken")]
+    pub base_token: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ScalarDocsUpdateProjectConfigBody {
+    pub content: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub r#ref: Option<String>,
+    #[serde(rename = "baseToken", default, skip_serializing_if = "Option::is_none")]
+    pub base_token: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub path: Option<String>,
+}
+
+impl ScalarDocsUpdateProjectConfigBody {
+    /// Creates a new `ScalarDocsUpdateProjectConfigBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Pair it with struct-update syntax to set only the optionals you need:
+    /// `ScalarDocsUpdateProjectConfigBody { r#ref: Some(…), ..ScalarDocsUpdateProjectConfigBody::new(content) }`.
+    pub fn new(content: impl Into<String>) -> Self {
+        Self {
+            content: content.into(),
+            r#ref: None,
+            base_token: None,
+            message: None,
+            path: None,
+        }
+    }
+}
+
+///
+/// Response-only model, marked `#[non_exhaustive]`: fields may be added
+/// additively in future versions without a breaking release.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ScalarDocsListProjectDomainResponse {
+    #[serde(rename = "scalarDomain", default)]
+    pub scalar_domain: Option<String>,
+    #[serde(rename = "customDomain", default)]
+    pub custom_domain: Option<String>,
+}
+
+///
+/// Response-only model, marked `#[non_exhaustive]`: fields may be added
+/// additively in future versions without a breaking release.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ScalarDocsListProjectDomainStatusResponse {
+    #[serde(default)]
+    pub domain: Option<String>,
+    pub status: ScalarDocsListProjectDomainStatusResponseStatus,
+    #[serde(default)]
+    pub expected: Option<ScalarDocsListProjectDomainStatusResponseExpected>,
+    pub found: Vec<String>,
+}
+
+/// Match on `as_str()` (or build one with `From<&str>`) when you need a value
+/// this SDK version does not know. Matching `Unknown(_)` directly is an
+/// anti-pattern: that arm silently stops matching once a future SDK release
+/// adds the real variant.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub enum ScalarDocsListProjectDomainStatusResponseStatus {
+    #[serde(rename = "verified")]
+    Verified,
+    #[serde(rename = "pending")]
+    Pending,
+    #[serde(rename = "misconfigured")]
+    Misconfigured,
+    /// A value not known to this version of the SDK, preserved verbatim.
+    #[serde(untagged)]
+    Unknown(String),
+}
+
+impl ScalarDocsListProjectDomainStatusResponseStatus {
+    /// The wire value this variant serializes to.
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Verified => "verified",
+            Self::Pending => "pending",
+            Self::Misconfigured => "misconfigured",
+            Self::Unknown(value) => value,
+        }
+    }
+}
+
+impl std::fmt::Display for ScalarDocsListProjectDomainStatusResponseStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for ScalarDocsListProjectDomainStatusResponseStatus {
+    fn from(value: &str) -> Self {
+        match value {
+            "verified" => Self::Verified,
+            "pending" => Self::Pending,
+            "misconfigured" => Self::Misconfigured,
+            other => Self::Unknown(other.to_owned()),
+        }
+    }
+}
+
+///
+/// Response-only model, marked `#[non_exhaustive]`: fields may be added
+/// additively in future versions without a breaking release.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ScalarDocsListProjectDomainStatusResponseExpected {
+    pub r#type: String,
+    pub target: String,
 }

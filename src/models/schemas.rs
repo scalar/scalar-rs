@@ -33,6 +33,10 @@ pub struct ManagedSchemaVersion {
     #[serde(rename = "updatedAt")]
     pub updated_at: i64,
     pub version: String,
+    #[serde(rename = "yamlSha", default, skip_serializing_if = "Option::is_none")]
+    pub yaml_sha: Option<String>,
+    #[serde(rename = "jsonSha", default, skip_serializing_if = "Option::is_none")]
+    pub json_sha: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
