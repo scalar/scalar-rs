@@ -11,7 +11,6 @@ pub mod login_portals;
 pub mod mcp;
 pub mod members;
 pub mod namespaces;
-pub mod o_auth;
 pub mod registry;
 pub mod repositories;
 pub mod rules;
@@ -82,10 +81,5 @@ impl crate::client::Scalar {
 
     pub fn mcp(&self) -> crate::resources::mcp::McpResource {
         crate::resources::mcp::McpResource::new(self.clone())
-    }
-
-    /// OAuth
-    pub fn o_auth(&self) -> crate::resources::o_auth::OAuthResource {
-        crate::resources::o_auth::OAuthResource::new(self.clone())
     }
 }
