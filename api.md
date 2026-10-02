@@ -35,6 +35,14 @@ Complete reference of every operation, grouped by resource. See [the README](./R
   - [Delete a login portal](#delete-a-login-portal)
   - [Create a portal](#create-a-portal)
   - [List all portals](#list-all-portals)
+- [`AccessGroups`](#accessgroups)
+  - [Create an access group](#create-an-access-group)
+  - [Get an access group](#get-an-access-group)
+  - [Update an access group](#update-an-access-group)
+  - [Delete an access group](#delete-an-access-group)
+  - [`AccessGroups Domains`](#accessgroups-domains)
+    - [Add an allowed email domain](#add-an-allowed-email-domain)
+    - [Remove an allowed email domain](#remove-an-allowed-email-domain)
 - [`Rules`](#rules)
   - [List all rules](#list-all-rules)
   - [Create a rule](#create-a-rule)
@@ -52,15 +60,67 @@ Complete reference of every operation, grouped by resource. See [the README](./R
   - [Get a theme](#get-a-theme)
 - [`Teams`](#teams)
   - [List teams](#list-teams)
+  - [`Teams Members`](#teams-members)
+    - [List team members](#list-team-members)
+    - [Change a member role](#change-a-member-role)
+    - [Remove a member](#remove-a-member)
+  - [`Teams Invites`](#teams-invites)
+    - [Invite a member](#invite-a-member)
+    - [Resend an invite](#resend-an-invite)
+    - [Cancel an invite](#cancel-an-invite)
 - [`ScalarDocs`](#scalardocs)
   - [List all projects](#list-all-projects)
   - [Create a project](#create-a-project)
   - [Publish a project](#publish-a-project)
+  - [List all docs projects](#list-all-docs-projects)
+  - [Create a docs project](#create-a-docs-project)
+  - [Get a docs project](#get-a-docs-project)
+  - [Update a docs project](#update-a-docs-project)
+  - [Delete a docs project](#delete-a-docs-project)
+  - [Publish a docs project](#publish-a-docs-project)
+  - [Read the site config](#read-the-site-config)
+  - [Write the site config](#write-the-site-config)
+  - [Get the site domains](#get-the-site-domains)
+  - [Check domain DNS](#check-domain-dns)
 - [`Namespaces`](#namespaces)
   - [List namespaces](#list-namespaces)
 - [`Authentication`](#authentication)
   - [Exchange token](#exchange-token)
   - [Get current user](#get-current-user)
+- [`Sdks`](#sdks)
+  - [List all SDKs](#list-all-sdks)
+  - [Create an SDK](#create-an-sdk)
+  - [Get an SDK](#get-an-sdk)
+  - [Update an SDK](#update-an-sdk)
+  - [Delete an SDK](#delete-an-sdk)
+  - [Build an SDK](#build-an-sdk)
+  - [`Sdks Versions`](#sdks-versions)
+    - [Create an SDK version](#create-an-sdk-version)
+    - [Delete an SDK version](#delete-an-sdk-version)
+  - [`Sdks Repositories`](#sdks-repositories)
+    - [Link a repository](#link-a-repository)
+    - [Unlink a repository](#unlink-a-repository)
+    - [Update publishing settings](#update-publishing-settings)
+- [`Mcp`](#mcp)
+  - [`Mcp Servers`](#mcp-servers)
+    - [List all MCP servers](#list-all-mcp-servers)
+    - [Create an MCP server](#create-an-mcp-server)
+    - [Get an MCP server](#get-an-mcp-server)
+    - [Update an MCP server](#update-an-mcp-server)
+    - [Delete an MCP server](#delete-an-mcp-server)
+    - [`Mcp Servers Installations`](#mcp-servers-installations)
+      - [List installations](#list-installations)
+      - [Create an installation](#create-an-installation)
+      - [Get an installation](#get-an-installation)
+      - [Update an installation](#update-an-installation)
+      - [Delete an installation](#delete-an-installation)
+      - [Add an access group](#add-an-access-group)
+      - [Remove an access group](#remove-an-access-group)
+- [`OAuth`](#oauth)
+  - [Start an OAuth authorization](#start-an-oauth-authorization)
+  - [Exchange a code or refresh token](#exchange-a-code-or-refresh-token)
+  - [Revoke a refresh token](#revoke-a-refresh-token)
+  - [Authorization server metadata](#authorization-server-metadata)
 
 ## Setup
 
@@ -620,6 +680,112 @@ List all login portals for the current team.
 let response = client.login_portals().list().send().await?;
 ```
 
+## `AccessGroups`
+
+Access Groups
+
+### Create an access group
+
+Create a group for the current team. Requires docs edit permission and the access groups billing feature. Domains are exact email domains, without wildcards or implicit subdomain matching.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`AccessGroupsCreateBody`](./src/models/access_groups.rs) |
+| Response | [`AccessGroupsCreateResponse`](./src/models/access_groups.rs) |
+
+```rust
+let response = client
+    .access_groups()
+    .create(AccessGroupsCreateBody {
+        name: None,
+        slug: None,
+        allowed_domains: None,
+    })
+    .send()
+    .await?;
+```
+
+### Get an access group
+
+Get a group and its email and domain allowlists by slug.
+
+| Direction | Type |
+| --- | --- |
+| Response | [`AccessGroupsRetrieveResponse`](./src/models/access_groups.rs) |
+
+```rust
+let response = client.access_groups().retrieve("example").send().await?;
+```
+
+### Update an access group
+
+Update group metadata. Requires docs edit permission. After changing the slug, use the new slug in subsequent requests.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`AccessGroupsUpdateBody`](./src/models/access_groups.rs) |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client
+    .access_groups()
+    .update("example", AccessGroupsUpdateBody { name: None, slug: None })
+    .send()
+    .await?;
+```
+
+### Delete an access group
+
+Delete a group and remove its project assignments. Requires docs edit permission.
+
+| Direction | Type |
+| --- | --- |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client.access_groups().delete("example").send().await?;
+```
+
+### `AccessGroups Domains`
+
+Access Groups
+
+#### Add an allowed email domain
+
+Allow an exact email domain in a group. Requires docs edit permission. A group supports up to 1000 domains.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`DomainsCreateBody`](./src/models/domains.rs) |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client
+    .access_groups()
+    .domains()
+    .create("example", DomainsCreateBody { domain: "".to_string() })
+    .send()
+    .await?;
+```
+
+#### Remove an allowed email domain
+
+Remove an exact email domain from a group. Requires docs edit permission. Other allowed domains and emails are preserved.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`DomainsDeleteBody`](./src/models/domains.rs) |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client
+    .access_groups()
+    .domains()
+    .delete("example", DomainsDeleteBody { domain: "".to_string() })
+    .send()
+    .await?;
+```
+
 ## `Rules`
 
 Rules
@@ -886,6 +1052,101 @@ List all available teams
 let response = client.teams().list().send().await?;
 ```
 
+### `Teams Members`
+
+Teams
+
+#### List team members
+
+List the members of the current team, along with the invites still outstanding.
+
+| Direction | Type |
+| --- | --- |
+| Response | [`MembersListResponse`](./src/models/members.rs) |
+
+```rust
+let response = client.teams().members().list().send().await?;
+```
+
+#### Change a member role
+
+Change what a member of the current team is allowed to do.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`MembersUpdateBody`](./src/models/members.rs) |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client
+    .teams()
+    .members()
+    .update("example", MembersUpdateBody { role: Role::Owner })
+    .send()
+    .await?;
+```
+
+#### Remove a member
+
+Remove someone from the current team.
+
+| Direction | Type |
+| --- | --- |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client.teams().members().delete("example").send().await?;
+```
+
+### `Teams Invites`
+
+Teams
+
+#### Invite a member
+
+Invite someone to the current team by email.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`InvitesMemberBody`](./src/models/invites.rs) |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client
+    .teams()
+    .invites()
+    .member(InvitesMemberBody {
+        email: "user@example.com".to_string(),
+        role: Role::Owner,
+    })
+    .send()
+    .await?;
+```
+
+#### Resend an invite
+
+Send the invite email again.
+
+| Direction | Type |
+| --- | --- |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client.teams().invites().resend("example").send().await?;
+```
+
+#### Cancel an invite
+
+Withdraw an invite that has not been accepted.
+
+| Direction | Type |
+| --- | --- |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client.teams().invites().cancel("example").send().await?;
+```
+
 ## `ScalarDocs`
 
 Scalar Docs
@@ -937,6 +1198,185 @@ Start a new publish process.
 let response = client.scalar_docs().publish_guide("example").send().await?;
 ```
 
+### List all docs projects
+
+List every docs project on the team.
+
+| Direction | Type |
+| --- | --- |
+| Response | [`ScalarDocsListProjectsResponse`](./src/models/scalar_docs.rs) |
+
+```rust
+let response = client.scalar_docs().list_projects().send().await?;
+```
+
+### Create a docs project
+
+Create a docs project. Omit `provider` to have Scalar host the repository.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`ScalarDocsCreateProjectBody`](./src/models/scalar_docs.rs) |
+| Response | [`DocsProject`](./src/models/scalar_docs.rs) |
+
+```rust
+let response = client
+    .scalar_docs()
+    .create_project(ScalarDocsCreateProjectBody {
+        name: "".to_string(),
+        slug: None,
+        is_private: None,
+        blank: None,
+        provider: ScalarDocsCreateProjectBodyProvider::Forgejo,
+        github_repository: None,
+        bitbucket_repository: None,
+    })
+    .send()
+    .await?;
+```
+
+### Get a docs project
+
+Get a single docs project by its slug.
+
+| Direction | Type |
+| --- | --- |
+| Response | [`DocsProject`](./src/models/scalar_docs.rs) |
+
+```rust
+let response = client.scalar_docs().retrieve_project("example").send().await?;
+```
+
+### Update a docs project
+
+Update project settings. Set `isPrivate` with `accessGroups` to put the site behind a login.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`ScalarDocsUpdateProjectBody`](./src/models/scalar_docs.rs) |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client
+    .scalar_docs()
+    .update_project(
+        "example",
+        ScalarDocsUpdateProjectBody {
+            name: None,
+            is_private: None,
+            access_groups: None,
+            login_portal_uid: None,
+            active_theme_id: None,
+            agent_enabled: None,
+            analytics_enabled: None,
+        },
+    )
+    .send()
+    .await?;
+```
+
+### Delete a docs project
+
+Delete a docs project, its deploys, its publish records and its cached builds.
+
+| Direction | Type |
+| --- | --- |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client.scalar_docs().delete_project("example").send().await?;
+```
+
+### Publish a docs project
+
+Start a build and deploy. The returned `publishUid` identifies the publish record.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`ScalarDocsPublishProjectBody`](./src/models/scalar_docs.rs) |
+| Response | [`ScalarDocsPublishProjectResponse`](./src/models/scalar_docs.rs) |
+
+```rust
+let response = client
+    .scalar_docs()
+    .publish_project(
+        "example",
+        ScalarDocsPublishProjectBody {
+            commit_sha: None,
+            preview: None,
+            config_path: None,
+        },
+    )
+    .send()
+    .await?;
+```
+
+### Read the site config
+
+Read `scalar.config.json` straight from the project repository, without cloning it. `baseToken` is the compare-and-swap handle for a later write.
+
+| Direction | Type |
+| --- | --- |
+| Response | [`ScalarDocsListProjectConfigResponse`](./src/models/scalar_docs.rs) |
+
+```rust
+let response = client.scalar_docs().list_project_config("example").send().await?;
+```
+
+### Write the site config
+
+Commit `scalar.config.json` straight to the project repository. Pass the `baseToken` from the read this edit was based on; a conflict means the file moved underneath it.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`ScalarDocsUpdateProjectConfigBody`](./src/models/scalar_docs.rs) |
+| Response | [`ScalarDocsUpdateProjectConfigResponse`](./src/models/scalar_docs.rs) |
+
+```rust
+let response = client
+    .scalar_docs()
+    .update_project_config(
+        "example",
+        ScalarDocsUpdateProjectConfigBody {
+            content: "".to_string(),
+            r#ref: None,
+            base_token: None,
+            message: None,
+            path: None,
+        },
+    )
+    .send()
+    .await?;
+```
+
+### Get the site domains
+
+The domains the project serves on — the Scalar-hosted one and the custom one, when set.
+
+| Direction | Type |
+| --- | --- |
+| Response | [`ScalarDocsListProjectDomainResponse`](./src/models/scalar_docs.rs) |
+
+```rust
+let response = client.scalar_docs().list_project_domain("example").send().await?;
+```
+
+### Check domain DNS
+
+Whether the project custom domain points at Scalar yet. `expected` is the CNAME record to create; `found` is what resolves today. A project with no custom domain reports `verified` with no expected record, because Scalar serves its own subdomain directly.
+
+| Direction | Type |
+| --- | --- |
+| Response | [`ScalarDocsListProjectDomainStatusResponse`](./src/models/scalar_docs.rs) |
+
+```rust
+let response = client
+    .scalar_docs()
+    .list_project_domain_status("example")
+    .send()
+    .await?;
+```
+
 ## `Namespaces`
 
 Namespaces
@@ -986,4 +1426,558 @@ Get the authenticated user, including their available teams and theme.
 
 ```rust
 let response = client.authentication().list_current_user().send().await?;
+```
+
+## `Sdks`
+
+SDKs
+
+### List all SDKs
+
+List every SDK on the team.
+
+| Direction | Type |
+| --- | --- |
+| Response | [`SdksListResponse`](./src/models/sdks.rs) |
+
+```rust
+let response = client.sdks().list().send().await?;
+```
+
+### Create an SDK
+
+Create an SDK from an API document, targeting one or more languages.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`SdksCreateBody`](./src/models/sdks.rs) |
+| Response | [`Uid`](./src/models/shared.rs) |
+
+```rust
+let response = client
+    .sdks()
+    .create(SdksCreateBody {
+        api_uid: "xxxxx".to_string(),
+        languages: vec![SdksCreateBodyLanguage::Typescript],
+        title: None,
+        slug: None,
+        class_name: None,
+        config: None,
+    })
+    .send()
+    .await?;
+```
+
+### Get an SDK
+
+Get a single SDK by its uid.
+
+| Direction | Type |
+| --- | --- |
+| Response | [`Sdk`](./src/models/sdks.rs) |
+
+```rust
+let response = client.sdks().retrieve("example").send().await?;
+```
+
+### Update an SDK
+
+Update SDK metadata, its linked API, or its config.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`SdksUpdateBody`](./src/models/sdks.rs) |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client
+    .sdks()
+    .update(
+        "example",
+        SdksUpdateBody {
+            title: None,
+            slug: None,
+            is_private: None,
+            config: None,
+            api_uid: None,
+            api_version: None,
+        },
+    )
+    .send()
+    .await?;
+```
+
+### Delete an SDK
+
+Delete an SDK and every version it holds.
+
+| Direction | Type |
+| --- | --- |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client.sdks().delete("example").send().await?;
+```
+
+### Build an SDK
+
+Start a build. Omit `version` to build the current work — the open draft, else the latest version — and the resolved version comes back in the response.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`SdksBuildBody`](./src/models/sdks.rs) |
+| Response | [`Option<SdksBuildResponse>`](./src/models/sdks.rs) |
+
+```rust
+let response = client
+    .sdks()
+    .build(
+        "example",
+        SdksBuildBody {
+            version: None,
+            languages: None,
+        },
+    )
+    .send()
+    .await?;
+```
+
+### `Sdks Versions`
+
+SDKs
+
+#### Create an SDK version
+
+Create a new SDK version against a specific API version.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`VersionsCreateBody`](./src/models/versions.rs) |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client
+    .sdks()
+    .versions()
+    .create(
+        "example",
+        VersionsCreateBody {
+            version: "".to_string(),
+            api_version: "".to_string(),
+        },
+    )
+    .send()
+    .await?;
+```
+
+#### Delete an SDK version
+
+Permanently delete one version of an SDK.
+
+| Direction | Type |
+| --- | --- |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client.sdks().versions().delete("example", "example").send().await?;
+```
+
+### `Sdks Repositories`
+
+SDKs
+
+#### Link a repository
+
+Link one language target to a GitHub repository, so builds sync there.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`RepositoriesLinkBody`](./src/models/repositories.rs) |
+| Response | [`Option<RepositoriesLinkResponse>`](./src/models/repositories.rs) |
+
+```rust
+let response = client
+    .sdks()
+    .repositories()
+    .link(
+        "example",
+        RepositoriesLinkBody {
+            language: RepositoriesLinkBodyLanguage::Typescript,
+            repository_id: 0,
+            base_branch: "".to_string(),
+            prerelease_type: None,
+        },
+    )
+    .send()
+    .await?;
+```
+
+#### Unlink a repository
+
+Unlink one language target from its repository.
+
+| Direction | Type |
+| --- | --- |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client
+    .sdks()
+    .repositories()
+    .unlink("example", "typescript".to_string())
+    .send()
+    .await?;
+```
+
+#### Update publishing settings
+
+Toggle publish-on-merge and the release settings for a linked target.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`RepositoriesUpdatePublishingBody`](./src/models/repositories.rs) |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client
+    .sdks()
+    .repositories()
+    .update_publishing(
+        "example",
+        "typescript".to_string(),
+        RepositoriesUpdatePublishingBody {
+            publish_on_merge: false,
+            auth_method: None,
+            access: None,
+            tag: None,
+        },
+    )
+    .send()
+    .await?;
+```
+
+## `Mcp`
+
+### `Mcp Servers`
+
+MCP
+
+#### List all MCP servers
+
+List every MCP server on the team.
+
+| Direction | Type |
+| --- | --- |
+| Response | [`Vec<McpServer>`](./src/models/servers.rs) |
+
+```rust
+let response = client.mcp().servers().list().send().await?;
+```
+
+#### Create an MCP server
+
+Create an MCP server over one or more API document versions. The response carries the server and its first installation.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`ServersCreateBody`](./src/models/servers.rs) |
+| Response | [`ServersCreateResponse`](./src/models/servers.rs) |
+
+```rust
+let response = client
+    .mcp()
+    .servers()
+    .create(ServersCreateBody {
+        name: "x".to_string(),
+        slug: None,
+        version_uids: None,
+        project_uids: None,
+    })
+    .send()
+    .await?;
+```
+
+#### Get an MCP server
+
+Get a single MCP server by its id.
+
+| Direction | Type |
+| --- | --- |
+| Response | [`McpServer`](./src/models/servers.rs) |
+
+```rust
+let response = client.mcp().servers().retrieve("example").send().await?;
+```
+
+#### Update an MCP server
+
+Update MCP server metadata and which tools it exposes.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`ServersUpdateBody`](./src/models/servers.rs) |
+| Response | [`McpServer`](./src/models/servers.rs) |
+
+```rust
+let response = client
+    .mcp()
+    .servers()
+    .update(
+        "example",
+        ServersUpdateBody {
+            name: None,
+            slug: None,
+            auto_add_operations: None,
+            operations: None,
+            docs_pages: None,
+        },
+    )
+    .send()
+    .await?;
+```
+
+#### Delete an MCP server
+
+Delete an MCP server and every installation it serves.
+
+| Direction | Type |
+| --- | --- |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client.mcp().servers().delete("example").send().await?;
+```
+
+#### `Mcp Servers Installations`
+
+MCP
+
+##### List installations
+
+List the installations of an MCP server. An installation is what an MCP client connects to.
+
+| Direction | Type |
+| --- | --- |
+| Response | [`Vec<McpInstallationListItem>`](./src/models/installations.rs) |
+
+```rust
+let response = client.mcp().servers().installations().list("example").send().await?;
+```
+
+##### Create an installation
+
+Create an installation of an MCP server. `documentAuth` holds the credentials the server presents to the upstream API and is never returned.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`InstallationsCreateBody`](./src/models/installations.rs) |
+| Response | [`McpInstallation`](./src/models/servers.rs) |
+
+```rust
+let response = client
+    .mcp()
+    .servers()
+    .installations()
+    .create(
+        "example",
+        InstallationsCreateBody {
+            name: "x".to_string(),
+            slug: None,
+            document_auth: std::collections::HashMap::from([]),
+        },
+    )
+    .send()
+    .await?;
+```
+
+##### Get an installation
+
+Get a single installation of an MCP server.
+
+| Direction | Type |
+| --- | --- |
+| Response | [`McpInstallation`](./src/models/servers.rs) |
+
+```rust
+let response = client
+    .mcp()
+    .servers()
+    .installations()
+    .retrieve("example", "example")
+    .send()
+    .await?;
+```
+
+##### Update an installation
+
+Update an installation. Set `isPrivate` and add access groups to put it behind a login.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`InstallationsUpdateBody`](./src/models/installations.rs) |
+| Response | [`McpInstallation`](./src/models/servers.rs) |
+
+```rust
+let response = client
+    .mcp()
+    .servers()
+    .installations()
+    .update(
+        "example",
+        "example",
+        InstallationsUpdateBody {
+            name: None,
+            slug: None,
+            is_private: None,
+            login_portal_uid: None,
+            document_auth: None,
+            mcp_version: None,
+        },
+    )
+    .send()
+    .await?;
+```
+
+##### Delete an installation
+
+Delete an installation of an MCP server.
+
+| Direction | Type |
+| --- | --- |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client
+    .mcp()
+    .servers()
+    .installations()
+    .delete("example", "example")
+    .send()
+    .await?;
+```
+
+##### Add an access group
+
+Let an access group reach a private installation.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`InstallationsCreateAccessGroupBody`](./src/models/installations.rs) |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client
+    .mcp()
+    .servers()
+    .installations()
+    .create_access_group(
+        "example",
+        "example",
+        InstallationsCreateAccessGroupBody {
+            access_group_uid: "xxxxx".to_string(),
+        },
+    )
+    .send()
+    .await?;
+```
+
+##### Remove an access group
+
+Stop an access group reaching a private installation.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`InstallationsDeleteAccessGroupBody`](./src/models/installations.rs) |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client
+    .mcp()
+    .servers()
+    .installations()
+    .delete_access_group(
+        "example",
+        "example",
+        InstallationsDeleteAccessGroupBody {
+            access_group_uid: "xxxxx".to_string(),
+        },
+    )
+    .send()
+    .await?;
+```
+
+## `OAuth`
+
+OAuth
+
+### Start an OAuth authorization
+
+Authorization endpoint (RFC 6749 §4.1.1 with PKCE, RFC 7636). Validates the request and sends the user to the Scalar dashboard to approve it; the user returns to `redirect_uri` with a `code` to exchange at the token endpoint. Only `response_type=code` with `code_challenge_method=S256` is supported.
+
+| Direction | Type |
+| --- | --- |
+| Response | `serde_json::Value` |
+
+```rust
+let response = client.o_auth().oauth_authorize().send().await?;
+```
+
+### Exchange a code or refresh token
+
+Token endpoint (RFC 6749 §4.1.3 and §6). Accepts `application/x-www-form-urlencoded`. Confidential clients authenticate with HTTP Basic or `client_secret` in the body; public clients send `client_id` alone. The `authorization_code` grant needs `code`, `redirect_uri` and `code_verifier`; the `refresh_token` grant needs `refresh_token` and may narrow `scope`.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`OauthTokenRequest`](./src/models/o_auth.rs) |
+| Response | [`OAuthOauthTokenResponse`](./src/models/o_auth.rs) |
+
+```rust
+let response = client
+    .o_auth()
+    .oauth_token(OauthTokenRequest {
+        grant_type: "".to_string(),
+        client_id: None,
+        client_secret: None,
+        code: None,
+        redirect_uri: None,
+        code_verifier: None,
+        refresh_token: None,
+        scope: None,
+    })
+    .send()
+    .await?;
+```
+
+### Revoke a refresh token
+
+Revocation endpoint (RFC 7009). Revokes the refresh token and every token issued alongside it. The client authenticates as it does at the token endpoint. Responds 200 whether or not the token was live, as the RFC requires.
+
+| Direction | Type |
+| --- | --- |
+| Request | [`OauthRevokeRequest`](./src/models/o_auth.rs) |
+| Response | [`Option<OauthError>`](./src/models/o_auth.rs) |
+
+```rust
+let response = client
+    .o_auth()
+    .oauth_revoke(OauthRevokeRequest {
+        token: "".to_string(),
+        token_type_hint: None,
+        client_id: None,
+        client_secret: None,
+    })
+    .send()
+    .await?;
+```
+
+### Authorization server metadata
+
+Discovery document for OAuth clients (RFC 8414): where the endpoints are and what they support.
+
+| Direction | Type |
+| --- | --- |
+| Response | [`OauthAuthorizationServerMetadata`](./src/models/o_auth.rs) |
+
+```rust
+let response = client.o_auth().oauth_authorization_server_metadata().send().await?;
 ```
