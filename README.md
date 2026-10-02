@@ -51,7 +51,7 @@ them from the environment instead:
 use scalar_rs::Scalar;
 
 async fn run() -> Result<(), Box<dyn std::error::Error>> {
-    let client = Scalar::builder().bearer_auth("…").access_token("…").build()?;
+    let client = Scalar::builder().bearer_auth("…").o_auth2("…").build()?;
 
     // Or, reading credentials from the environment:
     let client = Scalar::from_env()?;
@@ -66,7 +66,7 @@ Credentials can be set on the builder or read from the environment by
 `from_env`:
 
 - `bearer_auth` — environment variable `BEARER_AUTH`
-- `access_token` — environment variable `SCALAR_ACCESS_TOKEN`
+- `o_auth2` — environment variable `SCALAR_OAUTH_TOKEN`
 
 ## Error handling
 
