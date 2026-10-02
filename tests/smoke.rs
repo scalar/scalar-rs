@@ -29,7 +29,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.registry().list_api_documents("example").send().await?;
+            let _ = client.registry().list_api_documents("acme").send().await?;
             Ok(())
         }
         .await;
@@ -44,15 +44,17 @@ async fn smoke() {
             let _ = client
                 .registry()
                 .create_api_document(
-                    "example",
+                    "acme",
                     RegistryCreateApiDocumentBody {
-                        title: "".to_string(),
+                        title: "Acme API".to_string(),
                         description: None,
-                        version: "x".to_string(),
-                        slug: "".to_string(),
+                        version: "1.2.0".to_string(),
+                        slug: "acme-api".to_string(),
                         ruleset: None,
                         is_private: None,
-                        document: "".to_string(),
+                        document:
+                            "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"Acme API\",\"version\":\"1.2.0\"},\"paths\":{}}"
+                                .to_string(),
                     },
                 )
                 .send()
@@ -71,15 +73,17 @@ async fn smoke() {
             let _ = client
                 .registry()
                 .create_api_document(
-                    "example",
+                    "acme",
                     RegistryCreateApiDocumentBody {
-                        title: "".to_string(),
-                        description: Some("".to_string()),
-                        version: "x".to_string(),
-                        slug: "".to_string(),
-                        ruleset: Some("".to_string()),
+                        title: "Acme API".to_string(),
+                        description: Some("API for managing Acme products and orders.".to_string()),
+                        version: "1.2.0".to_string(),
+                        slug: "acme-api".to_string(),
+                        ruleset: Some("extends: [\"spectral:oas\"]".to_string()),
                         is_private: Some(false),
-                        document: "".to_string(),
+                        document:
+                            "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"Acme API\",\"version\":\"1.2.0\"},\"paths\":{}}"
+                                .to_string(),
                     },
                 )
                 .send()
@@ -98,8 +102,8 @@ async fn smoke() {
             let _ = client
                 .registry()
                 .update_api_document(
-                    "example",
-                    "example",
+                    "acme",
+                    "acme-api",
                     RegistryUpdateApiDocumentBody {
                         title: None,
                         description: None,
@@ -126,13 +130,13 @@ async fn smoke() {
             let _ = client
                 .registry()
                 .update_api_document(
-                    "example",
-                    "example",
+                    "acme",
+                    "acme-api",
                     RegistryUpdateApiDocumentBody {
-                        title: Some("".to_string()),
-                        description: Some("".to_string()),
+                        title: Some("Acme API".to_string()),
+                        description: Some("API for managing Acme products and orders.".to_string()),
                         is_private: Some(false),
-                        ruleset: Some("".to_string()),
+                        ruleset: Some("extends: [\"spectral:oas\"]".to_string()),
                     },
                 )
                 .send()
@@ -148,11 +152,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client
-                .registry()
-                .delete_api_document("example", "example")
-                .send()
-                .await?;
+            let _ = client.registry().delete_api_document("acme", "acme-api").send().await?;
             Ok(())
         }
         .await;
@@ -166,7 +166,7 @@ async fn smoke() {
         let result: Result<(), Error> = async {
             let _ = client
                 .registry()
-                .retrieve_api_document_version("example", "example", "example")
+                .retrieve_api_document_version("acme", "acme-api", "1.2.0")
                 .send()
                 .await?;
             Ok(())
@@ -186,11 +186,13 @@ async fn smoke() {
             let _ = client
                 .registry()
                 .update_api_document_version(
-                    "example",
-                    "example",
-                    "example",
+                    "acme",
+                    "acme-api",
+                    "1.2.0",
                     RegistryUpdateApiDocumentVersionBody {
-                        document: "".to_string(),
+                        document:
+                            "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"Acme API\",\"version\":\"1.2.0\"},\"paths\":{}}"
+                                .to_string(),
                     },
                 )
                 .send()
@@ -211,7 +213,7 @@ async fn smoke() {
         let result: Result<(), Error> = async {
             let _ = client
                 .registry()
-                .delete_api_document_version("example", "example", "example")
+                .delete_api_document_version("acme", "acme-api", "1.2.0")
                 .send()
                 .await?;
             Ok(())
@@ -230,7 +232,7 @@ async fn smoke() {
         let result: Result<(), Error> = async {
             let _ = client
                 .registry()
-                .list_api_document_version_metadata("example", "example", "example")
+                .list_api_document_version_metadata("acme", "acme-api", "1.2.0")
                 .send()
                 .await?;
             Ok(())
@@ -250,11 +252,13 @@ async fn smoke() {
             let _ = client
                 .registry()
                 .create_api_document_version(
-                    "example",
-                    "example",
+                    "acme",
+                    "acme-api",
                     RegistryCreateApiDocumentVersionBody {
-                        version: "x".to_string(),
-                        document: "".to_string(),
+                        version: "1.2.0".to_string(),
+                        document:
+                            "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"Acme API\",\"version\":\"1.2.0\"},\"paths\":{}}"
+                                .to_string(),
                         force: None,
                     },
                 )
@@ -277,11 +281,13 @@ async fn smoke() {
             let _ = client
                 .registry()
                 .create_api_document_version(
-                    "example",
-                    "example",
+                    "acme",
+                    "acme-api",
                     RegistryCreateApiDocumentVersionBody {
-                        version: "x".to_string(),
-                        document: "".to_string(),
+                        version: "1.2.0".to_string(),
+                        document:
+                            "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"Acme API\",\"version\":\"1.2.0\"},\"paths\":{}}"
+                                .to_string(),
                         force: Some(false),
                     },
                 )
@@ -304,10 +310,10 @@ async fn smoke() {
             let _ = client
                 .registry()
                 .create_api_document_access_group(
-                    "example",
-                    "example",
+                    "acme",
+                    "acme-api",
                     AccessGroup {
-                        access_group_slug: "x".to_string(),
+                        access_group_slug: "acme-api".to_string(),
                     },
                 )
                 .send()
@@ -326,10 +332,10 @@ async fn smoke() {
             let _ = client
                 .registry()
                 .delete_api_document_access_group(
-                    "example",
-                    "example",
+                    "acme",
+                    "acme-api",
                     AccessGroup {
-                        access_group_slug: "x".to_string(),
+                        access_group_slug: "acme-api".to_string(),
                     },
                 )
                 .send()
@@ -348,7 +354,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.schemas().list("example").send().await?;
+            let _ = client.schemas().list("acme").send().await?;
             Ok(())
         }
         .await;
@@ -363,14 +369,16 @@ async fn smoke() {
             let _ = client
                 .schemas()
                 .create(
-                    "example",
+                    "acme",
                     SchemasCreateBody {
-                        title: "".to_string(),
+                        title: "Customer".to_string(),
                         description: None,
-                        version: "x".to_string(),
-                        slug: "".to_string(),
+                        version: "1.2.0".to_string(),
+                        slug: "customer".to_string(),
                         is_private: None,
-                        document: "".to_string(),
+                        document:
+                            "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\",\"examples\":[\"Acme\"]}}}"
+                                .to_string(),
                     },
                 )
                 .send()
@@ -389,14 +397,16 @@ async fn smoke() {
             let _ = client
                 .schemas()
                 .create(
-                    "example",
+                    "acme",
                     SchemasCreateBody {
-                        title: "".to_string(),
-                        description: Some("".to_string()),
-                        version: "x".to_string(),
-                        slug: "".to_string(),
+                        title: "Customer".to_string(),
+                        description: Some("API for managing Acme products and orders.".to_string()),
+                        version: "1.2.0".to_string(),
+                        slug: "customer".to_string(),
                         is_private: Some(false),
-                        document: "".to_string(),
+                        document:
+                            "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\",\"examples\":[\"Acme\"]}}}"
+                                .to_string(),
                     },
                 )
                 .send()
@@ -415,8 +425,8 @@ async fn smoke() {
             let _ = client
                 .schemas()
                 .update(
-                    "example",
-                    "example",
+                    "acme",
+                    "customer",
                     SchemasUpdateBody {
                         title: None,
                         description: None,
@@ -442,11 +452,11 @@ async fn smoke() {
             let _ = client
                 .schemas()
                 .update(
-                    "example",
-                    "example",
+                    "acme",
+                    "customer",
                     SchemasUpdateBody {
-                        title: Some("".to_string()),
-                        description: Some("".to_string()),
+                        title: Some("Customer".to_string()),
+                        description: Some("API for managing Acme products and orders.".to_string()),
                         is_private: Some(false),
                     },
                 )
@@ -466,7 +476,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.schemas().delete("example", "example").send().await?;
+            let _ = client.schemas().delete("acme", "customer").send().await?;
             Ok(())
         }
         .await;
@@ -481,7 +491,7 @@ async fn smoke() {
             let _ = client
                 .schemas()
                 .version()
-                .retrieve("example", "example", "example")
+                .retrieve("acme", "customer", "1.2.0")
                 .send()
                 .await?;
             Ok(())
@@ -501,7 +511,7 @@ async fn smoke() {
             let _ = client
                 .schemas()
                 .version()
-                .delete("example", "example", "example")
+                .delete("acme", "customer", "1.2.0")
                 .send()
                 .await?;
             Ok(())
@@ -522,11 +532,13 @@ async fn smoke() {
                 .schemas()
                 .version()
                 .create(
-                    "example",
-                    "example",
+                    "acme",
+                    "customer",
                     VersionCreateBody {
-                        version: "x".to_string(),
-                        document: "".to_string(),
+                        version: "1.2.0".to_string(),
+                        document:
+                            "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\",\"examples\":[\"Acme\"]}}}"
+                                .to_string(),
                         force: None,
                     },
                 )
@@ -550,11 +562,13 @@ async fn smoke() {
                 .schemas()
                 .version()
                 .create(
-                    "example",
-                    "example",
+                    "acme",
+                    "customer",
                     VersionCreateBody {
-                        version: "x".to_string(),
-                        document: "".to_string(),
+                        version: "1.2.0".to_string(),
+                        document:
+                            "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\",\"examples\":[\"Acme\"]}}}"
+                                .to_string(),
                         force: Some(false),
                     },
                 )
@@ -578,10 +592,10 @@ async fn smoke() {
                 .schemas()
                 .access_group()
                 .create(
-                    "example",
-                    "example",
+                    "acme",
+                    "customer",
                     AccessGroup {
-                        access_group_slug: "x".to_string(),
+                        access_group_slug: "acme-api".to_string(),
                     },
                 )
                 .send()
@@ -604,10 +618,10 @@ async fn smoke() {
                 .schemas()
                 .access_group()
                 .delete(
-                    "example",
-                    "example",
+                    "acme",
+                    "customer",
                     AccessGroup {
-                        access_group_slug: "x".to_string(),
+                        access_group_slug: "acme-api".to_string(),
                     },
                 )
                 .send()
@@ -626,7 +640,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.login_portals().retrieve("example").send().await?;
+            let _ = client.login_portals().retrieve("acme-login").send().await?;
             Ok(())
         }
         .await;
@@ -640,7 +654,7 @@ async fn smoke() {
         let result: Result<(), Error> = async {
             let _ = client
                 .login_portals()
-                .update("example", LoginPortalsUpdateBody { title: None })
+                .update("acme-login", LoginPortalsUpdateBody { title: None })
                 .send()
                 .await?;
             Ok(())
@@ -660,9 +674,9 @@ async fn smoke() {
             let _ = client
                 .login_portals()
                 .update(
-                    "example",
+                    "acme-login",
                     LoginPortalsUpdateBody {
-                        title: Some("".to_string()),
+                        title: Some("Acme Private Documentation".to_string()),
                     },
                 )
                 .send()
@@ -678,7 +692,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.login_portals().delete("example").send().await?;
+            let _ = client.login_portals().delete("acme-login").send().await?;
             Ok(())
         }
         .await;
@@ -693,8 +707,8 @@ async fn smoke() {
             let _ = client
                 .login_portals()
                 .create(LoginPortalsCreateBody {
-                    title: "".to_string(),
-                    slug: "".to_string(),
+                    title: "Acme Private Documentation".to_string(),
+                    slug: "acme-login".to_string(),
                     email: LoginPortalEmail {
                         logo: "".to_string(),
                         logo_size: "100".to_string(),
@@ -773,9 +787,9 @@ async fn smoke() {
             let _ = client
                 .access_groups()
                 .create(AccessGroupsCreateBody {
-                    name: Some("".to_string()),
-                    slug: Some("x".to_string()),
-                    allowed_domains: Some(serde_json::json!(null)),
+                    name: Some("Engineering".to_string()),
+                    slug: Some("engineering".to_string()),
+                    allowed_domains: Some("example.com".to_string()),
                 })
                 .send()
                 .await?;
@@ -790,7 +804,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.access_groups().retrieve("example").send().await?;
+            let _ = client.access_groups().retrieve("acme-api").send().await?;
             Ok(())
         }
         .await;
@@ -804,7 +818,7 @@ async fn smoke() {
         let result: Result<(), Error> = async {
             let _ = client
                 .access_groups()
-                .update("example", AccessGroupsUpdateBody { name: None, slug: None })
+                .update("acme-api", AccessGroupsUpdateBody { name: None, slug: None })
                 .send()
                 .await?;
             Ok(())
@@ -824,10 +838,10 @@ async fn smoke() {
             let _ = client
                 .access_groups()
                 .update(
-                    "example",
+                    "acme-api",
                     AccessGroupsUpdateBody {
-                        name: Some("".to_string()),
-                        slug: Some("x".to_string()),
+                        name: Some("Engineering".to_string()),
+                        slug: Some("engineering".to_string()),
                     },
                 )
                 .send()
@@ -843,7 +857,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.access_groups().delete("example").send().await?;
+            let _ = client.access_groups().delete("acme-api").send().await?;
             Ok(())
         }
         .await;
@@ -858,7 +872,12 @@ async fn smoke() {
             let _ = client
                 .access_groups()
                 .domains()
-                .create("example", DomainsCreateBody { domain: "".to_string() })
+                .create(
+                    "acme-api",
+                    DomainsCreateBody {
+                        domain: "example.com".to_string(),
+                    },
+                )
                 .send()
                 .await?;
             Ok(())
@@ -875,7 +894,12 @@ async fn smoke() {
             let _ = client
                 .access_groups()
                 .domains()
-                .delete("example", DomainsDeleteBody { domain: "".to_string() })
+                .delete(
+                    "acme-api",
+                    DomainsDeleteBody {
+                        domain: "example.com".to_string(),
+                    },
+                )
                 .send()
                 .await?;
             Ok(())
@@ -889,7 +913,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.rules().list_rulesets("example").send().await?;
+            let _ = client.rules().list_rulesets("acme").send().await?;
             Ok(())
         }
         .await;
@@ -904,13 +928,13 @@ async fn smoke() {
             let _ = client
                 .rules()
                 .create_ruleset(
-                    "example",
+                    "acme",
                     RulesCreateRulesetBody {
-                        title: "".to_string(),
+                        title: "Acme API Rules".to_string(),
                         description: None,
-                        slug: "".to_string(),
+                        slug: "acme-rules".to_string(),
                         is_private: None,
-                        document: "".to_string(),
+                        document: "extends: [\"spectral:oas\"]\nrules:\n  info-contact: warn\n".to_string(),
                     },
                 )
                 .send()
@@ -932,13 +956,13 @@ async fn smoke() {
             let _ = client
                 .rules()
                 .create_ruleset(
-                    "example",
+                    "acme",
                     RulesCreateRulesetBody {
-                        title: "".to_string(),
-                        description: Some("".to_string()),
-                        slug: "".to_string(),
+                        title: "Acme API Rules".to_string(),
+                        description: Some("API for managing Acme products and orders.".to_string()),
+                        slug: "acme-rules".to_string(),
                         is_private: Some(false),
-                        document: "".to_string(),
+                        document: "extends: [\"spectral:oas\"]\nrules:\n  info-contact: warn\n".to_string(),
                     },
                 )
                 .send()
@@ -957,8 +981,8 @@ async fn smoke() {
             let _ = client
                 .rules()
                 .update_ruleset(
-                    "example",
-                    "example",
+                    "acme",
+                    "acme-rules",
                     RulesUpdateRulesetBody {
                         namespace: None,
                         slug: None,
@@ -986,13 +1010,13 @@ async fn smoke() {
             let _ = client
                 .rules()
                 .update_ruleset(
-                    "example",
-                    "example",
+                    "acme",
+                    "acme-rules",
                     RulesUpdateRulesetBody {
-                        namespace: Some("".to_string()),
-                        slug: Some("".to_string()),
-                        title: Some("".to_string()),
-                        description: Some("".to_string()),
+                        namespace: Some("acme".to_string()),
+                        slug: Some("acme-rules".to_string()),
+                        title: Some("Acme API Rules".to_string()),
+                        description: Some("API for managing Acme products and orders.".to_string()),
                         is_private: Some(false),
                     },
                 )
@@ -1012,7 +1036,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.rules().delete_ruleset("example", "example").send().await?;
+            let _ = client.rules().delete_ruleset("acme", "acme-rules").send().await?;
             Ok(())
         }
         .await;
@@ -1026,7 +1050,7 @@ async fn smoke() {
         let result: Result<(), Error> = async {
             let _ = client
                 .rules()
-                .retrieve_ruleset_document("example", "example")
+                .retrieve_ruleset_document("acme", "acme-rules")
                 .send()
                 .await?;
             Ok(())
@@ -1043,10 +1067,10 @@ async fn smoke() {
             let _ = client
                 .rules()
                 .create_ruleset_access_group(
-                    "example",
-                    "example",
+                    "acme",
+                    "acme-rules",
                     AccessGroup {
-                        access_group_slug: "x".to_string(),
+                        access_group_slug: "acme-api".to_string(),
                     },
                 )
                 .send()
@@ -1068,10 +1092,10 @@ async fn smoke() {
             let _ = client
                 .rules()
                 .delete_ruleset_access_group(
-                    "example",
-                    "example",
+                    "acme",
+                    "acme-rules",
                     AccessGroup {
-                        access_group_slug: "x".to_string(),
+                        access_group_slug: "acme-api".to_string(),
                     },
                 )
                 .send()
@@ -1105,10 +1129,10 @@ async fn smoke() {
             let _ = client
                 .themes()
                 .create(ThemesCreateBody {
-                    name: "".to_string(),
+                    name: "Acme Theme".to_string(),
                     description: None,
-                    slug: "".to_string(),
-                    document: "".to_string(),
+                    slug: "acme-theme".to_string(),
+                    document: ":root { --scalar-color-1: #1f2937; }".to_string(),
                 })
                 .send()
                 .await?;
@@ -1126,10 +1150,10 @@ async fn smoke() {
             let _ = client
                 .themes()
                 .create(ThemesCreateBody {
-                    name: "".to_string(),
-                    description: Some("".to_string()),
-                    slug: "".to_string(),
-                    document: "".to_string(),
+                    name: "Acme Theme".to_string(),
+                    description: Some("API for managing Acme products and orders.".to_string()),
+                    slug: "acme-theme".to_string(),
+                    document: ":root { --scalar-color-1: #1f2937; }".to_string(),
                 })
                 .send()
                 .await?;
@@ -1147,7 +1171,7 @@ async fn smoke() {
             let _ = client
                 .themes()
                 .update(
-                    "example",
+                    "acme-theme",
                     ThemesUpdateBody {
                         name: None,
                         description: None,
@@ -1169,10 +1193,10 @@ async fn smoke() {
             let _ = client
                 .themes()
                 .update(
-                    "example",
+                    "acme-theme",
                     ThemesUpdateBody {
-                        name: Some("".to_string()),
-                        description: Some("".to_string()),
+                        name: Some("Acme Theme".to_string()),
+                        description: Some("API for managing Acme products and orders.".to_string()),
                     },
                 )
                 .send()
@@ -1191,9 +1215,9 @@ async fn smoke() {
             let _ = client
                 .themes()
                 .replace_document(
-                    "example",
+                    "acme-theme",
                     ThemesReplaceDocumentBody {
-                        document: "".to_string(),
+                        document: ":root { --scalar-color-1: #1f2937; }".to_string(),
                     },
                 )
                 .send()
@@ -1209,7 +1233,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.themes().delete("example").send().await?;
+            let _ = client.themes().delete("acme-theme").send().await?;
             Ok(())
         }
         .await;
@@ -1221,7 +1245,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.themes().retrieve("example").send().await?;
+            let _ = client.themes().retrieve("acme-theme").send().await?;
             Ok(())
         }
         .await;
@@ -1260,7 +1284,7 @@ async fn smoke() {
             let _ = client
                 .teams()
                 .members()
-                .update("example", MembersUpdateBody { role: Role::Owner })
+                .update("UakgbKJ5m9gl0JDMbcJqL", MembersUpdateBody { role: Role::Owner })
                 .send()
                 .await?;
             Ok(())
@@ -1274,7 +1298,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.teams().members().delete("example").send().await?;
+            let _ = client.teams().members().delete("UakgbKJ5m9gl0JDMbcJqL").send().await?;
             Ok(())
         }
         .await;
@@ -1290,7 +1314,7 @@ async fn smoke() {
                 .teams()
                 .invites()
                 .member(InvitesMemberBody {
-                    email: "user@example.com".to_string(),
+                    email: "alex@example.com".to_string(),
                     role: Role::Owner,
                 })
                 .send()
@@ -1306,7 +1330,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.teams().invites().resend("example").send().await?;
+            let _ = client.teams().invites().resend("UakgbKJ5m9gl0JDMbcJqL").send().await?;
             Ok(())
         }
         .await;
@@ -1318,7 +1342,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.teams().invites().cancel("example").send().await?;
+            let _ = client.teams().invites().cancel("UakgbKJ5m9gl0JDMbcJqL").send().await?;
             Ok(())
         }
         .await;
@@ -1345,7 +1369,7 @@ async fn smoke() {
             let _ = client
                 .scalar_docs()
                 .create_guide(ScalarDocsCreateGuideBody {
-                    name: "".to_string(),
+                    name: "Acme Documentation".to_string(),
                     slug: None,
                     is_private: false,
                     allowed_users: vec![],
@@ -1367,8 +1391,8 @@ async fn smoke() {
             let _ = client
                 .scalar_docs()
                 .create_guide(ScalarDocsCreateGuideBody {
-                    name: "".to_string(),
-                    slug: Some("x".to_string()),
+                    name: "Acme Documentation".to_string(),
+                    slug: Some("acme-docs".to_string()),
                     is_private: false,
                     allowed_users: vec![],
                     allowed_domains: vec![],
@@ -1386,7 +1410,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.scalar_docs().publish_guide("example").send().await?;
+            let _ = client.scalar_docs().publish_guide("acme-docs").send().await?;
             Ok(())
         }
         .await;
@@ -1410,7 +1434,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.scalar_docs().list_projects().limit(1).send().await?;
+            let _ = client.scalar_docs().list_projects().limit(20).send().await?;
             Ok(())
         }
         .await;
@@ -1425,7 +1449,7 @@ async fn smoke() {
             let _ = client
                 .scalar_docs()
                 .create_project(ScalarDocsCreateProjectBody {
-                    name: "".to_string(),
+                    name: "Acme Documentation".to_string(),
                     slug: None,
                     is_private: None,
                     blank: None,
@@ -1449,18 +1473,18 @@ async fn smoke() {
             let _ = client
                 .scalar_docs()
                 .create_project(ScalarDocsCreateProjectBody {
-                    name: "".to_string(),
-                    slug: Some("x".to_string()),
+                    name: "Acme Documentation".to_string(),
+                    slug: Some("acme-docs".to_string()),
                     is_private: Some(false),
-                    blank: Some(false),
+                    blank: Some(true),
                     provider: ScalarDocsCreateProjectBodyProvider::Forgejo,
                     github_repository: Some(ScalarDocsCreateProjectBodyGithubRepository {
-                        installation_id: 0,
-                        repo_id: 0,
+                        installation_id: 84,
+                        repo_id: 123456789,
                     }),
                     bitbucket_repository: Some(ScalarDocsCreateProjectBodyBitbucketRepository {
-                        workspace_uuid: "".to_string(),
-                        repo_uuid: "".to_string(),
+                        workspace_uuid: "{12345678-1234-4234-8234-123456789abc}".to_string(),
+                        repo_uuid: "{abcdef01-1234-4234-8234-123456789abc}".to_string(),
                     }),
                 })
                 .send()
@@ -1476,7 +1500,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.scalar_docs().retrieve_project("example").send().await?;
+            let _ = client.scalar_docs().retrieve_project("acme-docs").send().await?;
             Ok(())
         }
         .await;
@@ -1491,7 +1515,7 @@ async fn smoke() {
             let _ = client
                 .scalar_docs()
                 .update_project(
-                    "example",
+                    "acme-docs",
                     ScalarDocsUpdateProjectBody {
                         name: None,
                         is_private: None,
@@ -1518,15 +1542,15 @@ async fn smoke() {
             let _ = client
                 .scalar_docs()
                 .update_project(
-                    "example",
+                    "acme-docs",
                     ScalarDocsUpdateProjectBody {
-                        name: Some("".to_string()),
+                        name: Some("Acme Documentation".to_string()),
                         is_private: Some(false),
-                        access_groups: Some(vec!["xxxxx".to_string()]),
+                        access_groups: Some(vec!["UakgbKJ5m9gl0JDMbcJqL".to_string()]),
                         login_portal_uid: None,
-                        active_theme_id: Some("xxxxx".to_string()),
-                        agent_enabled: Some(false),
-                        analytics_enabled: Some(false),
+                        active_theme_id: Some("TakgbKJ5m9gl0JDMbcJqL".to_string()),
+                        agent_enabled: Some(true),
+                        analytics_enabled: Some(true),
                     },
                 )
                 .send()
@@ -1542,7 +1566,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.scalar_docs().delete_project("example").send().await?;
+            let _ = client.scalar_docs().delete_project("acme-docs").send().await?;
             Ok(())
         }
         .await;
@@ -1557,7 +1581,7 @@ async fn smoke() {
             let _ = client
                 .scalar_docs()
                 .publish_project(
-                    "example",
+                    "acme-docs",
                     ScalarDocsPublishProjectBody {
                         commit_sha: None,
                         preview: None,
@@ -1580,11 +1604,11 @@ async fn smoke() {
             let _ = client
                 .scalar_docs()
                 .publish_project(
-                    "example",
+                    "acme-docs",
                     ScalarDocsPublishProjectBody {
-                        commit_sha: Some("".to_string()),
+                        commit_sha: Some("0123456789abcdef0123456789abcdef01234567".to_string()),
                         preview: Some(false),
-                        config_path: Some("".to_string()),
+                        config_path: Some("scalar.config.json".to_string()),
                     },
                 )
                 .send()
@@ -1600,7 +1624,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.scalar_docs().list_project_config("example").send().await?;
+            let _ = client.scalar_docs().list_project_config("acme-docs").send().await?;
             Ok(())
         }
         .await;
@@ -1614,8 +1638,8 @@ async fn smoke() {
         let result: Result<(), Error> = async {
             let _ = client
                 .scalar_docs()
-                .list_project_config("example")
-                .r#ref("example")
+                .list_project_config("acme-docs")
+                .r#ref("main")
                 .send()
                 .await?;
             Ok(())
@@ -1632,9 +1656,9 @@ async fn smoke() {
             let _ = client
                 .scalar_docs()
                 .update_project_config(
-                    "example",
+                    "acme-docs",
                     ScalarDocsUpdateProjectConfigBody {
-                        content: "".to_string(),
+                        content: "{\"name\":\"Acme Documentation\"}".to_string(),
                         r#ref: None,
                         base_token: None,
                         message: None,
@@ -1657,13 +1681,13 @@ async fn smoke() {
             let _ = client
                 .scalar_docs()
                 .update_project_config(
-                    "example",
+                    "acme-docs",
                     ScalarDocsUpdateProjectConfigBody {
-                        content: "".to_string(),
-                        r#ref: Some("".to_string()),
-                        base_token: Some("".to_string()),
-                        message: Some("".to_string()),
-                        path: Some("".to_string()),
+                        content: "{\"name\":\"Acme Documentation\"}".to_string(),
+                        r#ref: Some("main".to_string()),
+                        base_token: Some("example-edit-token".to_string()),
+                        message: Some("Update documentation configuration".to_string()),
+                        path: Some("scalar.config.json".to_string()),
                     },
                 )
                 .send()
@@ -1679,7 +1703,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.scalar_docs().list_project_domain("example").send().await?;
+            let _ = client.scalar_docs().list_project_domain("acme-docs").send().await?;
             Ok(())
         }
         .await;
@@ -1693,7 +1717,7 @@ async fn smoke() {
         let result: Result<(), Error> = async {
             let _ = client
                 .scalar_docs()
-                .list_project_domain_status("example")
+                .list_project_domain_status("acme-docs")
                 .send()
                 .await?;
             Ok(())
@@ -1722,7 +1746,7 @@ async fn smoke() {
             let _ = client
                 .authentication()
                 .exchange_personal_token(AuthenticationExchangePersonalTokenBody {
-                    personal_token: "".to_string(),
+                    personal_token: "scalar_example_personal_token".to_string(),
                 })
                 .send()
                 .await?;
@@ -1761,7 +1785,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.sdks().list().limit(1).send().await?;
+            let _ = client.sdks().list().limit(20).send().await?;
             Ok(())
         }
         .await;
@@ -1776,7 +1800,7 @@ async fn smoke() {
             let _ = client
                 .sdks()
                 .create(SdksCreateBody {
-                    api_uid: "xxxxx".to_string(),
+                    api_uid: "UakgbKJ5m9gl0JDMbcJqL".to_string(),
                     languages: vec![SdksCreateBodyLanguage::Typescript],
                     title: None,
                     slug: None,
@@ -1799,12 +1823,12 @@ async fn smoke() {
             let _ = client
                 .sdks()
                 .create(SdksCreateBody {
-                    api_uid: "xxxxx".to_string(),
+                    api_uid: "UakgbKJ5m9gl0JDMbcJqL".to_string(),
                     languages: vec![SdksCreateBodyLanguage::Typescript],
-                    title: Some("".to_string()),
-                    slug: Some("x".to_string()),
-                    class_name: Some("".to_string()),
-                    config: Some("".to_string()),
+                    title: Some("Acme SDK".to_string()),
+                    slug: Some("acme-sdk".to_string()),
+                    class_name: Some("Acme".to_string()),
+                    config: Some("{\"targets\":{\"typescript\":{\"packageName\":\"@acme/sdk\"}}}".to_string()),
                 })
                 .send()
                 .await?;
@@ -1819,7 +1843,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.sdks().retrieve("example").send().await?;
+            let _ = client.sdks().retrieve("UakgbKJ5m9gl0JDMbcJqL").send().await?;
             Ok(())
         }
         .await;
@@ -1834,7 +1858,7 @@ async fn smoke() {
             let _ = client
                 .sdks()
                 .update(
-                    "example",
+                    "UakgbKJ5m9gl0JDMbcJqL",
                     SdksUpdateBody {
                         title: None,
                         slug: None,
@@ -1860,14 +1884,14 @@ async fn smoke() {
             let _ = client
                 .sdks()
                 .update(
-                    "example",
+                    "UakgbKJ5m9gl0JDMbcJqL",
                     SdksUpdateBody {
-                        title: Some("".to_string()),
-                        slug: Some("x".to_string()),
+                        title: Some("Acme SDK".to_string()),
+                        slug: Some("acme-sdk".to_string()),
                         is_private: Some(false),
-                        config: Some("".to_string()),
-                        api_uid: Some("xxxxx".to_string()),
-                        api_version: Some("".to_string()),
+                        config: Some("{\"targets\":{\"typescript\":{\"packageName\":\"@acme/sdk\"}}}".to_string()),
+                        api_uid: Some("UakgbKJ5m9gl0JDMbcJqL".to_string()),
+                        api_version: Some("1.2.0".to_string()),
                     },
                 )
                 .send()
@@ -1883,7 +1907,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.sdks().delete("example").send().await?;
+            let _ = client.sdks().delete("UakgbKJ5m9gl0JDMbcJqL").send().await?;
             Ok(())
         }
         .await;
@@ -1898,7 +1922,7 @@ async fn smoke() {
             let _ = client
                 .sdks()
                 .build(
-                    "example",
+                    "UakgbKJ5m9gl0JDMbcJqL",
                     SdksBuildBody {
                         version: None,
                         languages: None,
@@ -1920,9 +1944,9 @@ async fn smoke() {
             let _ = client
                 .sdks()
                 .build(
-                    "example",
+                    "UakgbKJ5m9gl0JDMbcJqL",
                     SdksBuildBody {
-                        version: Some("".to_string()),
+                        version: Some("1.2.0".to_string()),
                         languages: Some(vec![SdksBuildBodyLanguage::Typescript]),
                     },
                 )
@@ -1943,10 +1967,10 @@ async fn smoke() {
                 .sdks()
                 .versions()
                 .create(
-                    "example",
+                    "UakgbKJ5m9gl0JDMbcJqL",
                     VersionsCreateBody {
-                        version: "".to_string(),
-                        api_version: "".to_string(),
+                        version: "1.2.0".to_string(),
+                        api_version: "1.2.0".to_string(),
                     },
                 )
                 .send()
@@ -1962,7 +1986,12 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.sdks().versions().delete("example", "example").send().await?;
+            let _ = client
+                .sdks()
+                .versions()
+                .delete("UakgbKJ5m9gl0JDMbcJqL", "1.2.0")
+                .send()
+                .await?;
             Ok(())
         }
         .await;
@@ -1978,11 +2007,11 @@ async fn smoke() {
                 .sdks()
                 .repositories()
                 .link(
-                    "example",
+                    "UakgbKJ5m9gl0JDMbcJqL",
                     RepositoriesLinkBody {
                         language: RepositoriesLinkBodyLanguage::Typescript,
-                        repository_id: 0,
-                        base_branch: "".to_string(),
+                        repository_id: 123456789,
+                        base_branch: "main".to_string(),
                         prerelease_type: None,
                     },
                 )
@@ -2006,12 +2035,12 @@ async fn smoke() {
                 .sdks()
                 .repositories()
                 .link(
-                    "example",
+                    "UakgbKJ5m9gl0JDMbcJqL",
                     RepositoriesLinkBody {
                         language: RepositoriesLinkBodyLanguage::Typescript,
-                        repository_id: 0,
-                        base_branch: "".to_string(),
-                        prerelease_type: Some("".to_string()),
+                        repository_id: 123456789,
+                        base_branch: "main".to_string(),
+                        prerelease_type: Some("beta".to_string()),
                     },
                 )
                 .send()
@@ -2030,7 +2059,7 @@ async fn smoke() {
             let _ = client
                 .sdks()
                 .repositories()
-                .unlink("example", "typescript".to_string())
+                .unlink("UakgbKJ5m9gl0JDMbcJqL", "typescript".to_string())
                 .send()
                 .await?;
             Ok(())
@@ -2048,10 +2077,10 @@ async fn smoke() {
                 .sdks()
                 .repositories()
                 .update_publishing(
-                    "example",
+                    "UakgbKJ5m9gl0JDMbcJqL",
                     "typescript".to_string(),
                     RepositoriesUpdatePublishingBody {
-                        publish_on_merge: false,
+                        publish_on_merge: true,
                         auth_method: None,
                         access: None,
                         tag: None,
@@ -2077,13 +2106,13 @@ async fn smoke() {
                 .sdks()
                 .repositories()
                 .update_publishing(
-                    "example",
+                    "UakgbKJ5m9gl0JDMbcJqL",
                     "typescript".to_string(),
                     RepositoriesUpdatePublishingBody {
-                        publish_on_merge: false,
+                        publish_on_merge: true,
                         auth_method: Some(RepositoriesUpdatePublishingBodyAuthMethod::Oidc),
                         access: Some(RepositoriesUpdatePublishingBodyAccess::Public),
-                        tag: Some("".to_string()),
+                        tag: Some("latest".to_string()),
                     },
                 )
                 .send()
@@ -2118,7 +2147,7 @@ async fn smoke() {
                 .mcp()
                 .servers()
                 .create(ServersCreateBody {
-                    name: "x".to_string(),
+                    name: "Acme MCP".to_string(),
                     slug: None,
                     version_uids: None,
                     project_uids: None,
@@ -2140,10 +2169,10 @@ async fn smoke() {
                 .mcp()
                 .servers()
                 .create(ServersCreateBody {
-                    name: "x".to_string(),
-                    slug: Some("x".to_string()),
-                    version_uids: Some(vec!["".to_string()]),
-                    project_uids: Some(vec!["".to_string()]),
+                    name: "Acme MCP".to_string(),
+                    slug: Some("acme-mcp".to_string()),
+                    version_uids: Some(vec!["VakgbKJ5m9gl0JDMbcJqL".to_string()]),
+                    project_uids: Some(vec!["PakgbKJ5m9gl0JDMbcJqL".to_string()]),
                 })
                 .send()
                 .await?;
@@ -2158,7 +2187,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.mcp().servers().retrieve("example").send().await?;
+            let _ = client.mcp().servers().retrieve("42").send().await?;
             Ok(())
         }
         .await;
@@ -2174,7 +2203,7 @@ async fn smoke() {
                 .mcp()
                 .servers()
                 .update(
-                    "example",
+                    "42",
                     ServersUpdateBody {
                         name: None,
                         slug: None,
@@ -2200,13 +2229,13 @@ async fn smoke() {
                 .mcp()
                 .servers()
                 .update(
-                    "example",
+                    "42",
                     ServersUpdateBody {
-                        name: Some("x".to_string()),
-                        slug: Some("x".to_string()),
-                        auto_add_operations: Some(false),
-                        operations: Some(vec!["".to_string()]),
-                        docs_pages: Some(vec!["".to_string()]),
+                        name: Some("Acme MCP".to_string()),
+                        slug: Some("acme-mcp".to_string()),
+                        auto_add_operations: Some(true),
+                        operations: Some(vec!["42".to_string()]),
+                        docs_pages: Some(vec!["getting-started".to_string()]),
                     },
                 )
                 .send()
@@ -2222,7 +2251,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.mcp().servers().delete("example").send().await?;
+            let _ = client.mcp().servers().delete("42").send().await?;
             Ok(())
         }
         .await;
@@ -2234,7 +2263,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client.mcp().servers().installations().list("example").send().await?;
+            let _ = client.mcp().servers().installations().list("42").send().await?;
             Ok(())
         }
         .await;
@@ -2251,9 +2280,9 @@ async fn smoke() {
                 .servers()
                 .installations()
                 .create(
-                    "example",
+                    "42",
                     InstallationsCreateBody {
-                        name: "x".to_string(),
+                        name: "Acme MCP".to_string(),
                         slug: None,
                         document_auth: std::collections::HashMap::from([]),
                     },
@@ -2279,10 +2308,10 @@ async fn smoke() {
                 .servers()
                 .installations()
                 .create(
-                    "example",
+                    "42",
                     InstallationsCreateBody {
-                        name: "x".to_string(),
-                        slug: Some("x".to_string()),
+                        name: "Acme MCP".to_string(),
+                        slug: Some("acme-mcp".to_string()),
                         document_auth: std::collections::HashMap::from([]),
                     },
                 )
@@ -2306,7 +2335,7 @@ async fn smoke() {
                 .mcp()
                 .servers()
                 .installations()
-                .retrieve("example", "example")
+                .retrieve("42", "84")
                 .send()
                 .await?;
             Ok(())
@@ -2328,8 +2357,8 @@ async fn smoke() {
                 .servers()
                 .installations()
                 .update(
-                    "example",
-                    "example",
+                    "42",
+                    "84",
                     InstallationsUpdateBody {
                         name: None,
                         slug: None,
@@ -2360,15 +2389,15 @@ async fn smoke() {
                 .servers()
                 .installations()
                 .update(
-                    "example",
-                    "example",
+                    "42",
+                    "84",
                     InstallationsUpdateBody {
-                        name: Some("x".to_string()),
-                        slug: Some("x".to_string()),
+                        name: Some("Acme MCP".to_string()),
+                        slug: Some("acme-mcp".to_string()),
                         is_private: Some(false),
-                        login_portal_uid: Some("".to_string()),
-                        document_auth: Some(std::collections::HashMap::new()),
-                        mcp_version: Some("".to_string()),
+                        login_portal_uid: Some("LakgbKJ5m9gl0JDMbcJqL".to_string()),
+                        document_auth: Some(std::collections::HashMap::from([])),
+                        mcp_version: Some("1.2.0".to_string()),
                     },
                 )
                 .send()
@@ -2387,13 +2416,7 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
-            let _ = client
-                .mcp()
-                .servers()
-                .installations()
-                .delete("example", "example")
-                .send()
-                .await?;
+            let _ = client.mcp().servers().installations().delete("42", "84").send().await?;
             Ok(())
         }
         .await;
@@ -2413,10 +2436,10 @@ async fn smoke() {
                 .servers()
                 .installations()
                 .create_access_group(
-                    "example",
-                    "example",
+                    "42",
+                    "84",
                     InstallationsCreateAccessGroupBody {
-                        access_group_uid: "xxxxx".to_string(),
+                        access_group_uid: "UakgbKJ5m9gl0JDMbcJqL".to_string(),
                     },
                 )
                 .send()
@@ -2440,10 +2463,10 @@ async fn smoke() {
                 .servers()
                 .installations()
                 .delete_access_group(
-                    "example",
-                    "example",
+                    "42",
+                    "84",
                     InstallationsDeleteAccessGroupBody {
-                        access_group_uid: "xxxxx".to_string(),
+                        access_group_uid: "UakgbKJ5m9gl0JDMbcJqL".to_string(),
                     },
                 )
                 .send()
