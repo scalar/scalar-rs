@@ -26,6 +26,68 @@ impl ScalarDocsResource {
     pub fn publish_guide(&self, slug: impl Into<String>) -> PublishGuideRequestBuilder {
         PublishGuideRequestBuilder::new(self.client.clone(), slug.into())
     }
+
+    /// List all docs projects
+    pub fn list_projects(&self) -> ListProjectsRequestBuilder {
+        ListProjectsRequestBuilder::new(self.client.clone())
+    }
+
+    /// Create a docs project
+    pub fn create_project(&self, body: crate::models::ScalarDocsCreateProjectBody) -> CreateProjectRequestBuilder {
+        CreateProjectRequestBuilder::new(self.client.clone(), body)
+    }
+
+    /// Get a docs project
+    pub fn retrieve_project(&self, slug: impl Into<String>) -> RetrieveProjectRequestBuilder {
+        RetrieveProjectRequestBuilder::new(self.client.clone(), slug.into())
+    }
+
+    /// Update a docs project
+    pub fn update_project(
+        &self,
+        slug: impl Into<String>,
+        body: crate::models::ScalarDocsUpdateProjectBody,
+    ) -> UpdateProjectRequestBuilder {
+        UpdateProjectRequestBuilder::new(self.client.clone(), slug.into(), body)
+    }
+
+    /// Delete a docs project
+    pub fn delete_project(&self, slug: impl Into<String>) -> DeleteProjectRequestBuilder {
+        DeleteProjectRequestBuilder::new(self.client.clone(), slug.into())
+    }
+
+    /// Publish a docs project
+    pub fn publish_project(
+        &self,
+        slug: impl Into<String>,
+        body: crate::models::ScalarDocsPublishProjectBody,
+    ) -> PublishProjectRequestBuilder {
+        PublishProjectRequestBuilder::new(self.client.clone(), slug.into(), body)
+    }
+
+    /// Read the site config
+    pub fn list_project_config(&self, slug: impl Into<String>) -> ListProjectConfigRequestBuilder {
+        ListProjectConfigRequestBuilder::new(self.client.clone(), slug.into())
+    }
+
+    /// Write the site config
+    pub fn update_project_config(
+        &self,
+        slug: impl Into<String>,
+        body: crate::models::ScalarDocsUpdateProjectConfigBody,
+    ) -> UpdateProjectConfigRequestBuilder {
+        UpdateProjectConfigRequestBuilder::new(self.client.clone(), slug.into(), body)
+    }
+
+    /// Get the site domains
+    pub fn list_project_domain(&self, slug: impl Into<String>) -> ListProjectDomainRequestBuilder {
+        ListProjectDomainRequestBuilder::new(self.client.clone(), slug.into())
+    }
+
+    /// Check domain DNS
+    pub fn list_project_domain_status(&self, slug: impl Into<String>) -> ListProjectDomainStatusRequestBuilder {
+        ListProjectDomainStatusRequestBuilder::new(self.client.clone(), slug.into())
+    }
 }
 
 /// List all guide projects.
@@ -245,6 +307,747 @@ impl PublishGuideRequestBuilder {
         self.client
             .send::<crate::models::ScalarDocsPublishGuideResponse, _>(
                 http::Method::POST,
+                &path,
+                &query,
+                &headers,
+                body,
+                true,
+                overrides,
+            )
+            .await
+    }
+}
+/// List every docs project on the team.
+#[must_use = "a request builder does nothing until `.send().await` is called"]
+pub struct ListProjectsRequestBuilder {
+    client: crate::client::Scalar,
+    limit: Option<i64>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
+}
+
+impl ListProjectsRequestBuilder {
+    fn new(client: crate::client::Scalar) -> Self {
+        Self {
+            client,
+            limit: None,
+            timeout: None,
+            max_retries: None,
+        }
+    }
+
+    pub fn limit(mut self, value: i64) -> Self {
+        self.limit = Some(value);
+        self
+    }
+
+    /// Overrides the client's request deadline for this request only.
+    /// It bounds each attempt up to response headers, then the buffered
+    /// body read, so total wall time can exceed the value set here. A
+    /// streamed body is never deadline-killed; see `ClientBuilder::timeout`.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
+    /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
+    pub async fn send(self) -> Result<crate::models::ScalarDocsListProjectsResponse, crate::error::Error> {
+        let path = "/v1/docs".to_string();
+        let mut query: Vec<(String, String)> = Vec::new();
+        if let Some(value) = &self.limit {
+            query.push(("limit".to_string(), crate::http::scalar_value(value)));
+        }
+        let headers: Vec<(String, String)> = Vec::new();
+        let body: Option<&serde_json::Value> = None;
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
+        self.client
+            .send::<crate::models::ScalarDocsListProjectsResponse, _>(
+                http::Method::GET,
+                &path,
+                &query,
+                &headers,
+                body,
+                true,
+                overrides,
+            )
+            .await
+    }
+}
+/// Create a docs project. Omit `provider` to have Scalar host the repository.
+#[must_use = "a request builder does nothing until `.send().await` is called"]
+pub struct CreateProjectRequestBuilder {
+    client: crate::client::Scalar,
+    body: crate::models::ScalarDocsCreateProjectBody,
+    idempotency_key: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
+}
+
+impl CreateProjectRequestBuilder {
+    fn new(client: crate::client::Scalar, body: crate::models::ScalarDocsCreateProjectBody) -> Self {
+        Self {
+            client,
+            body,
+            idempotency_key: None,
+            timeout: None,
+            max_retries: None,
+        }
+    }
+
+    /// Sets an idempotency key so this request can be safely retried.
+    pub fn idempotency_key(mut self, value: impl Into<String>) -> Self {
+        self.idempotency_key = Some(value.into());
+        self
+    }
+
+    /// Overrides the client's request deadline for this request only.
+    /// It bounds each attempt up to response headers, then the buffered
+    /// body read, so total wall time can exceed the value set here. A
+    /// streamed body is never deadline-killed; see `ClientBuilder::timeout`.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
+    /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
+    pub async fn send(self) -> Result<crate::models::DocsProject, crate::error::Error> {
+        let path = "/v1/docs".to_string();
+        let query: Vec<(String, String)> = Vec::new();
+        let mut headers: Vec<(String, String)> = Vec::new();
+        if let Some(key) = self.idempotency_key {
+            headers.push(("Idempotency-Key".to_string(), key));
+        }
+        let body = Some(&self.body);
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
+        self.client
+            .send::<crate::models::DocsProject, _>(http::Method::POST, &path, &query, &headers, body, true, overrides)
+            .await
+    }
+}
+/// Get a single docs project by its slug.
+#[must_use = "a request builder does nothing until `.send().await` is called"]
+pub struct RetrieveProjectRequestBuilder {
+    client: crate::client::Scalar,
+    slug: String,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
+}
+
+impl RetrieveProjectRequestBuilder {
+    fn new(client: crate::client::Scalar, slug: String) -> Self {
+        Self {
+            client,
+            slug,
+            timeout: None,
+            max_retries: None,
+        }
+    }
+
+    /// Overrides the client's request deadline for this request only.
+    /// It bounds each attempt up to response headers, then the buffered
+    /// body read, so total wall time can exceed the value set here. A
+    /// streamed body is never deadline-killed; see `ClientBuilder::timeout`.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
+    /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
+    pub async fn send(self) -> Result<crate::models::DocsProject, crate::error::Error> {
+        let path = format!("/v1/docs/{}", crate::http::encode_path_param(&self.slug));
+        let query: Vec<(String, String)> = Vec::new();
+        let headers: Vec<(String, String)> = Vec::new();
+        let body: Option<&serde_json::Value> = None;
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
+        self.client
+            .send::<crate::models::DocsProject, _>(http::Method::GET, &path, &query, &headers, body, true, overrides)
+            .await
+    }
+}
+/// Update project settings. Set `isPrivate` with `accessGroups` to put the site behind a login.
+#[must_use = "a request builder does nothing until `.send().await` is called"]
+pub struct UpdateProjectRequestBuilder {
+    client: crate::client::Scalar,
+    slug: String,
+    body: crate::models::ScalarDocsUpdateProjectBody,
+    idempotency_key: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
+}
+
+impl UpdateProjectRequestBuilder {
+    fn new(client: crate::client::Scalar, slug: String, body: crate::models::ScalarDocsUpdateProjectBody) -> Self {
+        Self {
+            client,
+            slug,
+            body,
+            idempotency_key: None,
+            timeout: None,
+            max_retries: None,
+        }
+    }
+
+    /// Sets an idempotency key so this request can be safely retried.
+    pub fn idempotency_key(mut self, value: impl Into<String>) -> Self {
+        self.idempotency_key = Some(value.into());
+        self
+    }
+
+    /// Overrides the client's request deadline for this request only.
+    /// It bounds each attempt up to response headers, then the buffered
+    /// body read, so total wall time can exceed the value set here. A
+    /// streamed body is never deadline-killed; see `ClientBuilder::timeout`.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
+    /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
+    pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
+        let path = format!("/v1/docs/{}", crate::http::encode_path_param(&self.slug));
+        let query: Vec<(String, String)> = Vec::new();
+        let mut headers: Vec<(String, String)> = Vec::new();
+        if let Some(key) = self.idempotency_key {
+            headers.push(("Idempotency-Key".to_string(), key));
+        }
+        let body = Some(&self.body);
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
+        self.client
+            .send::<serde_json::Value, _>(http::Method::PATCH, &path, &query, &headers, body, true, overrides)
+            .await
+    }
+}
+/// Delete a docs project, its deploys, its publish records and its cached builds.
+#[must_use = "a request builder does nothing until `.send().await` is called"]
+pub struct DeleteProjectRequestBuilder {
+    client: crate::client::Scalar,
+    slug: String,
+    idempotency_key: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
+}
+
+impl DeleteProjectRequestBuilder {
+    fn new(client: crate::client::Scalar, slug: String) -> Self {
+        Self {
+            client,
+            slug,
+            idempotency_key: None,
+            timeout: None,
+            max_retries: None,
+        }
+    }
+
+    /// Sets an idempotency key so this request can be safely retried.
+    pub fn idempotency_key(mut self, value: impl Into<String>) -> Self {
+        self.idempotency_key = Some(value.into());
+        self
+    }
+
+    /// Overrides the client's request deadline for this request only.
+    /// It bounds each attempt up to response headers, then the buffered
+    /// body read, so total wall time can exceed the value set here. A
+    /// streamed body is never deadline-killed; see `ClientBuilder::timeout`.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
+    /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
+    pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
+        let path = format!("/v1/docs/{}", crate::http::encode_path_param(&self.slug));
+        let query: Vec<(String, String)> = Vec::new();
+        let mut headers: Vec<(String, String)> = Vec::new();
+        if let Some(key) = self.idempotency_key {
+            headers.push(("Idempotency-Key".to_string(), key));
+        }
+        let body: Option<&serde_json::Value> = None;
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
+        self.client
+            .send::<serde_json::Value, _>(http::Method::DELETE, &path, &query, &headers, body, true, overrides)
+            .await
+    }
+}
+/// Start a build and deploy. The returned `publishUid` identifies the publish record.
+#[must_use = "a request builder does nothing until `.send().await` is called"]
+pub struct PublishProjectRequestBuilder {
+    client: crate::client::Scalar,
+    slug: String,
+    body: crate::models::ScalarDocsPublishProjectBody,
+    idempotency_key: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
+}
+
+impl PublishProjectRequestBuilder {
+    fn new(client: crate::client::Scalar, slug: String, body: crate::models::ScalarDocsPublishProjectBody) -> Self {
+        Self {
+            client,
+            slug,
+            body,
+            idempotency_key: None,
+            timeout: None,
+            max_retries: None,
+        }
+    }
+
+    /// Sets an idempotency key so this request can be safely retried.
+    pub fn idempotency_key(mut self, value: impl Into<String>) -> Self {
+        self.idempotency_key = Some(value.into());
+        self
+    }
+
+    /// Overrides the client's request deadline for this request only.
+    /// It bounds each attempt up to response headers, then the buffered
+    /// body read, so total wall time can exceed the value set here. A
+    /// streamed body is never deadline-killed; see `ClientBuilder::timeout`.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
+    /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
+    pub async fn send(self) -> Result<crate::models::ScalarDocsPublishProjectResponse, crate::error::Error> {
+        let path = format!("/v1/docs/{}/publish", crate::http::encode_path_param(&self.slug));
+        let query: Vec<(String, String)> = Vec::new();
+        let mut headers: Vec<(String, String)> = Vec::new();
+        if let Some(key) = self.idempotency_key {
+            headers.push(("Idempotency-Key".to_string(), key));
+        }
+        let body = Some(&self.body);
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
+        self.client
+            .send::<crate::models::ScalarDocsPublishProjectResponse, _>(
+                http::Method::POST,
+                &path,
+                &query,
+                &headers,
+                body,
+                true,
+                overrides,
+            )
+            .await
+    }
+}
+/// Read `scalar.config.json` straight from the project repository, without cloning it. `baseToken` is the compare-and-swap handle for a later write.
+#[must_use = "a request builder does nothing until `.send().await` is called"]
+pub struct ListProjectConfigRequestBuilder {
+    client: crate::client::Scalar,
+    slug: String,
+    r#ref: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
+}
+
+impl ListProjectConfigRequestBuilder {
+    fn new(client: crate::client::Scalar, slug: String) -> Self {
+        Self {
+            client,
+            slug,
+            r#ref: None,
+            timeout: None,
+            max_retries: None,
+        }
+    }
+
+    pub fn r#ref(mut self, value: impl Into<String>) -> Self {
+        self.r#ref = Some(value.into());
+        self
+    }
+
+    /// Overrides the client's request deadline for this request only.
+    /// It bounds each attempt up to response headers, then the buffered
+    /// body read, so total wall time can exceed the value set here. A
+    /// streamed body is never deadline-killed; see `ClientBuilder::timeout`.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
+    /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
+    pub async fn send(self) -> Result<crate::models::ScalarDocsListProjectConfigResponse, crate::error::Error> {
+        let path = format!("/v1/docs/{}/config", crate::http::encode_path_param(&self.slug));
+        let mut query: Vec<(String, String)> = Vec::new();
+        if let Some(value) = &self.r#ref {
+            query.push(("ref".to_string(), crate::http::scalar_value(value)));
+        }
+        let headers: Vec<(String, String)> = Vec::new();
+        let body: Option<&serde_json::Value> = None;
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
+        self.client
+            .send::<crate::models::ScalarDocsListProjectConfigResponse, _>(
+                http::Method::GET,
+                &path,
+                &query,
+                &headers,
+                body,
+                true,
+                overrides,
+            )
+            .await
+    }
+}
+/// Commit `scalar.config.json` straight to the project repository. Pass the `baseToken` from the read this edit was based on; a conflict means the file moved underneath it.
+#[must_use = "a request builder does nothing until `.send().await` is called"]
+pub struct UpdateProjectConfigRequestBuilder {
+    client: crate::client::Scalar,
+    slug: String,
+    body: crate::models::ScalarDocsUpdateProjectConfigBody,
+    idempotency_key: Option<String>,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
+}
+
+impl UpdateProjectConfigRequestBuilder {
+    fn new(
+        client: crate::client::Scalar,
+        slug: String,
+        body: crate::models::ScalarDocsUpdateProjectConfigBody,
+    ) -> Self {
+        Self {
+            client,
+            slug,
+            body,
+            idempotency_key: None,
+            timeout: None,
+            max_retries: None,
+        }
+    }
+
+    /// Sets an idempotency key so this request can be safely retried.
+    pub fn idempotency_key(mut self, value: impl Into<String>) -> Self {
+        self.idempotency_key = Some(value.into());
+        self
+    }
+
+    /// Overrides the client's request deadline for this request only.
+    /// It bounds each attempt up to response headers, then the buffered
+    /// body read, so total wall time can exceed the value set here. A
+    /// streamed body is never deadline-killed; see `ClientBuilder::timeout`.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
+    /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
+    pub async fn send(self) -> Result<crate::models::ScalarDocsUpdateProjectConfigResponse, crate::error::Error> {
+        let path = format!("/v1/docs/{}/config", crate::http::encode_path_param(&self.slug));
+        let query: Vec<(String, String)> = Vec::new();
+        let mut headers: Vec<(String, String)> = Vec::new();
+        if let Some(key) = self.idempotency_key {
+            headers.push(("Idempotency-Key".to_string(), key));
+        }
+        let body = Some(&self.body);
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
+        self.client
+            .send::<crate::models::ScalarDocsUpdateProjectConfigResponse, _>(
+                http::Method::PUT,
+                &path,
+                &query,
+                &headers,
+                body,
+                true,
+                overrides,
+            )
+            .await
+    }
+}
+/// The domains the project serves on — the Scalar-hosted one and the custom one, when set.
+#[must_use = "a request builder does nothing until `.send().await` is called"]
+pub struct ListProjectDomainRequestBuilder {
+    client: crate::client::Scalar,
+    slug: String,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
+}
+
+impl ListProjectDomainRequestBuilder {
+    fn new(client: crate::client::Scalar, slug: String) -> Self {
+        Self {
+            client,
+            slug,
+            timeout: None,
+            max_retries: None,
+        }
+    }
+
+    /// Overrides the client's request deadline for this request only.
+    /// It bounds each attempt up to response headers, then the buffered
+    /// body read, so total wall time can exceed the value set here. A
+    /// streamed body is never deadline-killed; see `ClientBuilder::timeout`.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
+    /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
+    pub async fn send(self) -> Result<crate::models::ScalarDocsListProjectDomainResponse, crate::error::Error> {
+        let path = format!("/v1/docs/{}/domain", crate::http::encode_path_param(&self.slug));
+        let query: Vec<(String, String)> = Vec::new();
+        let headers: Vec<(String, String)> = Vec::new();
+        let body: Option<&serde_json::Value> = None;
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
+        self.client
+            .send::<crate::models::ScalarDocsListProjectDomainResponse, _>(
+                http::Method::GET,
+                &path,
+                &query,
+                &headers,
+                body,
+                true,
+                overrides,
+            )
+            .await
+    }
+}
+/// Whether the project custom domain points at Scalar yet. `expected` is the CNAME record to create; `found` is what resolves today. A project with no custom domain reports `verified` with no expected record, because Scalar serves its own subdomain directly.
+#[must_use = "a request builder does nothing until `.send().await` is called"]
+pub struct ListProjectDomainStatusRequestBuilder {
+    client: crate::client::Scalar,
+    slug: String,
+    timeout: Option<std::time::Duration>,
+    max_retries: Option<u32>,
+}
+
+impl ListProjectDomainStatusRequestBuilder {
+    fn new(client: crate::client::Scalar, slug: String) -> Self {
+        Self {
+            client,
+            slug,
+            timeout: None,
+            max_retries: None,
+        }
+    }
+
+    /// Overrides the client's request deadline for this request only.
+    /// It bounds each attempt up to response headers, then the buffered
+    /// body read, so total wall time can exceed the value set here. A
+    /// streamed body is never deadline-killed; see `ClientBuilder::timeout`.
+    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Overrides the client's maximum retry attempts for this request only.
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = Some(max_retries);
+        self
+    }
+
+    /// Sends the request and returns the decoded response.
+    ///
+    /// # Errors
+    ///
+    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
+    ///   non-success status; the status, headers, request id, and decoded body are
+    ///   preserved on the [`ApiError`](crate::error::ApiError).
+    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
+    ///   produced a response (connection failure, or the deadline elapsed).
+    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
+    ///   be rendered into the request.
+    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
+    ///   match the generated model.
+    pub async fn send(self) -> Result<crate::models::ScalarDocsListProjectDomainStatusResponse, crate::error::Error> {
+        let path = format!("/v1/docs/{}/domain/status", crate::http::encode_path_param(&self.slug));
+        let query: Vec<(String, String)> = Vec::new();
+        let headers: Vec<(String, String)> = Vec::new();
+        let body: Option<&serde_json::Value> = None;
+        let overrides = crate::client::RequestOverrides {
+            timeout: self.timeout,
+            max_retries: self.max_retries,
+        };
+        self.client
+            .send::<crate::models::ScalarDocsListProjectDomainStatusResponse, _>(
+                http::Method::GET,
                 &path,
                 &query,
                 &headers,

@@ -750,6 +750,145 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
+            let _ = client
+                .access_groups()
+                .create(AccessGroupsCreateBody {
+                    name: None,
+                    slug: None,
+                    allowed_domains: None,
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/access-groups [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .access_groups()
+                .create(AccessGroupsCreateBody {
+                    name: Some("".to_string()),
+                    slug: Some("x".to_string()),
+                    allowed_domains: Some(serde_json::json!(null)),
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/access-groups [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.access_groups().retrieve("example").send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/access-groups/{slug}"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .access_groups()
+                .update("example", AccessGroupsUpdateBody { name: None, slug: None })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "PATCH /v1/access-groups/{slug} [required params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .access_groups()
+                .update(
+                    "example",
+                    AccessGroupsUpdateBody {
+                        name: Some("".to_string()),
+                        slug: Some("x".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "PATCH /v1/access-groups/{slug} [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.access_groups().delete("example").send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "DELETE /v1/access-groups/{slug}"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .access_groups()
+                .domains()
+                .create("example", DomainsCreateBody { domain: "".to_string() })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/access-groups/{slug}/domains"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .access_groups()
+                .domains()
+                .delete("example", DomainsDeleteBody { domain: "".to_string() })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "DELETE /v1/access-groups/{slug}/domains"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
             let _ = client.rules().list_rulesets("example").send().await?;
             Ok(())
         }
@@ -1106,6 +1245,91 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
+            let _ = client.teams().members().list().send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/teams/members"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .teams()
+                .members()
+                .update("example", MembersUpdateBody { role: Role::Owner })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "PATCH /v1/teams/members/{uid}"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.teams().members().delete("example").send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "DELETE /v1/teams/members/{uid}"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .teams()
+                .invites()
+                .member(InvitesMemberBody {
+                    email: "user@example.com".to_string(),
+                    role: Role::Owner,
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/teams/invites"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.teams().invites().resend("example").send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "PATCH /v1/teams/invites/{uid}"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.teams().invites().cancel("example").send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "DELETE /v1/teams/invites/{uid}"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
             let _ = client.scalar_docs().list_guides().send().await?;
             Ok(())
         }
@@ -1174,6 +1398,315 @@ async fn smoke() {
     }
     {
         let result: Result<(), Error> = async {
+            let _ = client.scalar_docs().list_projects().send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/docs [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.scalar_docs().list_projects().limit(1).send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/docs [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .scalar_docs()
+                .create_project(ScalarDocsCreateProjectBody {
+                    name: "".to_string(),
+                    slug: None,
+                    is_private: None,
+                    blank: None,
+                    provider: ScalarDocsCreateProjectBodyProvider::Forgejo,
+                    github_repository: None,
+                    bitbucket_repository: None,
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/docs [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .scalar_docs()
+                .create_project(ScalarDocsCreateProjectBody {
+                    name: "".to_string(),
+                    slug: Some("x".to_string()),
+                    is_private: Some(false),
+                    blank: Some(false),
+                    provider: ScalarDocsCreateProjectBodyProvider::Forgejo,
+                    github_repository: Some(ScalarDocsCreateProjectBodyGithubRepository {
+                        installation_id: 0,
+                        repo_id: 0,
+                    }),
+                    bitbucket_repository: Some(ScalarDocsCreateProjectBodyBitbucketRepository {
+                        workspace_uuid: "".to_string(),
+                        repo_uuid: "".to_string(),
+                    }),
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/docs [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.scalar_docs().retrieve_project("example").send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/docs/{slug}"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .scalar_docs()
+                .update_project(
+                    "example",
+                    ScalarDocsUpdateProjectBody {
+                        name: None,
+                        is_private: None,
+                        access_groups: None,
+                        login_portal_uid: None,
+                        active_theme_id: None,
+                        agent_enabled: None,
+                        analytics_enabled: None,
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "PATCH /v1/docs/{slug} [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .scalar_docs()
+                .update_project(
+                    "example",
+                    ScalarDocsUpdateProjectBody {
+                        name: Some("".to_string()),
+                        is_private: Some(false),
+                        access_groups: Some(vec!["xxxxx".to_string()]),
+                        login_portal_uid: None,
+                        active_theme_id: Some("xxxxx".to_string()),
+                        agent_enabled: Some(false),
+                        analytics_enabled: Some(false),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "PATCH /v1/docs/{slug} [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.scalar_docs().delete_project("example").send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "DELETE /v1/docs/{slug}"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .scalar_docs()
+                .publish_project(
+                    "example",
+                    ScalarDocsPublishProjectBody {
+                        commit_sha: None,
+                        preview: None,
+                        config_path: None,
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/docs/{slug}/publish [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .scalar_docs()
+                .publish_project(
+                    "example",
+                    ScalarDocsPublishProjectBody {
+                        commit_sha: Some("".to_string()),
+                        preview: Some(false),
+                        config_path: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/docs/{slug}/publish [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.scalar_docs().list_project_config("example").send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/docs/{slug}/config [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .scalar_docs()
+                .list_project_config("example")
+                .r#ref("example")
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/docs/{slug}/config [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .scalar_docs()
+                .update_project_config(
+                    "example",
+                    ScalarDocsUpdateProjectConfigBody {
+                        content: "".to_string(),
+                        r#ref: None,
+                        base_token: None,
+                        message: None,
+                        path: None,
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "PUT /v1/docs/{slug}/config [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .scalar_docs()
+                .update_project_config(
+                    "example",
+                    ScalarDocsUpdateProjectConfigBody {
+                        content: "".to_string(),
+                        r#ref: Some("".to_string()),
+                        base_token: Some("".to_string()),
+                        message: Some("".to_string()),
+                        path: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "PUT /v1/docs/{slug}/config [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.scalar_docs().list_project_domain("example").send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/docs/{slug}/domain"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .scalar_docs()
+                .list_project_domain_status("example")
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/docs/{slug}/domain/status"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
             let _ = client.namespaces().list().send().await?;
             Ok(())
         }
@@ -1211,6 +1744,835 @@ async fn smoke() {
         if let Err(error) = result {
             if is_smoke_failure(&error) {
                 failures.push(format!("{}: {error}", "GET /v1/auth/me"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.sdks().list().send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/sdks [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.sdks().list().limit(1).send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/sdks [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .sdks()
+                .create(SdksCreateBody {
+                    api_uid: "xxxxx".to_string(),
+                    languages: vec![SdksCreateBodyLanguage::Typescript],
+                    title: None,
+                    slug: None,
+                    class_name: None,
+                    config: None,
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/sdks [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .sdks()
+                .create(SdksCreateBody {
+                    api_uid: "xxxxx".to_string(),
+                    languages: vec![SdksCreateBodyLanguage::Typescript],
+                    title: Some("".to_string()),
+                    slug: Some("x".to_string()),
+                    class_name: Some("".to_string()),
+                    config: Some("".to_string()),
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/sdks [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.sdks().retrieve("example").send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/sdks/{uid}"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .sdks()
+                .update(
+                    "example",
+                    SdksUpdateBody {
+                        title: None,
+                        slug: None,
+                        is_private: None,
+                        config: None,
+                        api_uid: None,
+                        api_version: None,
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "PATCH /v1/sdks/{uid} [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .sdks()
+                .update(
+                    "example",
+                    SdksUpdateBody {
+                        title: Some("".to_string()),
+                        slug: Some("x".to_string()),
+                        is_private: Some(false),
+                        config: Some("".to_string()),
+                        api_uid: Some("xxxxx".to_string()),
+                        api_version: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "PATCH /v1/sdks/{uid} [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.sdks().delete("example").send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "DELETE /v1/sdks/{uid}"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .sdks()
+                .build(
+                    "example",
+                    SdksBuildBody {
+                        version: None,
+                        languages: None,
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/sdks/{uid}/build [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .sdks()
+                .build(
+                    "example",
+                    SdksBuildBody {
+                        version: Some("".to_string()),
+                        languages: Some(vec![SdksBuildBodyLanguage::Typescript]),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/sdks/{uid}/build [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .sdks()
+                .versions()
+                .create(
+                    "example",
+                    VersionsCreateBody {
+                        version: "".to_string(),
+                        api_version: "".to_string(),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/sdks/{uid}/versions"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.sdks().versions().delete("example", "example").send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "DELETE /v1/sdks/{uid}/versions/{version}"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .sdks()
+                .repositories()
+                .link(
+                    "example",
+                    RepositoriesLinkBody {
+                        language: RepositoriesLinkBodyLanguage::Typescript,
+                        repository_id: 0,
+                        base_branch: "".to_string(),
+                        prerelease_type: None,
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "POST /v1/sdks/{uid}/repositories [required params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .sdks()
+                .repositories()
+                .link(
+                    "example",
+                    RepositoriesLinkBody {
+                        language: RepositoriesLinkBodyLanguage::Typescript,
+                        repository_id: 0,
+                        base_branch: "".to_string(),
+                        prerelease_type: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/sdks/{uid}/repositories [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .sdks()
+                .repositories()
+                .unlink("example", "typescript".to_string())
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "DELETE /v1/sdks/{uid}/repositories/{language}"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .sdks()
+                .repositories()
+                .update_publishing(
+                    "example",
+                    "typescript".to_string(),
+                    RepositoriesUpdatePublishingBody {
+                        publish_on_merge: false,
+                        auth_method: None,
+                        access: None,
+                        tag: None,
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "POST /v1/sdks/{uid}/repositories/{language}/publishing [required params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .sdks()
+                .repositories()
+                .update_publishing(
+                    "example",
+                    "typescript".to_string(),
+                    RepositoriesUpdatePublishingBody {
+                        publish_on_merge: false,
+                        auth_method: Some(RepositoriesUpdatePublishingBodyAuthMethod::Oidc),
+                        access: Some(RepositoriesUpdatePublishingBodyAccess::Public),
+                        tag: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "POST /v1/sdks/{uid}/repositories/{language}/publishing [all params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.mcp().servers().list().send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/mcp/servers"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .mcp()
+                .servers()
+                .create(ServersCreateBody {
+                    name: "x".to_string(),
+                    slug: None,
+                    version_uids: None,
+                    project_uids: None,
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/mcp/servers [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .mcp()
+                .servers()
+                .create(ServersCreateBody {
+                    name: "x".to_string(),
+                    slug: Some("x".to_string()),
+                    version_uids: Some(vec!["".to_string()]),
+                    project_uids: Some(vec!["".to_string()]),
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/mcp/servers [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.mcp().servers().retrieve("example").send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/mcp/servers/{id}"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .mcp()
+                .servers()
+                .update(
+                    "example",
+                    ServersUpdateBody {
+                        name: None,
+                        slug: None,
+                        auto_add_operations: None,
+                        operations: None,
+                        docs_pages: None,
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "PATCH /v1/mcp/servers/{id} [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .mcp()
+                .servers()
+                .update(
+                    "example",
+                    ServersUpdateBody {
+                        name: Some("x".to_string()),
+                        slug: Some("x".to_string()),
+                        auto_add_operations: Some(false),
+                        operations: Some(vec!["".to_string()]),
+                        docs_pages: Some(vec!["".to_string()]),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "PATCH /v1/mcp/servers/{id} [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.mcp().servers().delete("example").send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "DELETE /v1/mcp/servers/{id}"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.mcp().servers().installations().list("example").send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/mcp/servers/{id}/installations"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .mcp()
+                .servers()
+                .installations()
+                .create(
+                    "example",
+                    InstallationsCreateBody {
+                        name: "x".to_string(),
+                        slug: None,
+                        document_auth: std::collections::HashMap::from([]),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "POST /v1/mcp/servers/{id}/installations [required params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .mcp()
+                .servers()
+                .installations()
+                .create(
+                    "example",
+                    InstallationsCreateBody {
+                        name: "x".to_string(),
+                        slug: Some("x".to_string()),
+                        document_auth: std::collections::HashMap::from([]),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "POST /v1/mcp/servers/{id}/installations [all params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .mcp()
+                .servers()
+                .installations()
+                .retrieve("example", "example")
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "GET /v1/mcp/servers/{id}/installations/{installationId}"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .mcp()
+                .servers()
+                .installations()
+                .update(
+                    "example",
+                    "example",
+                    InstallationsUpdateBody {
+                        name: None,
+                        slug: None,
+                        is_private: None,
+                        login_portal_uid: None,
+                        document_auth: None,
+                        mcp_version: None,
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "PATCH /v1/mcp/servers/{id}/installations/{installationId} [required params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .mcp()
+                .servers()
+                .installations()
+                .update(
+                    "example",
+                    "example",
+                    InstallationsUpdateBody {
+                        name: Some("x".to_string()),
+                        slug: Some("x".to_string()),
+                        is_private: Some(false),
+                        login_portal_uid: Some("".to_string()),
+                        document_auth: Some(std::collections::HashMap::new()),
+                        mcp_version: Some("".to_string()),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "PATCH /v1/mcp/servers/{id}/installations/{installationId} [all params]"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .mcp()
+                .servers()
+                .installations()
+                .delete("example", "example")
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "DELETE /v1/mcp/servers/{id}/installations/{installationId}"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .mcp()
+                .servers()
+                .installations()
+                .create_access_group(
+                    "example",
+                    "example",
+                    InstallationsCreateAccessGroupBody {
+                        access_group_uid: "xxxxx".to_string(),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "POST /v1/mcp/servers/{id}/installations/{installationId}/access-group"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .mcp()
+                .servers()
+                .installations()
+                .delete_access_group(
+                    "example",
+                    "example",
+                    InstallationsDeleteAccessGroupBody {
+                        access_group_uid: "xxxxx".to_string(),
+                    },
+                )
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!(
+                    "{}: {error}",
+                    "DELETE /v1/mcp/servers/{id}/installations/{installationId}/access-group"
+                ));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.o_auth().oauth_authorize().send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /v1/oauth/authorize"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .o_auth()
+                .oauth_token(OauthTokenRequest {
+                    grant_type: "".to_string(),
+                    client_id: None,
+                    client_secret: None,
+                    code: None,
+                    redirect_uri: None,
+                    code_verifier: None,
+                    refresh_token: None,
+                    scope: None,
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/oauth/token [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .o_auth()
+                .oauth_token(OauthTokenRequest {
+                    grant_type: "".to_string(),
+                    client_id: Some("".to_string()),
+                    client_secret: Some("".to_string()),
+                    code: Some("".to_string()),
+                    redirect_uri: Some("".to_string()),
+                    code_verifier: Some("".to_string()),
+                    refresh_token: Some("".to_string()),
+                    scope: Some("".to_string()),
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/oauth/token [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .o_auth()
+                .oauth_revoke(OauthRevokeRequest {
+                    token: "".to_string(),
+                    token_type_hint: None,
+                    client_id: None,
+                    client_secret: None,
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/oauth/revoke [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .o_auth()
+                .oauth_revoke(OauthRevokeRequest {
+                    token: "".to_string(),
+                    token_type_hint: Some("".to_string()),
+                    client_id: Some("".to_string()),
+                    client_secret: Some("".to_string()),
+                })
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/oauth/revoke [all params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client.o_auth().oauth_authorization_server_metadata().send().await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "GET /.well-known/oauth-authorization-server"));
             }
         }
     }

@@ -16,6 +16,16 @@ impl TeamsResource {
     pub fn list(&self) -> ListRequestBuilder {
         ListRequestBuilder::new(self.client.clone())
     }
+
+    /// Teams
+    pub fn members(&self) -> crate::resources::members::MembersResource {
+        crate::resources::members::MembersResource::new(self.client.clone())
+    }
+
+    /// Teams
+    pub fn invites(&self) -> crate::resources::invites::InvitesResource {
+        crate::resources::invites::InvitesResource::new(self.client.clone())
+    }
 }
 
 /// List all available teams
