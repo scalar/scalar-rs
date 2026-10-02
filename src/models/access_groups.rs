@@ -17,9 +17,9 @@ pub struct AccessGroupsCreateResponse {
     pub name: String,
     pub slug: String,
     #[serde(rename = "allowedDomains")]
-    pub allowed_domains: serde_json::Value,
+    pub allowed_domains: String,
     #[serde(rename = "allowedEmails")]
-    pub allowed_emails: serde_json::Value,
+    pub allowed_emails: String,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -29,7 +29,7 @@ pub struct AccessGroupsCreateBody {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub slug: Option<String>,
     #[serde(rename = "allowedDomains", default, skip_serializing_if = "Option::is_none")]
-    pub allowed_domains: Option<serde_json::Value>,
+    pub allowed_domains: Option<String>,
 }
 
 ///
@@ -42,9 +42,9 @@ pub struct AccessGroupsRetrieveResponse {
     pub name: String,
     pub slug: String,
     #[serde(rename = "allowedDomains")]
-    pub allowed_domains: serde_json::Value,
+    pub allowed_domains: String,
     #[serde(rename = "allowedEmails")]
-    pub allowed_emails: serde_json::Value,
+    pub allowed_emails: String,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]

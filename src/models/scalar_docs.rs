@@ -45,7 +45,7 @@ pub struct GithubProject {
     #[serde(rename = "analyticsEnabled")]
     pub analytics_enabled: bool,
     #[serde(rename = "accessGroups")]
-    pub access_groups: serde_json::Value,
+    pub access_groups: String,
     pub slug: String,
     #[serde(rename = "publishStatus")]
     pub publish_status: String,
@@ -102,7 +102,7 @@ pub struct DocsProject {
     #[serde(rename = "isPrivate")]
     pub is_private: bool,
     #[serde(rename = "accessGroups")]
-    pub access_groups: serde_json::Value,
+    pub access_groups: String,
     #[serde(rename = "loginPortalUid")]
     pub login_portal_uid: String,
     #[serde(rename = "activeThemeId")]
