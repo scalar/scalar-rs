@@ -19,78 +19,13 @@ pub struct ApiDocument {
     pub namespace: String,
     #[serde(rename = "isPrivate")]
     pub is_private: bool,
-    pub tags: serde_json::Value,
+    pub tags: String,
     pub versions: Vec<ManagedDocVersion>,
 }
 
 pub type Version = String;
 
-/// Match on `as_str()` (or build one with `From<&str>`) when you need a value
-/// this SDK version does not know. Matching `Unknown(_)` directly is an
-/// anti-pattern: that arm silently stops matching once a future SDK release
-/// adds the real variant.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[non_exhaustive]
-pub enum Method {
-    #[serde(rename = "delete")]
-    Delete,
-    #[serde(rename = "get")]
-    Get,
-    #[serde(rename = "head")]
-    Head,
-    #[serde(rename = "options")]
-    Options,
-    #[serde(rename = "patch")]
-    Patch,
-    #[serde(rename = "post")]
-    Post,
-    #[serde(rename = "put")]
-    Put,
-    #[serde(rename = "trace")]
-    Trace,
-    /// A value not known to this version of the SDK, preserved verbatim.
-    #[serde(untagged)]
-    Unknown(String),
-}
-
-impl Method {
-    /// The wire value this variant serializes to.
-    pub fn as_str(&self) -> &str {
-        match self {
-            Self::Delete => "delete",
-            Self::Get => "get",
-            Self::Head => "head",
-            Self::Options => "options",
-            Self::Patch => "patch",
-            Self::Post => "post",
-            Self::Put => "put",
-            Self::Trace => "trace",
-            Self::Unknown(value) => value,
-        }
-    }
-}
-
-impl std::fmt::Display for Method {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl From<&str> for Method {
-    fn from(value: &str) -> Self {
-        match value {
-            "delete" => Self::Delete,
-            "get" => Self::Get,
-            "head" => Self::Head,
-            "options" => Self::Options,
-            "patch" => Self::Patch,
-            "post" => Self::Post,
-            "put" => Self::Put,
-            "trace" => Self::Trace,
-            other => Self::Unknown(other.to_owned()),
-        }
-    }
-}
+pub type Method = String;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AccessGroup {
@@ -112,8 +47,6 @@ pub struct RegistryCreateApiDocumentResponse {
     pub json_sha: String,
     #[serde(rename = "yamlSha")]
     pub yaml_sha: String,
-    #[serde(rename = "versionSha")]
-    pub version_sha: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -175,34 +108,11 @@ pub struct RegistryUpdateApiDocumentVersionResponse {
     pub json_sha: String,
     #[serde(rename = "yamlSha")]
     pub yaml_sha: String,
-    #[serde(rename = "versionSha")]
-    pub version_sha: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RegistryUpdateApiDocumentVersionBody {
     pub document: String,
-    #[serde(rename = "lastKnownVersionSha", default, skip_serializing_if = "Option::is_none")]
-    pub last_known_version_sha: Option<String>,
-}
-
-impl RegistryUpdateApiDocumentVersionBody {
-    /// Creates a new `RegistryUpdateApiDocumentVersionBody` from its required fields, leaving every optional one unset.
-    ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    ///
-    /// ```text
-    /// RegistryUpdateApiDocumentVersionBody {
-    ///     last_known_version_sha: Some(…),
-    ///     ..RegistryUpdateApiDocumentVersionBody::new(document)
-    /// }
-    /// ```
-    pub fn new(document: impl Into<String>) -> Self {
-        Self {
-            document: document.into(),
-            last_known_version_sha: None,
-        }
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -211,8 +121,6 @@ pub struct RegistryCreateApiDocumentVersionBody {
     pub document: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub force: Option<bool>,
-    #[serde(rename = "lastKnownVersionSha", default, skip_serializing_if = "Option::is_none")]
-    pub last_known_version_sha: Option<String>,
 }
 
 impl RegistryCreateApiDocumentVersionBody {
@@ -225,7 +133,6 @@ impl RegistryCreateApiDocumentVersionBody {
             version: version.into(),
             document: document.into(),
             force: None,
-            last_known_version_sha: None,
         }
     }
 }
@@ -280,7 +187,7 @@ impl From<&str> for ManagedDocVersionEmbedStatus {
 #[non_exhaustive]
 pub struct ManagedDocVersionTool {
     pub path: String,
-    pub method: Method,
+    pub method: String,
     #[serde(rename = "enabledTools")]
     pub enabled_tools: Vec<ManagedDocVersionToolEnabledTool>,
 }

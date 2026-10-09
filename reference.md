@@ -223,6 +223,58 @@ List all portals
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
+### client.access_groups().create(…)
+
+Create an access group
+
+- HTTP: `POST /v1/access-groups`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.access_groups().retrieve(…)
+
+Get an access group
+
+- HTTP: `GET /v1/access-groups/{slug}`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.access_groups().update(…)
+
+Update an access group
+
+- HTTP: `PATCH /v1/access-groups/{slug}`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.access_groups().delete(…)
+
+Delete an access group
+
+- HTTP: `DELETE /v1/access-groups/{slug}`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.access_groups().domains().create(…)
+
+Add an allowed email domain
+
+- HTTP: `POST /v1/access-groups/{slug}/domains`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.access_groups().domains().delete(…)
+
+Remove an allowed email domain
+
+- HTTP: `DELETE /v1/access-groups/{slug}/domains`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
 ### client.rules().list_rulesets(…)
 
 List all rules
@@ -342,6 +394,56 @@ List teams
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
+### client.teams().members().list()
+
+List team members
+
+- HTTP: `GET /v1/teams/members`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.teams().members().update(…)
+
+Change a member role
+
+- HTTP: `PATCH /v1/teams/members/{uid}`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.teams().members().delete(…)
+
+Remove a member
+
+- HTTP: `DELETE /v1/teams/members/{uid}`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.teams().invites().member(…)
+
+Invite a member
+
+- HTTP: `POST /v1/teams/invites`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.teams().invites().resend(…)
+
+Resend an invite
+
+- HTTP: `PATCH /v1/teams/invites/{uid}`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.teams().invites().cancel(…)
+
+Cancel an invite
+
+- HTTP: `DELETE /v1/teams/invites/{uid}`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
 ### client.scalar_docs().list_guides()
 
 List all projects
@@ -364,6 +466,90 @@ Create a project
 Publish a project
 
 - HTTP: `POST /v1/guides/{slug}/publish`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.scalar_docs().list_projects()
+
+List all docs projects
+
+- HTTP: `GET /v1/docs`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.scalar_docs().create_project(…)
+
+Create a docs project
+
+- HTTP: `POST /v1/docs`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.scalar_docs().retrieve_project(…)
+
+Get a docs project
+
+- HTTP: `GET /v1/docs/{slug}`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.scalar_docs().update_project(…)
+
+Update a docs project
+
+- HTTP: `PATCH /v1/docs/{slug}`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.scalar_docs().delete_project(…)
+
+Delete a docs project
+
+- HTTP: `DELETE /v1/docs/{slug}`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.scalar_docs().publish_project(…)
+
+Publish a docs project
+
+- HTTP: `POST /v1/docs/{slug}/publish`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.scalar_docs().list_project_config(…)
+
+Read the site config
+
+- HTTP: `GET /v1/docs/{slug}/config`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.scalar_docs().update_project_config(…)
+
+Write the site config
+
+- HTTP: `PUT /v1/docs/{slug}/config`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.scalar_docs().list_project_domain(…)
+
+Get the site domains
+
+- HTTP: `GET /v1/docs/{slug}/domain`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.scalar_docs().list_project_domain_status(…)
+
+Check domain DNS
+
+- HTTP: `GET /v1/docs/{slug}/domain/status`
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
@@ -392,6 +578,202 @@ Get current user
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
+### client.sdks().list()
+
+List all SDKs
+
+- HTTP: `GET /v1/sdks`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.sdks().create(…)
+
+Create an SDK
+
+- HTTP: `POST /v1/sdks`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.sdks().retrieve(…)
+
+Get an SDK
+
+- HTTP: `GET /v1/sdks/{uid}`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.sdks().update(…)
+
+Update an SDK
+
+- HTTP: `PATCH /v1/sdks/{uid}`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.sdks().delete(…)
+
+Delete an SDK
+
+- HTTP: `DELETE /v1/sdks/{uid}`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.sdks().build(…)
+
+Build an SDK
+
+- HTTP: `POST /v1/sdks/{uid}/build`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.sdks().versions().create(…)
+
+Create an SDK version
+
+- HTTP: `POST /v1/sdks/{uid}/versions`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.sdks().versions().delete(…)
+
+Delete an SDK version
+
+- HTTP: `DELETE /v1/sdks/{uid}/versions/{version}`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.sdks().repositories().link(…)
+
+Link a repository
+
+- HTTP: `POST /v1/sdks/{uid}/repositories`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.sdks().repositories().unlink(…)
+
+Unlink a repository
+
+- HTTP: `DELETE /v1/sdks/{uid}/repositories/{language}`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.sdks().repositories().update_publishing(…)
+
+Update publishing settings
+
+- HTTP: `POST /v1/sdks/{uid}/repositories/{language}/publishing`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.mcp().servers().list()
+
+List all MCP servers
+
+- HTTP: `GET /v1/mcp/servers`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.mcp().servers().create(…)
+
+Create an MCP server
+
+- HTTP: `POST /v1/mcp/servers`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.mcp().servers().retrieve(…)
+
+Get an MCP server
+
+- HTTP: `GET /v1/mcp/servers/{id}`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.mcp().servers().update(…)
+
+Update an MCP server
+
+- HTTP: `PATCH /v1/mcp/servers/{id}`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.mcp().servers().delete(…)
+
+Delete an MCP server
+
+- HTTP: `DELETE /v1/mcp/servers/{id}`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.mcp().servers().installations().list(…)
+
+List installations
+
+- HTTP: `GET /v1/mcp/servers/{id}/installations`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.mcp().servers().installations().create(…)
+
+Create an installation
+
+- HTTP: `POST /v1/mcp/servers/{id}/installations`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.mcp().servers().installations().retrieve(…)
+
+Get an installation
+
+- HTTP: `GET /v1/mcp/servers/{id}/installations/{installationId}`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.mcp().servers().installations().update(…)
+
+Update an installation
+
+- HTTP: `PATCH /v1/mcp/servers/{id}/installations/{installationId}`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.mcp().servers().installations().delete(…)
+
+Delete an installation
+
+- HTTP: `DELETE /v1/mcp/servers/{id}/installations/{installationId}`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.mcp().servers().installations().create_access_group(…)
+
+Add an access group
+
+- HTTP: `POST /v1/mcp/servers/{id}/installations/{installationId}/access-group`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
+### client.mcp().servers().installations().delete_access_group(…)
+
+Remove an access group
+
+- HTTP: `DELETE /v1/mcp/servers/{id}/installations/{installationId}/access-group`
+- Request body: `application/json`
+- Response body: `application/json`
+- Errors: `400, 401, 403, 404, 422, 500`
+
 ## Models
 
 - `BadRequestError`
@@ -415,14 +797,26 @@ Get current user
 - `LoginPortalEmail`
 - `LoginPortalPage`
 - `LoginPortal`
+- `AccessGroupName`
+- `EmailDomain`
 - `Rule`
 - `Theme`
 - `Team`
 - `TeamName`
 - `TeamImage`
+- `TeamMember`
+- `Role`
+- `TeamInvite`
+- `Email`
 - `GithubProject`
 - `ActiveDeployment`
 - `GithubProjectRepository`
-- `Email`
 - `TeamSummary`
 - `User`
+- `Sdk`
+- `SdkTargetSummary`
+- `SdkVersion`
+- `DocsProject`
+- `McpServer`
+- `McpInstallation`
+- `McpInstallationListItem`

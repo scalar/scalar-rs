@@ -10,7 +10,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-scalar-rs = "0.3.3" # x-release-please-version
+scalar-rs = "0.4.0" # x-release-please-version
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 ```
 
@@ -51,7 +51,7 @@ them from the environment instead:
 use scalar_rs::Scalar;
 
 async fn run() -> Result<(), Box<dyn std::error::Error>> {
-    let client = Scalar::builder().bearer_auth("…").build()?;
+    let client = Scalar::builder().bearer_auth("…").o_auth2("…").build()?;
 
     // Or, reading credentials from the environment:
     let client = Scalar::from_env()?;
@@ -66,6 +66,7 @@ Credentials can be set on the builder or read from the environment by
 `from_env`:
 
 - `bearer_auth` — environment variable `BEARER_AUTH`
+- `o_auth2` — environment variable `SCALAR_OAUTH_TOKEN`
 
 ## Error handling
 
