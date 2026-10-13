@@ -722,15 +722,6 @@ List installations
 - Response body: `application/json`
 - Errors: `400, 401, 403, 404, 422, 500`
 
-### client.mcp().servers().installations().create(…)
-
-Create an installation
-
-- HTTP: `POST /v1/mcp/servers/{id}/installations`
-- Request body: `application/json`
-- Response body: `application/json`
-- Errors: `400, 401, 403, 404, 422, 500`
-
 ### client.mcp().servers().installations().retrieve(…)
 
 Get an installation

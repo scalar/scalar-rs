@@ -110,7 +110,6 @@ Complete reference of every operation, grouped by resource. See [the README](./R
     - [Delete an MCP server](#delete-an-mcp-server)
     - [`Mcp Servers Installations`](#mcp-servers-installations)
       - [List installations](#list-installations)
-      - [Create an installation](#create-an-installation)
       - [Get an installation](#get-an-installation)
       - [Update an installation](#update-an-installation)
       - [Delete an installation](#delete-an-installation)
@@ -1743,7 +1742,6 @@ let response = client
         ServersUpdateBody {
             name: None,
             slug: None,
-            auto_add_operations: None,
             operations: None,
             docs_pages: None,
         },
@@ -1780,35 +1778,9 @@ List the installations of an MCP server. An installation is what an MCP client c
 let response = client.mcp().servers().installations().list("42").send().await?;
 ```
 
-##### Create an installation
-
-Create an installation of an MCP server. `documentAuth` holds the credentials the server presents to the upstream API and is never returned.
-
-| Direction | Type |
-| --- | --- |
-| Request | [`InstallationsCreateBody`](./src/models/installations.rs) |
-| Response | [`McpInstallation`](./src/models/servers.rs) |
-
-```rust
-let response = client
-    .mcp()
-    .servers()
-    .installations()
-    .create(
-        "42",
-        InstallationsCreateBody {
-            name: "Acme MCP".to_string(),
-            slug: None,
-            document_auth: std::collections::HashMap::from([]),
-        },
-    )
-    .send()
-    .await?;
-```
-
 ##### Get an installation
 
-Get a single installation of an MCP server.
+Get a single installation of an MCP server. Deprecated: address the environment by slug with the `/environments/:environment` form.
 
 | Direction | Type |
 | --- | --- |
@@ -1826,7 +1798,7 @@ let response = client
 
 ##### Update an installation
 
-Update an installation. Set `isPrivate` and add access groups to put it behind a login.
+Update an installation. Deprecated: address the environment by slug with the `/environments/:environment` form.
 
 | Direction | Type |
 | --- | --- |
@@ -1844,9 +1816,6 @@ let response = client
         InstallationsUpdateBody {
             name: None,
             slug: None,
-            is_private: None,
-            login_portal_uid: None,
-            document_auth: None,
             mcp_version: None,
         },
     )
@@ -1856,7 +1825,7 @@ let response = client
 
 ##### Delete an installation
 
-Delete an installation of an MCP server.
+Delete an installation of an MCP server. Deprecated: address the environment by slug with the `/environments/:environment` form.
 
 | Direction | Type |
 | --- | --- |
@@ -1868,7 +1837,7 @@ let response = client.mcp().servers().installations().delete("42", "84").send().
 
 ##### Add an access group
 
-Let an access group reach a private installation.
+Let an access group reach a private installation. Requires a team admin. Deprecated: address the environment by slug with the `/environments/:environment` form.
 
 | Direction | Type |
 | --- | --- |
@@ -1893,7 +1862,7 @@ let response = client
 
 ##### Remove an access group
 
-Stop an access group reaching a private installation.
+Stop an access group reaching a private installation. Requires a team admin. Deprecated: address the environment by slug with the `/environments/:environment` form.
 
 | Direction | Type |
 | --- | --- |

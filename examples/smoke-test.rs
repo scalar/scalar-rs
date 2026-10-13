@@ -3634,7 +3634,6 @@ async fn main() {
                     ServersUpdateBody {
                         name: None,
                         slug: None,
-                        auto_add_operations: None,
                         operations: None,
                         docs_pages: None,
                     },
@@ -3673,7 +3672,6 @@ async fn main() {
                     ServersUpdateBody {
                         name: Some("Acme MCP".to_string()),
                         slug: Some("acme-mcp".to_string()),
-                        auto_add_operations: Some(true),
                         operations: Some(vec!["42".to_string()]),
                         docs_pages: Some(vec!["getting-started".to_string()]),
                     },
@@ -3751,82 +3749,6 @@ async fn main() {
             error,
         });
     }
-    if selected(&filter, "create", "/v1/mcp/servers/{id}/installations") {
-        let started = std::time::Instant::now();
-        let result: Result<(), Error> = async {
-            let _ = client
-                .mcp()
-                .servers()
-                .installations()
-                .create(
-                    "42",
-                    InstallationsCreateBody {
-                        name: "Acme MCP".to_string(),
-                        slug: None,
-                        document_auth: std::collections::HashMap::from([]),
-                    },
-                )
-                .send()
-                .await?;
-            Ok(())
-        }
-        .await;
-        let duration_ms = started.elapsed().as_millis() as i64;
-        let (status, error) = match result {
-            Ok(()) => ("passed", String::new()),
-            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
-            // A response came back (API error or decode mismatch): the request
-            // reached the server, which is what this smoke verifies.
-            Err(_) => ("passed", String::new()),
-        };
-        results.push(SmokeResult {
-            operation: "create".to_string(),
-            method: "POST".to_string(),
-            path: "/v1/mcp/servers/{id}/installations".to_string(),
-            label: "required params".to_string(),
-            status: status.to_string(),
-            duration_ms,
-            error,
-        });
-    }
-    if selected(&filter, "create", "/v1/mcp/servers/{id}/installations") {
-        let started = std::time::Instant::now();
-        let result: Result<(), Error> = async {
-            let _ = client
-                .mcp()
-                .servers()
-                .installations()
-                .create(
-                    "42",
-                    InstallationsCreateBody {
-                        name: "Acme MCP".to_string(),
-                        slug: Some("acme-mcp".to_string()),
-                        document_auth: std::collections::HashMap::from([]),
-                    },
-                )
-                .send()
-                .await?;
-            Ok(())
-        }
-        .await;
-        let duration_ms = started.elapsed().as_millis() as i64;
-        let (status, error) = match result {
-            Ok(()) => ("passed", String::new()),
-            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
-            // A response came back (API error or decode mismatch): the request
-            // reached the server, which is what this smoke verifies.
-            Err(_) => ("passed", String::new()),
-        };
-        results.push(SmokeResult {
-            operation: "create".to_string(),
-            method: "POST".to_string(),
-            path: "/v1/mcp/servers/{id}/installations".to_string(),
-            label: "all params".to_string(),
-            status: status.to_string(),
-            duration_ms,
-            error,
-        });
-    }
     if selected(
         &filter,
         "retrieve",
@@ -3875,9 +3797,6 @@ async fn main() {
                     InstallationsUpdateBody {
                         name: None,
                         slug: None,
-                        is_private: None,
-                        login_portal_uid: None,
-                        document_auth: None,
                         mcp_version: None,
                     },
                 )
@@ -3916,10 +3835,7 @@ async fn main() {
                     "84",
                     InstallationsUpdateBody {
                         name: Some("Acme MCP".to_string()),
-                        slug: Some("acme-mcp".to_string()),
-                        is_private: Some(false),
-                        login_portal_uid: Some("LakgbKJ5m9gl0JDMbcJqL".to_string()),
-                        document_auth: Some(std::collections::HashMap::from([])),
+                        slug: Some("staging".to_string()),
                         mcp_version: Some("1.2.0".to_string()),
                     },
                 )
