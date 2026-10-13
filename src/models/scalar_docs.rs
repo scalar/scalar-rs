@@ -29,6 +29,8 @@ pub struct GithubProject {
     pub login_portal_uid: String,
     #[serde(rename = "userInfoHookUrl")]
     pub user_info_hook_url: String,
+    #[serde(rename = "userInfoHookSecretUid", default, skip_serializing_if = "Option::is_none")]
+    pub user_info_hook_secret_uid: Option<String>,
     #[serde(rename = "activeThemeId")]
     pub active_theme_id: String,
     #[serde(

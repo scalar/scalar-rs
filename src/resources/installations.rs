@@ -17,11 +17,6 @@ impl InstallationsResource {
         ListRequestBuilder::new(self.client.clone(), id.into())
     }
 
-    /// Create an installation
-    pub fn create(&self, id: impl Into<String>, body: crate::models::InstallationsCreateBody) -> CreateRequestBuilder {
-        CreateRequestBuilder::new(self.client.clone(), id.into(), body)
-    }
-
     /// Get an installation
     pub fn retrieve(&self, id: impl Into<String>, installation_id: impl Into<String>) -> RetrieveRequestBuilder {
         RetrieveRequestBuilder::new(self.client.clone(), id.into(), installation_id.into())
@@ -135,92 +130,7 @@ impl ListRequestBuilder {
             .await
     }
 }
-/// Create an installation of an MCP server. `documentAuth` holds the credentials the server presents to the upstream API and is never returned.
-#[must_use = "a request builder does nothing until `.send().await` is called"]
-pub struct CreateRequestBuilder {
-    client: crate::client::Scalar,
-    id: String,
-    body: crate::models::InstallationsCreateBody,
-    idempotency_key: Option<String>,
-    timeout: Option<std::time::Duration>,
-    max_retries: Option<u32>,
-}
-
-impl CreateRequestBuilder {
-    fn new(client: crate::client::Scalar, id: String, body: crate::models::InstallationsCreateBody) -> Self {
-        Self {
-            client,
-            id,
-            body,
-            idempotency_key: None,
-            timeout: None,
-            max_retries: None,
-        }
-    }
-
-    /// Sets an idempotency key so this request can be safely retried.
-    pub fn idempotency_key(mut self, value: impl Into<String>) -> Self {
-        self.idempotency_key = Some(value.into());
-        self
-    }
-
-    /// Overrides the client's request deadline for this request only.
-    /// It bounds each attempt up to response headers, then the buffered
-    /// body read, so total wall time can exceed the value set here. A
-    /// streamed body is never deadline-killed; see `ClientBuilder::timeout`.
-    pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
-        self.timeout = Some(timeout);
-        self
-    }
-
-    /// Overrides the client's maximum retry attempts for this request only.
-    pub fn max_retries(mut self, max_retries: u32) -> Self {
-        self.max_retries = Some(max_retries);
-        self
-    }
-
-    /// Sends the request and returns the decoded response.
-    ///
-    /// # Errors
-    ///
-    /// - [`Error::Api`](crate::error::Error::Api) — the server answered with a
-    ///   non-success status; the status, headers, request id, and decoded body are
-    ///   preserved on the [`ApiError`](crate::error::ApiError).
-    /// - [`Error::Transport`](crate::error::Error::Transport) — the request never
-    ///   produced a response (connection failure, or the deadline elapsed).
-    /// - [`Error::Config`](crate::error::Error::Config) — a parameter value could not
-    ///   be rendered into the request.
-    /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
-    ///   match the generated model.
-    pub async fn send(self) -> Result<crate::models::McpInstallation, crate::error::Error> {
-        let path = format!(
-            "/v1/mcp/servers/{}/installations",
-            crate::http::encode_path_param(&self.id)
-        );
-        let query: Vec<(String, String)> = Vec::new();
-        let mut headers: Vec<(String, String)> = Vec::new();
-        if let Some(key) = self.idempotency_key {
-            headers.push(("Idempotency-Key".to_string(), key));
-        }
-        let body = Some(&self.body);
-        let overrides = crate::client::RequestOverrides {
-            timeout: self.timeout,
-            max_retries: self.max_retries,
-        };
-        self.client
-            .send::<crate::models::McpInstallation, _>(
-                http::Method::POST,
-                &path,
-                &query,
-                &headers,
-                body,
-                true,
-                overrides,
-            )
-            .await
-    }
-}
-/// Get a single installation of an MCP server.
+/// Get a single installation of an MCP server. Deprecated: address the environment by slug with the `/environments/:environment` form.
 #[must_use = "a request builder does nothing until `.send().await` is called"]
 pub struct RetrieveRequestBuilder {
     client: crate::client::Scalar,
@@ -295,7 +205,7 @@ impl RetrieveRequestBuilder {
             .await
     }
 }
-/// Update an installation. Set `isPrivate` and add access groups to put it behind a login.
+/// Update an installation. Deprecated: address the environment by slug with the `/environments/:environment` form.
 #[must_use = "a request builder does nothing until `.send().await` is called"]
 pub struct UpdateRequestBuilder {
     client: crate::client::Scalar,
@@ -388,7 +298,7 @@ impl UpdateRequestBuilder {
             .await
     }
 }
-/// Delete an installation of an MCP server.
+/// Delete an installation of an MCP server. Deprecated: address the environment by slug with the `/environments/:environment` form.
 #[must_use = "a request builder does nothing until `.send().await` is called"]
 pub struct DeleteRequestBuilder {
     client: crate::client::Scalar,
@@ -466,7 +376,7 @@ impl DeleteRequestBuilder {
             .await
     }
 }
-/// Let an access group reach a private installation.
+/// Let an access group reach a private installation. Requires a team admin. Deprecated: address the environment by slug with the `/environments/:environment` form.
 #[must_use = "a request builder does nothing until `.send().await` is called"]
 pub struct CreateAccessGroupRequestBuilder {
     client: crate::client::Scalar,
@@ -551,7 +461,7 @@ impl CreateAccessGroupRequestBuilder {
             .await
     }
 }
-/// Stop an access group reaching a private installation.
+/// Stop an access group reaching a private installation. Requires a team admin. Deprecated: address the environment by slug with the `/environments/:environment` form.
 #[must_use = "a request builder does nothing until `.send().await` is called"]
 pub struct DeleteAccessGroupRequestBuilder {
     client: crate::client::Scalar,
