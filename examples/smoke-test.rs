@@ -1252,7 +1252,7 @@ async fn main() {
                 .create(AccessGroupsCreateBody {
                     name: Some("Engineering".to_string()),
                     slug: Some("engineering".to_string()),
-                    allowed_domains: Some("example.com".to_string()),
+                    allowed_domains: Some(serde_json::json!("example.com")),
                 })
                 .send()
                 .await?;
