@@ -19,7 +19,7 @@ pub struct ApiDocument {
     pub namespace: String,
     #[serde(rename = "isPrivate")]
     pub is_private: bool,
-    pub tags: String,
+    pub tags: serde_json::Value,
     pub versions: Vec<ManagedDocVersion>,
 }
 

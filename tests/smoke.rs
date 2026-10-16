@@ -789,7 +789,7 @@ async fn smoke() {
                 .create(AccessGroupsCreateBody {
                     name: Some("Engineering".to_string()),
                     slug: Some("engineering".to_string()),
-                    allowed_domains: Some("example.com".to_string()),
+                    allowed_domains: Some(serde_json::json!("example.com")),
                 })
                 .send()
                 .await?;
@@ -2207,7 +2207,6 @@ async fn smoke() {
                     ServersUpdateBody {
                         name: None,
                         slug: None,
-                        auto_add_operations: None,
                         operations: None,
                         docs_pages: None,
                     },
@@ -2233,7 +2232,6 @@ async fn smoke() {
                     ServersUpdateBody {
                         name: Some("Acme MCP".to_string()),
                         slug: Some("acme-mcp".to_string()),
-                        auto_add_operations: Some(true),
                         operations: Some(vec!["42".to_string()]),
                         docs_pages: Some(vec!["getting-started".to_string()]),
                     },
@@ -2279,62 +2277,6 @@ async fn smoke() {
                 .mcp()
                 .servers()
                 .installations()
-                .create(
-                    "42",
-                    InstallationsCreateBody {
-                        name: "Acme MCP".to_string(),
-                        slug: None,
-                        document_auth: std::collections::HashMap::from([]),
-                    },
-                )
-                .send()
-                .await?;
-            Ok(())
-        }
-        .await;
-        if let Err(error) = result {
-            if is_smoke_failure(&error) {
-                failures.push(format!(
-                    "{}: {error}",
-                    "POST /v1/mcp/servers/{id}/installations [required params]"
-                ));
-            }
-        }
-    }
-    {
-        let result: Result<(), Error> = async {
-            let _ = client
-                .mcp()
-                .servers()
-                .installations()
-                .create(
-                    "42",
-                    InstallationsCreateBody {
-                        name: "Acme MCP".to_string(),
-                        slug: Some("acme-mcp".to_string()),
-                        document_auth: std::collections::HashMap::from([]),
-                    },
-                )
-                .send()
-                .await?;
-            Ok(())
-        }
-        .await;
-        if let Err(error) = result {
-            if is_smoke_failure(&error) {
-                failures.push(format!(
-                    "{}: {error}",
-                    "POST /v1/mcp/servers/{id}/installations [all params]"
-                ));
-            }
-        }
-    }
-    {
-        let result: Result<(), Error> = async {
-            let _ = client
-                .mcp()
-                .servers()
-                .installations()
                 .retrieve("42", "84")
                 .send()
                 .await?;
@@ -2362,9 +2304,6 @@ async fn smoke() {
                     InstallationsUpdateBody {
                         name: None,
                         slug: None,
-                        is_private: None,
-                        login_portal_uid: None,
-                        document_auth: None,
                         mcp_version: None,
                     },
                 )
@@ -2393,10 +2332,7 @@ async fn smoke() {
                     "84",
                     InstallationsUpdateBody {
                         name: Some("Acme MCP".to_string()),
-                        slug: Some("acme-mcp".to_string()),
-                        is_private: Some(false),
-                        login_portal_uid: Some("LakgbKJ5m9gl0JDMbcJqL".to_string()),
-                        document_auth: Some(std::collections::HashMap::from([])),
+                        slug: Some("staging".to_string()),
                         mcp_version: Some("1.2.0".to_string()),
                     },
                 )

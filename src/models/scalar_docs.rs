@@ -29,6 +29,8 @@ pub struct GithubProject {
     pub login_portal_uid: String,
     #[serde(rename = "userInfoHookUrl")]
     pub user_info_hook_url: String,
+    #[serde(rename = "userInfoHookSecretUid", default, skip_serializing_if = "Option::is_none")]
+    pub user_info_hook_secret_uid: Option<String>,
     #[serde(rename = "activeThemeId")]
     pub active_theme_id: String,
     #[serde(
@@ -45,7 +47,7 @@ pub struct GithubProject {
     #[serde(rename = "analyticsEnabled")]
     pub analytics_enabled: bool,
     #[serde(rename = "accessGroups")]
-    pub access_groups: String,
+    pub access_groups: serde_json::Value,
     pub slug: String,
     #[serde(rename = "publishStatus")]
     pub publish_status: String,
@@ -102,7 +104,7 @@ pub struct DocsProject {
     #[serde(rename = "isPrivate")]
     pub is_private: bool,
     #[serde(rename = "accessGroups")]
-    pub access_groups: String,
+    pub access_groups: serde_json::Value,
     #[serde(rename = "loginPortalUid")]
     pub login_portal_uid: String,
     #[serde(rename = "activeThemeId")]

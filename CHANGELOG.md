@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.5.0](https://github.com/scalar/scalar-rs/compare/v0.4.0...v0.5.0) (2026-10-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* **api:** 3 breaking changes to the SDK surface.
+    - Property `api_document.tags` type changed from `string` to `unknown`.
+    - Property `github_project.accessGroups` type changed from `string` to `unknown`.
+    - Property `docs_project.accessGroups` type changed from `string` to `unknown`.
+* **api:** 8 breaking changes to the SDK surface.
+    - Removed body field `autoAddOperations` from `mcp.servers.update`.
+    - Removed body field `isPrivate` from `mcp.servers.installations.update`.
+    - Removed body field `loginPortalUid` from `mcp.servers.installations.update`.
+    - Removed body field `documentAuth` from `mcp.servers.installations.update`.
+    - Removed operation `mcp.servers.installations.create` (`POST /v1/mcp/servers/{id}/installations`).
+    - Removed required property `mcp_server.autoAddOperations`.
+    - Removed required property `mcp_installation.isPrivate`.
+    - Removed required property `mcp_installation_list_item.isPrivate`.
+
+### Features
+
+* **api:** update property api_document.tags (+3 more changes) ([b13635c](https://github.com/scalar/scalar-rs/commit/b13635c740fcc90a6b74601dd62d74ac4621f6e2))
+* **api:** update SDK surface (14 changes) ([1df474b](https://github.com/scalar/scalar-rs/commit/1df474b3e059c2b97e247a1eb2fbd3d9f76f3a5a))
+
+
+### Chores
+
+* **api:** regenerate SDK ([c419938](https://github.com/scalar/scalar-rs/commit/c4199383ff9f3183154f9357af36432d689dddcb))
+
 ## [0.4.0](https://github.com/scalar/scalar-rs/compare/v0.3.3...v0.4.0) (2026-10-09)
 
 
