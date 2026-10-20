@@ -1665,6 +1665,9 @@ let response = client
             auth_method: None,
             access: None,
             tag: None,
+            artifact_id: None,
+            tap_repo: None,
+            registry: None,
         },
     )
     .send()

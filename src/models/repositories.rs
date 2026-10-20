@@ -138,6 +138,12 @@ pub struct RepositoriesUpdatePublishingBody {
     pub access: Option<RepositoriesUpdatePublishingBodyAccess>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tag: Option<String>,
+    #[serde(rename = "artifactId", default, skip_serializing_if = "Option::is_none")]
+    pub artifact_id: Option<String>,
+    #[serde(rename = "tapRepo", default, skip_serializing_if = "Option::is_none")]
+    pub tap_repo: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub registry: Option<String>,
 }
 
 impl RepositoriesUpdatePublishingBody {
@@ -151,6 +157,9 @@ impl RepositoriesUpdatePublishingBody {
             auth_method: None,
             access: None,
             tag: None,
+            artifact_id: None,
+            tap_repo: None,
+            registry: None,
         }
     }
 }

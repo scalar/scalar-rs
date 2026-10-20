@@ -3435,6 +3435,9 @@ async fn main() {
                         auth_method: None,
                         access: None,
                         tag: None,
+                        artifact_id: None,
+                        tap_repo: None,
+                        registry: None,
                     },
                 )
                 .send()
@@ -3478,6 +3481,9 @@ async fn main() {
                         auth_method: Some(RepositoriesUpdatePublishingBodyAuthMethod::Oidc),
                         access: Some(RepositoriesUpdatePublishingBodyAccess::Public),
                         tag: Some("latest".to_string()),
+                        artifact_id: Some("scalar-galaxy".to_string()),
+                        tap_repo: Some("scalar/homebrew-tap".to_string()),
+                        registry: Some("npm".to_string()),
                     },
                 )
                 .send()
