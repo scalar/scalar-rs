@@ -5,6 +5,8 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
+pub type Email = String;
+
 /// Match on `as_str()` (or build one with `From<&str>`) when you need a value
 /// this SDK version does not know. Matching `Unknown(_)` directly is an
 /// anti-pattern: that arm silently stops matching once a future SDK release
@@ -55,8 +57,6 @@ impl From<&str> for Role {
         }
     }
 }
-
-pub type Email = String;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct InvitesMemberBody {

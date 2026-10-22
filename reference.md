@@ -789,6 +789,7 @@ Remove an access group
 - `LoginPortalPage`
 - `LoginPortal`
 - `AccessGroupName`
+- `Email`
 - `EmailDomain`
 - `Rule`
 - `Theme`
@@ -798,7 +799,6 @@ Remove an access group
 - `TeamMember`
 - `Role`
 - `TeamInvite`
-- `Email`
 - `GithubProject`
 - `ActiveDeployment`
 - `GithubProjectRepository`
