@@ -14,8 +14,6 @@ pub struct McpServer {
     pub id: String,
     pub name: String,
     pub slug: String,
-    #[serde(rename = "autoAddOperations")]
-    pub auto_add_operations: bool,
     #[serde(rename = "createdAt")]
     pub created_at: String,
     #[serde(rename = "updatedAt")]
@@ -33,8 +31,6 @@ pub struct McpInstallation {
     pub mcp_server_id: String,
     pub name: String,
     pub slug: String,
-    #[serde(rename = "isPrivate")]
-    pub is_private: bool,
     #[serde(rename = "accessGroups")]
     pub access_groups: Vec<String>,
     #[serde(rename = "loginPortalUid", default)]
@@ -89,8 +85,6 @@ pub struct ServersUpdateBody {
     pub name: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub slug: Option<String>,
-    #[serde(rename = "autoAddOperations", default, skip_serializing_if = "Option::is_none")]
-    pub auto_add_operations: Option<bool>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub operations: Option<Vec<String>>,
     #[serde(rename = "docsPages", default, skip_serializing_if = "Option::is_none")]
