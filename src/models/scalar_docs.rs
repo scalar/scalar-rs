@@ -46,6 +46,8 @@ pub struct GithubProject {
     pub agent_enabled: bool,
     #[serde(rename = "analyticsEnabled")]
     pub analytics_enabled: bool,
+    #[serde(rename = "chatInsightsEnabled")]
+    pub chat_insights_enabled: bool,
     #[serde(rename = "accessGroups")]
     pub access_groups: serde_json::Value,
     pub slug: String,
