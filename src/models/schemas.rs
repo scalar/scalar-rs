@@ -5,9 +5,8 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `Schema::new` and the
+/// `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Schema {
@@ -21,9 +20,34 @@ pub struct Schema {
     pub versions: Vec<ManagedSchemaVersion>,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl Schema {
+    /// Creates a new `Schema` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(
+        uid: impl Into<String>,
+        title: impl Into<String>,
+        description: impl Into<String>,
+        slug: impl Into<String>,
+        namespace: impl Into<String>,
+        is_private: bool,
+        versions: Vec<ManagedSchemaVersion>,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            title: title.into(),
+            description: description.into(),
+            slug: slug.into(),
+            namespace: namespace.into(),
+            is_private,
+            versions,
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ManagedSchemaVersion::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ManagedSchemaVersion {
@@ -39,7 +63,42 @@ pub struct ManagedSchemaVersion {
     pub json_sha: Option<String>,
 }
 
+impl ManagedSchemaVersion {
+    /// Creates a new `ManagedSchemaVersion` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `ManagedSchemaVersion::new(uid, created_at, updated_at, version).with_yaml_sha(…)`.
+    pub fn new(uid: impl Into<String>, created_at: i64, updated_at: i64, version: impl Into<String>) -> Self {
+        Self {
+            uid: uid.into(),
+            created_at,
+            updated_at,
+            version: version.into(),
+            yaml_sha: None,
+            json_sha: None,
+        }
+    }
+
+    /// Sets `yaml_sha`, which `new` leaves unset.
+    pub fn with_yaml_sha(mut self, value: impl Into<String>) -> Self {
+        self.yaml_sha = Some(value.into());
+        self
+    }
+
+    /// Sets `json_sha`, which `new` leaves unset.
+    pub fn with_json_sha(mut self, value: impl Into<String>) -> Self {
+        self.json_sha = Some(value.into());
+        self
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `SchemasCreateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct SchemasCreateBody {
     pub title: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -54,8 +113,11 @@ pub struct SchemasCreateBody {
 impl SchemasCreateBody {
     /// Creates a new `SchemasCreateBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `SchemasCreateBody { description: Some(…), ..SchemasCreateBody::new(title, version, slug, document) }`.
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `SchemasCreateBody::new(title, version, slug, document).with_description(…)`.
     pub fn new(
         title: impl Into<String>,
         version: impl Into<String>,
@@ -71,9 +133,27 @@ impl SchemasCreateBody {
             document: document.into(),
         }
     }
+
+    /// Sets `description`, which `new` leaves unset.
+    pub fn with_description(mut self, value: impl Into<String>) -> Self {
+        self.description = Some(value.into());
+        self
+    }
+
+    /// Sets `is_private`, which `new` leaves unset.
+    pub fn with_is_private(mut self, value: bool) -> Self {
+        self.is_private = Some(value);
+        self
+    }
 }
 
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `SchemasUpdateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
+///
+/// `Default` is the empty value, every field unset. It is withdrawn if the API ever makes a field required, which
+/// breaks callers through `new` as well.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct SchemasUpdateBody {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
@@ -81,4 +161,36 @@ pub struct SchemasUpdateBody {
     pub description: Option<String>,
     #[serde(rename = "isPrivate", default, skip_serializing_if = "Option::is_none")]
     pub is_private: Option<bool>,
+}
+
+impl SchemasUpdateBody {
+    /// Creates a new `SchemasUpdateBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `SchemasUpdateBody::new().with_title(…)`.
+    pub fn new() -> Self {
+        Self {
+            title: None,
+            description: None,
+            is_private: None,
+        }
+    }
+
+    /// Sets `title`, which `new` leaves unset.
+    pub fn with_title(mut self, value: impl Into<String>) -> Self {
+        self.title = Some(value.into());
+        self
+    }
+
+    /// Sets `description`, which `new` leaves unset.
+    pub fn with_description(mut self, value: impl Into<String>) -> Self {
+        self.description = Some(value.into());
+        self
+    }
+
+    /// Sets `is_private`, which `new` leaves unset.
+    pub fn with_is_private(mut self, value: bool) -> Self {
+        self.is_private = Some(value);
+        self
+    }
 }

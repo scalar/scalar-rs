@@ -5,9 +5,8 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `ApiDocument::new`
+/// and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ApiDocument {
@@ -19,23 +18,66 @@ pub struct ApiDocument {
     pub namespace: String,
     #[serde(rename = "isPrivate")]
     pub is_private: bool,
-    pub tags: String,
+    pub tags: serde_json::Value,
     pub versions: Vec<ManagedDocVersion>,
+}
+
+impl ApiDocument {
+    /// Creates a new `ApiDocument` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        uid: impl Into<String>,
+        version: impl Into<String>,
+        title: impl Into<String>,
+        slug: impl Into<String>,
+        description: impl Into<String>,
+        namespace: impl Into<String>,
+        is_private: bool,
+        tags: serde_json::Value,
+        versions: Vec<ManagedDocVersion>,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            version: version.into(),
+            title: title.into(),
+            slug: slug.into(),
+            description: description.into(),
+            namespace: namespace.into(),
+            is_private,
+            tags,
+            versions,
+        }
+    }
 }
 
 pub type Version = String;
 
 pub type Method = String;
 
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `AccessGroup::new`
+/// and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct AccessGroup {
     #[serde(rename = "accessGroupSlug")]
     pub access_group_slug: String,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl AccessGroup {
+    /// Creates a new `AccessGroup` from its required fields, leaving every optional one unset.
+    pub fn new(access_group_slug: impl Into<String>) -> Self {
+        Self {
+            access_group_slug: access_group_slug.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `RegistryCreateApiDocumentResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public
+/// for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct RegistryCreateApiDocumentResponse {
@@ -49,7 +91,33 @@ pub struct RegistryCreateApiDocumentResponse {
     pub yaml_sha: String,
 }
 
+impl RegistryCreateApiDocumentResponse {
+    /// Creates a new `RegistryCreateApiDocumentResponse` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(
+        uid: impl Into<String>,
+        version_uid: impl Into<String>,
+        title: impl Into<String>,
+        json_sha: impl Into<String>,
+        yaml_sha: impl Into<String>,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            version_uid: version_uid.into(),
+            title: title.into(),
+            json_sha: json_sha.into(),
+            yaml_sha: yaml_sha.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `RegistryCreateApiDocumentBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RegistryCreateApiDocumentBody {
     pub title: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -66,8 +134,11 @@ pub struct RegistryCreateApiDocumentBody {
 impl RegistryCreateApiDocumentBody {
     /// Creates a new `RegistryCreateApiDocumentBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `RegistryCreateApiDocumentBody { description: Some(…), ..RegistryCreateApiDocumentBody::new(…) }`.
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `RegistryCreateApiDocumentBody::new(title, version, slug, document).with_description(…)`.
     pub fn new(
         title: impl Into<String>,
         version: impl Into<String>,
@@ -84,9 +155,34 @@ impl RegistryCreateApiDocumentBody {
             document: document.into(),
         }
     }
+
+    /// Sets `description`, which `new` leaves unset.
+    pub fn with_description(mut self, value: impl Into<String>) -> Self {
+        self.description = Some(value.into());
+        self
+    }
+
+    /// Sets `ruleset`, which `new` leaves unset.
+    pub fn with_ruleset(mut self, value: impl Into<String>) -> Self {
+        self.ruleset = Some(value.into());
+        self
+    }
+
+    /// Sets `is_private`, which `new` leaves unset.
+    pub fn with_is_private(mut self, value: bool) -> Self {
+        self.is_private = Some(value);
+        self
+    }
 }
 
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `RegistryUpdateApiDocumentBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
+///
+/// `Default` is the empty value, every field unset. It is withdrawn if the API ever makes a field required, which
+/// breaks callers through `new` as well.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RegistryUpdateApiDocumentBody {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
@@ -98,9 +194,48 @@ pub struct RegistryUpdateApiDocumentBody {
     pub ruleset: Option<String>,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl RegistryUpdateApiDocumentBody {
+    /// Creates a new `RegistryUpdateApiDocumentBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `RegistryUpdateApiDocumentBody::new().with_title(…)`.
+    pub fn new() -> Self {
+        Self {
+            title: None,
+            description: None,
+            is_private: None,
+            ruleset: None,
+        }
+    }
+
+    /// Sets `title`, which `new` leaves unset.
+    pub fn with_title(mut self, value: impl Into<String>) -> Self {
+        self.title = Some(value.into());
+        self
+    }
+
+    /// Sets `description`, which `new` leaves unset.
+    pub fn with_description(mut self, value: impl Into<String>) -> Self {
+        self.description = Some(value.into());
+        self
+    }
+
+    /// Sets `is_private`, which `new` leaves unset.
+    pub fn with_is_private(mut self, value: bool) -> Self {
+        self.is_private = Some(value);
+        self
+    }
+
+    /// Sets `ruleset`, which `new` leaves unset.
+    pub fn with_ruleset(mut self, value: impl Into<String>) -> Self {
+        self.ruleset = Some(value.into());
+        self
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `RegistryUpdateApiDocumentVersionResponse::new` and the `with_*` setters rather than a struct literal. Fields stay
+/// public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct RegistryUpdateApiDocumentVersionResponse {
@@ -110,12 +245,43 @@ pub struct RegistryUpdateApiDocumentVersionResponse {
     pub yaml_sha: String,
 }
 
+impl RegistryUpdateApiDocumentVersionResponse {
+    /// Creates a new `RegistryUpdateApiDocumentVersionResponse` from its required fields, leaving every optional one
+    /// unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(json_sha: impl Into<String>, yaml_sha: impl Into<String>) -> Self {
+        Self {
+            json_sha: json_sha.into(),
+            yaml_sha: yaml_sha.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `RegistryUpdateApiDocumentVersionBody::new` and the `with_*` setters rather than a struct literal. Fields stay
+/// public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RegistryUpdateApiDocumentVersionBody {
     pub document: String,
 }
 
+impl RegistryUpdateApiDocumentVersionBody {
+    /// Creates a new `RegistryUpdateApiDocumentVersionBody` from its required fields, leaving every optional one unset.
+    pub fn new(document: impl Into<String>) -> Self {
+        Self {
+            document: document.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `RegistryCreateApiDocumentVersionBody::new` and the `with_*` setters rather than a struct literal. Fields stay
+/// public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RegistryCreateApiDocumentVersionBody {
     pub version: String,
     pub document: String,
@@ -126,14 +292,23 @@ pub struct RegistryCreateApiDocumentVersionBody {
 impl RegistryCreateApiDocumentVersionBody {
     /// Creates a new `RegistryCreateApiDocumentVersionBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `RegistryCreateApiDocumentVersionBody { force: Some(…), ..RegistryCreateApiDocumentVersionBody::new(…) }`.
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `RegistryCreateApiDocumentVersionBody::new(version, document).with_force(…)`.
     pub fn new(version: impl Into<String>, document: impl Into<String>) -> Self {
         Self {
             version: version.into(),
             document: document.into(),
             force: None,
         }
+    }
+
+    /// Sets `force`, which `new` leaves unset.
+    pub fn with_force(mut self, value: bool) -> Self {
+        self.force = Some(value);
+        self
     }
 }
 
@@ -180,9 +355,8 @@ impl From<&str> for ManagedDocVersionEmbedStatus {
     }
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ManagedDocVersionTool::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ManagedDocVersionTool {
@@ -190,6 +364,24 @@ pub struct ManagedDocVersionTool {
     pub method: String,
     #[serde(rename = "enabledTools")]
     pub enabled_tools: Vec<ManagedDocVersionToolEnabledTool>,
+}
+
+impl ManagedDocVersionTool {
+    /// Creates a new `ManagedDocVersionTool` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(
+        path: impl Into<String>,
+        method: impl Into<String>,
+        enabled_tools: Vec<ManagedDocVersionToolEnabledTool>,
+    ) -> Self {
+        Self {
+            path: path.into(),
+            method: method.into(),
+            enabled_tools,
+        }
+    }
 }
 
 /// Match on `as_str()` (or build one with `From<&str>`) when you need a value

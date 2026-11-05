@@ -5,9 +5,9 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `RepositoriesLinkResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct RepositoriesLinkResponse {
@@ -15,7 +15,23 @@ pub struct RepositoriesLinkResponse {
     pub branch: String,
 }
 
+impl RepositoriesLinkResponse {
+    /// Creates a new `RepositoriesLinkResponse` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(repo: impl Into<String>, branch: impl Into<String>) -> Self {
+        Self {
+            repo: repo.into(),
+            branch: branch.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `RepositoriesLinkBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RepositoriesLinkBody {
     pub language: RepositoriesLinkBodyLanguage,
     #[serde(rename = "repositoryId")]
@@ -29,8 +45,11 @@ pub struct RepositoriesLinkBody {
 impl RepositoriesLinkBody {
     /// Creates a new `RepositoriesLinkBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `RepositoriesLinkBody { prerelease_type: Some(…), ..RepositoriesLinkBody::new(…) }`.
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `RepositoriesLinkBody::new(language, repository_id, base_branch).with_prerelease_type(…)`.
     pub fn new(language: RepositoriesLinkBodyLanguage, repository_id: i64, base_branch: impl Into<String>) -> Self {
         Self {
             language,
@@ -38,6 +57,12 @@ impl RepositoriesLinkBody {
             base_branch: base_branch.into(),
             prerelease_type: None,
         }
+    }
+
+    /// Sets `prerelease_type`, which `new` leaves unset.
+    pub fn with_prerelease_type(mut self, value: impl Into<String>) -> Self {
+        self.prerelease_type = Some(value.into());
+        self
     }
 }
 
@@ -128,7 +153,11 @@ impl From<&str> for RepositoriesLinkBodyLanguage {
     }
 }
 
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `RepositoriesUpdatePublishingBody::new` and the `with_*` setters rather than a struct literal. Fields stay public
+/// for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RepositoriesUpdatePublishingBody {
     #[serde(rename = "publishOnMerge")]
     pub publish_on_merge: bool,
@@ -138,20 +167,65 @@ pub struct RepositoriesUpdatePublishingBody {
     pub access: Option<RepositoriesUpdatePublishingBodyAccess>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tag: Option<String>,
+    #[serde(rename = "artifactId", default, skip_serializing_if = "Option::is_none")]
+    pub artifact_id: Option<String>,
+    #[serde(rename = "tapRepo", default, skip_serializing_if = "Option::is_none")]
+    pub tap_repo: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub registry: Option<String>,
 }
 
 impl RepositoriesUpdatePublishingBody {
     /// Creates a new `RepositoriesUpdatePublishingBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `RepositoriesUpdatePublishingBody { auth_method: Some(…), ..RepositoriesUpdatePublishingBody::new(…) }`.
+    /// Set an optional field with its `with_*` setter:
+    /// `RepositoriesUpdatePublishingBody::new(publish_on_merge).with_auth_method(…)`.
     pub fn new(publish_on_merge: bool) -> Self {
         Self {
             publish_on_merge,
             auth_method: None,
             access: None,
             tag: None,
+            artifact_id: None,
+            tap_repo: None,
+            registry: None,
         }
+    }
+
+    /// Sets `auth_method`, which `new` leaves unset.
+    pub fn with_auth_method(mut self, value: RepositoriesUpdatePublishingBodyAuthMethod) -> Self {
+        self.auth_method = Some(value);
+        self
+    }
+
+    /// Sets `access`, which `new` leaves unset.
+    pub fn with_access(mut self, value: RepositoriesUpdatePublishingBodyAccess) -> Self {
+        self.access = Some(value);
+        self
+    }
+
+    /// Sets `tag`, which `new` leaves unset.
+    pub fn with_tag(mut self, value: impl Into<String>) -> Self {
+        self.tag = Some(value.into());
+        self
+    }
+
+    /// Sets `artifact_id`, which `new` leaves unset.
+    pub fn with_artifact_id(mut self, value: impl Into<String>) -> Self {
+        self.artifact_id = Some(value.into());
+        self
+    }
+
+    /// Sets `tap_repo`, which `new` leaves unset.
+    pub fn with_tap_repo(mut self, value: impl Into<String>) -> Self {
+        self.tap_repo = Some(value.into());
+        self
+    }
+
+    /// Sets `registry`, which `new` leaves unset.
+    pub fn with_registry(mut self, value: impl Into<String>) -> Self {
+        self.registry = Some(value.into());
+        self
     }
 }
 
