@@ -5,16 +5,25 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `VersionCreateResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct VersionCreateResponse {
     pub uid: String,
 }
 
+impl VersionCreateResponse {
+    /// Creates a new `VersionCreateResponse` from its required fields, leaving every optional one unset.
+    pub fn new(uid: impl Into<String>) -> Self {
+        Self { uid: uid.into() }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `VersionCreateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct VersionCreateBody {
     pub version: String,
     pub document: String,
@@ -25,13 +34,22 @@ pub struct VersionCreateBody {
 impl VersionCreateBody {
     /// Creates a new `VersionCreateBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `VersionCreateBody { force: Some(…), ..VersionCreateBody::new(version, document) }`.
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `VersionCreateBody::new(version, document).with_force(…)`.
     pub fn new(version: impl Into<String>, document: impl Into<String>) -> Self {
         Self {
             version: version.into(),
             document: document.into(),
             force: None,
         }
+    }
+
+    /// Sets `force`, which `new` leaves unset.
+    pub fn with_force(mut self, value: bool) -> Self {
+        self.force = Some(value);
+        self
     }
 }

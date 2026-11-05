@@ -96,7 +96,7 @@ impl ListRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<Vec<crate::models::Schema>, crate::error::Error> {
-        let path = format!("/v1/schemas/{}", crate::http::encode_path_param(&self.namespace));
+        let path = format!("/v1/schemas/{}", crate::http::path_param(&self.namespace)?);
         let query: Vec<(String, String)> = Vec::new();
         let headers: Vec<(String, String)> = Vec::new();
         let body: Option<&serde_json::Value> = None;
@@ -167,7 +167,7 @@ impl CreateRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<crate::models::Uid, crate::error::Error> {
-        let path = format!("/v1/schemas/{}", crate::http::encode_path_param(&self.namespace));
+        let path = format!("/v1/schemas/{}", crate::http::path_param(&self.namespace)?);
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
@@ -250,8 +250,8 @@ impl UpdateRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/schemas/{}/{}",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
@@ -328,8 +328,8 @@ impl DeleteRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/schemas/{}/{}",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();

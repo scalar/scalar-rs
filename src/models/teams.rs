@@ -5,9 +5,8 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `Team::new` and the
+/// `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Team {
@@ -17,6 +16,36 @@ pub struct Team {
     pub image_uri: Option<String>,
     pub slug: String,
     pub theme: String,
+}
+
+impl Team {
+    /// Creates a new `Team` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `Team::new(uid, name, slug, theme).with_image_uri(…)`.
+    pub fn new(
+        uid: impl Into<String>,
+        name: impl Into<String>,
+        slug: impl Into<String>,
+        theme: impl Into<String>,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            name: name.into(),
+            image_uri: None,
+            slug: slug.into(),
+            theme: theme.into(),
+        }
+    }
+
+    /// Sets `image_uri`, which `new` leaves unset.
+    pub fn with_image_uri(mut self, value: impl Into<String>) -> Self {
+        self.image_uri = Some(value.into());
+        self
+    }
 }
 
 pub type TeamName = String;

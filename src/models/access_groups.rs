@@ -7,9 +7,9 @@ use serde::{Deserialize, Serialize};
 
 pub type AccessGroupName = String;
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `AccessGroupsCreateResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct AccessGroupsCreateResponse {
@@ -22,7 +22,35 @@ pub struct AccessGroupsCreateResponse {
     pub allowed_emails: serde_json::Value,
 }
 
+impl AccessGroupsCreateResponse {
+    /// Creates a new `AccessGroupsCreateResponse` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(
+        uid: impl Into<String>,
+        name: impl Into<String>,
+        slug: impl Into<String>,
+        allowed_domains: serde_json::Value,
+        allowed_emails: serde_json::Value,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            name: name.into(),
+            slug: slug.into(),
+            allowed_domains,
+            allowed_emails,
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `AccessGroupsCreateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
+///
+/// `Default` is the empty value, every field unset. It is withdrawn if the API ever makes a field required, which
+/// breaks callers through `new` as well.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct AccessGroupsCreateBody {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -32,9 +60,41 @@ pub struct AccessGroupsCreateBody {
     pub allowed_domains: Option<serde_json::Value>,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl AccessGroupsCreateBody {
+    /// Creates a new `AccessGroupsCreateBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `AccessGroupsCreateBody::new().with_name(…)`.
+    pub fn new() -> Self {
+        Self {
+            name: None,
+            slug: None,
+            allowed_domains: None,
+        }
+    }
+
+    /// Sets `name`, which `new` leaves unset.
+    pub fn with_name(mut self, value: impl Into<String>) -> Self {
+        self.name = Some(value.into());
+        self
+    }
+
+    /// Sets `slug`, which `new` leaves unset.
+    pub fn with_slug(mut self, value: impl Into<String>) -> Self {
+        self.slug = Some(value.into());
+        self
+    }
+
+    /// Sets `allowed_domains`, which `new` leaves unset.
+    pub fn with_allowed_domains(mut self, value: serde_json::Value) -> Self {
+        self.allowed_domains = Some(value);
+        self
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `AccessGroupsRetrieveResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct AccessGroupsRetrieveResponse {
@@ -47,10 +107,60 @@ pub struct AccessGroupsRetrieveResponse {
     pub allowed_emails: serde_json::Value,
 }
 
+impl AccessGroupsRetrieveResponse {
+    /// Creates a new `AccessGroupsRetrieveResponse` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(
+        uid: impl Into<String>,
+        name: impl Into<String>,
+        slug: impl Into<String>,
+        allowed_domains: serde_json::Value,
+        allowed_emails: serde_json::Value,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            name: name.into(),
+            slug: slug.into(),
+            allowed_domains,
+            allowed_emails,
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `AccessGroupsUpdateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
+///
+/// `Default` is the empty value, every field unset. It is withdrawn if the API ever makes a field required, which
+/// breaks callers through `new` as well.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct AccessGroupsUpdateBody {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub slug: Option<String>,
+}
+
+impl AccessGroupsUpdateBody {
+    /// Creates a new `AccessGroupsUpdateBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `AccessGroupsUpdateBody::new().with_name(…)`.
+    pub fn new() -> Self {
+        Self { name: None, slug: None }
+    }
+
+    /// Sets `name`, which `new` leaves unset.
+    pub fn with_name(mut self, value: impl Into<String>) -> Self {
+        self.name = Some(value.into());
+        self
+    }
+
+    /// Sets `slug`, which `new` leaves unset.
+    pub fn with_slug(mut self, value: impl Into<String>) -> Self {
+        self.slug = Some(value.into());
+        self
+    }
 }

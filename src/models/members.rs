@@ -5,9 +5,8 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `TeamMember::new` and
+/// the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct TeamMember {
@@ -19,9 +18,32 @@ pub struct TeamMember {
     pub image_uri: Option<String>,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl TeamMember {
+    /// Creates a new `TeamMember` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `TeamMember::new(uid, role, display_name).with_image_uri(…)`.
+    pub fn new(uid: impl Into<String>, role: Role, display_name: impl Into<String>) -> Self {
+        Self {
+            uid: uid.into(),
+            role,
+            display_name: display_name.into(),
+            image_uri: None,
+        }
+    }
+
+    /// Sets `image_uri`, which `new` leaves unset.
+    pub fn with_image_uri(mut self, value: impl Into<String>) -> Self {
+        self.image_uri = Some(value.into());
+        self
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `TeamInvite::new` and
+/// the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct TeamInvite {
@@ -36,9 +58,32 @@ pub struct TeamInvite {
     pub expires: Option<f64>,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl TeamInvite {
+    /// Creates a new `TeamInvite` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `TeamInvite::new(uid, email, role).with_expires(…)`.
+    pub fn new(uid: impl Into<String>, email: impl Into<String>, role: Role) -> Self {
+        Self {
+            uid: uid.into(),
+            email: email.into(),
+            role,
+            expires: None,
+        }
+    }
+
+    /// Sets `expires`, which `new` leaves unset.
+    pub fn with_expires(mut self, value: f64) -> Self {
+        self.expires = Some(value);
+        self
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `MembersListResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct MembersListResponse {
@@ -47,7 +92,30 @@ pub struct MembersListResponse {
     pub pending_invites: Vec<TeamInvite>,
 }
 
+impl MembersListResponse {
+    /// Creates a new `MembersListResponse` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(members: Vec<TeamMember>, pending_invites: Vec<TeamInvite>) -> Self {
+        Self {
+            members,
+            pending_invites,
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `MembersUpdateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct MembersUpdateBody {
     pub role: Role,
+}
+
+impl MembersUpdateBody {
+    /// Creates a new `MembersUpdateBody` from its required fields, leaving every optional one unset.
+    pub fn new(role: Role) -> Self {
+        Self { role }
+    }
 }
