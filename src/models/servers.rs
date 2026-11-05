@@ -5,9 +5,8 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `McpServer::new` and
+/// the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct McpServer {
@@ -20,9 +19,30 @@ pub struct McpServer {
     pub updated_at: String,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl McpServer {
+    /// Creates a new `McpServer` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(
+        id: impl Into<String>,
+        name: impl Into<String>,
+        slug: impl Into<String>,
+        created_at: impl Into<String>,
+        updated_at: impl Into<String>,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            name: name.into(),
+            slug: slug.into(),
+            created_at: created_at.into(),
+            updated_at: updated_at.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `McpInstallation::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct McpInstallation {
@@ -43,9 +63,39 @@ pub struct McpInstallation {
     pub credential_redaction_enabled: bool,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl McpInstallation {
+    /// Creates a new `McpInstallation` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        id: impl Into<String>,
+        mcp_server_id: impl Into<String>,
+        name: impl Into<String>,
+        slug: impl Into<String>,
+        access_groups: Vec<String>,
+        login_portal_uid: Option<String>,
+        mcp_version: Option<String>,
+        pii_redaction_enabled: bool,
+        credential_redaction_enabled: bool,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            mcp_server_id: mcp_server_id.into(),
+            name: name.into(),
+            slug: slug.into(),
+            access_groups,
+            login_portal_uid,
+            mcp_version,
+            pii_redaction_enabled,
+            credential_redaction_enabled,
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ServersCreateResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ServersCreateResponse {
@@ -53,7 +103,20 @@ pub struct ServersCreateResponse {
     pub installation: McpInstallation,
 }
 
+impl ServersCreateResponse {
+    /// Creates a new `ServersCreateResponse` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(server: McpServer, installation: McpInstallation) -> Self {
+        Self { server, installation }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ServersCreateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ServersCreateBody {
     pub name: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -67,8 +130,8 @@ pub struct ServersCreateBody {
 impl ServersCreateBody {
     /// Creates a new `ServersCreateBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `ServersCreateBody { slug: Some(…), ..ServersCreateBody::new(name) }`.
+    /// Set an optional field with its `with_*` setter:
+    /// `ServersCreateBody::new(name).with_slug(…)`.
     pub fn new(name: impl Into<String>) -> Self {
         Self {
             name: name.into(),
@@ -77,9 +140,33 @@ impl ServersCreateBody {
             project_uids: None,
         }
     }
+
+    /// Sets `slug`, which `new` leaves unset.
+    pub fn with_slug(mut self, value: impl Into<String>) -> Self {
+        self.slug = Some(value.into());
+        self
+    }
+
+    /// Sets `version_uids`, which `new` leaves unset.
+    pub fn with_version_uids(mut self, value: Vec<String>) -> Self {
+        self.version_uids = Some(value);
+        self
+    }
+
+    /// Sets `project_uids`, which `new` leaves unset.
+    pub fn with_project_uids(mut self, value: Vec<String>) -> Self {
+        self.project_uids = Some(value);
+        self
+    }
 }
 
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ServersUpdateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
+///
+/// `Default` is the empty value, every field unset. It is withdrawn if the API ever makes a field required, which
+/// breaks callers through `new` as well.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ServersUpdateBody {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -89,4 +176,43 @@ pub struct ServersUpdateBody {
     pub operations: Option<Vec<String>>,
     #[serde(rename = "docsPages", default, skip_serializing_if = "Option::is_none")]
     pub docs_pages: Option<Vec<String>>,
+}
+
+impl ServersUpdateBody {
+    /// Creates a new `ServersUpdateBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `ServersUpdateBody::new().with_name(…)`.
+    pub fn new() -> Self {
+        Self {
+            name: None,
+            slug: None,
+            operations: None,
+            docs_pages: None,
+        }
+    }
+
+    /// Sets `name`, which `new` leaves unset.
+    pub fn with_name(mut self, value: impl Into<String>) -> Self {
+        self.name = Some(value.into());
+        self
+    }
+
+    /// Sets `slug`, which `new` leaves unset.
+    pub fn with_slug(mut self, value: impl Into<String>) -> Self {
+        self.slug = Some(value.into());
+        self
+    }
+
+    /// Sets `operations`, which `new` leaves unset.
+    pub fn with_operations(mut self, value: Vec<String>) -> Self {
+        self.operations = Some(value);
+        self
+    }
+
+    /// Sets `docs_pages`, which `new` leaves unset.
+    pub fn with_docs_pages(mut self, value: Vec<String>) -> Self {
+        self.docs_pages = Some(value);
+        self
+    }
 }

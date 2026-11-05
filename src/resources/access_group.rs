@@ -95,8 +95,8 @@ impl CreateRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/schemas/{}/{}/access-group",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
@@ -175,8 +175,8 @@ impl DeleteRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/schemas/{}/{}/access-group",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();

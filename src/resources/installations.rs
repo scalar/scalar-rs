@@ -106,10 +106,7 @@ impl ListRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<Vec<crate::models::McpInstallationListItem>, crate::error::Error> {
-        let path = format!(
-            "/v1/mcp/servers/{}/installations",
-            crate::http::encode_path_param(&self.id)
-        );
+        let path = format!("/v1/mcp/servers/{}/installations", crate::http::path_param(&self.id)?);
         let query: Vec<(String, String)> = Vec::new();
         let headers: Vec<(String, String)> = Vec::new();
         let body: Option<&serde_json::Value> = None;
@@ -182,8 +179,8 @@ impl RetrieveRequestBuilder {
     pub async fn send(self) -> Result<crate::models::McpInstallation, crate::error::Error> {
         let path = format!(
             "/v1/mcp/servers/{}/installations/{}",
-            crate::http::encode_path_param(&self.id),
-            crate::http::encode_path_param(&self.installation_id)
+            crate::http::path_param(&self.id)?,
+            crate::http::path_param(&self.installation_id)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let headers: Vec<(String, String)> = Vec::new();
@@ -272,8 +269,8 @@ impl UpdateRequestBuilder {
     pub async fn send(self) -> Result<crate::models::McpInstallation, crate::error::Error> {
         let path = format!(
             "/v1/mcp/servers/{}/installations/{}",
-            crate::http::encode_path_param(&self.id),
-            crate::http::encode_path_param(&self.installation_id)
+            crate::http::path_param(&self.id)?,
+            crate::http::path_param(&self.installation_id)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
@@ -358,8 +355,8 @@ impl DeleteRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/mcp/servers/{}/installations/{}",
-            crate::http::encode_path_param(&self.id),
-            crate::http::encode_path_param(&self.installation_id)
+            crate::http::path_param(&self.id)?,
+            crate::http::path_param(&self.installation_id)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
@@ -443,8 +440,8 @@ impl CreateAccessGroupRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/mcp/servers/{}/installations/{}/access-group",
-            crate::http::encode_path_param(&self.id),
-            crate::http::encode_path_param(&self.installation_id)
+            crate::http::path_param(&self.id)?,
+            crate::http::path_param(&self.installation_id)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
@@ -528,8 +525,8 @@ impl DeleteAccessGroupRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/mcp/servers/{}/installations/{}/access-group",
-            crate::http::encode_path_param(&self.id),
-            crate::http::encode_path_param(&self.installation_id)
+            crate::http::path_param(&self.id)?,
+            crate::http::path_param(&self.installation_id)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();

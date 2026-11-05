@@ -7,9 +7,8 @@ use serde::{Deserialize, Serialize};
 
 pub type Slug = String;
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `GithubProject::new`
+/// and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct GithubProject {
@@ -59,9 +58,81 @@ pub struct GithubProject {
     pub repository: Option<GithubProjectRepository>,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl GithubProject {
+    /// Creates a new `GithubProject` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `GithubProject::new(…).with_user_info_hook_secret_uid(…)`.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        uid: impl Into<String>,
+        created_at: i64,
+        updated_at: i64,
+        name: impl Into<String>,
+        active_deployment: Option<ActiveDeployment>,
+        last_published: Option<i64>,
+        last_published_uid: Option<String>,
+        login_portal_uid: impl Into<String>,
+        user_info_hook_url: impl Into<String>,
+        active_theme_id: impl Into<String>,
+        is_private: bool,
+        agent_enabled: bool,
+        analytics_enabled: bool,
+        chat_insights_enabled: bool,
+        access_groups: serde_json::Value,
+        slug: impl Into<String>,
+        publish_status: impl Into<String>,
+        publish_message: impl Into<String>,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            created_at,
+            updated_at,
+            name: name.into(),
+            active_deployment,
+            last_published,
+            last_published_uid,
+            login_portal_uid: login_portal_uid.into(),
+            user_info_hook_url: user_info_hook_url.into(),
+            user_info_hook_secret_uid: None,
+            active_theme_id: active_theme_id.into(),
+            typesense_id: None,
+            is_private,
+            agent_enabled,
+            analytics_enabled,
+            chat_insights_enabled,
+            access_groups,
+            slug: slug.into(),
+            publish_status: publish_status.into(),
+            publish_message: publish_message.into(),
+            repository: None,
+        }
+    }
+
+    /// Sets `user_info_hook_secret_uid`, which `new` leaves unset.
+    pub fn with_user_info_hook_secret_uid(mut self, value: impl Into<String>) -> Self {
+        self.user_info_hook_secret_uid = Some(value.into());
+        self
+    }
+
+    /// Sets `typesense_id`, which `new` leaves unset.
+    pub fn with_typesense_id(mut self, value: f64) -> Self {
+        self.typesense_id = Some(value);
+        self
+    }
+
+    /// Sets `repository`, which `new` leaves unset.
+    pub fn with_repository(mut self, value: GithubProjectRepository) -> Self {
+        self.repository = Some(value);
+        self
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ActiveDeployment::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ActiveDeployment {
@@ -71,9 +142,23 @@ pub struct ActiveDeployment {
     pub published_at: i64,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl ActiveDeployment {
+    /// Creates a new `ActiveDeployment` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(uid: impl Into<String>, domain: impl Into<String>, published_at: i64) -> Self {
+        Self {
+            uid: uid.into(),
+            domain: domain.into(),
+            published_at,
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `GithubProjectRepository::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct GithubProjectRepository {
@@ -94,9 +179,39 @@ pub struct GithubProjectRepository {
     pub expired: bool,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl GithubProjectRepository {
+    /// Creates a new `GithubProjectRepository` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        linked_by: impl Into<String>,
+        id: f64,
+        name: impl Into<String>,
+        config_path: impl Into<String>,
+        branch: impl Into<String>,
+        publish_on_merge: bool,
+        publish_previews: bool,
+        pr_comments: bool,
+        expired: bool,
+    ) -> Self {
+        Self {
+            linked_by: linked_by.into(),
+            id,
+            name: name.into(),
+            config_path: config_path.into(),
+            branch: branch.into(),
+            publish_on_merge,
+            publish_previews,
+            pr_comments,
+            expired,
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `DocsProject::new`
+/// and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct DocsProject {
@@ -121,9 +236,44 @@ pub struct DocsProject {
     pub publish_status: String,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl DocsProject {
+    /// Creates a new `DocsProject` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        uid: impl Into<String>,
+        name: impl Into<String>,
+        slug: impl Into<String>,
+        is_private: bool,
+        access_groups: serde_json::Value,
+        login_portal_uid: impl Into<String>,
+        active_theme_id: impl Into<String>,
+        agent_enabled: bool,
+        analytics_enabled: bool,
+        last_published: Option<i64>,
+        publish_status: impl Into<String>,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            name: name.into(),
+            slug: slug.into(),
+            is_private,
+            access_groups,
+            login_portal_uid: login_portal_uid.into(),
+            active_theme_id: active_theme_id.into(),
+            agent_enabled,
+            analytics_enabled,
+            last_published,
+            publish_status: publish_status.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsCreateGuideResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ScalarDocsCreateGuideResponse {
@@ -131,7 +281,24 @@ pub struct ScalarDocsCreateGuideResponse {
     pub slug: String,
 }
 
+impl ScalarDocsCreateGuideResponse {
+    /// Creates a new `ScalarDocsCreateGuideResponse` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(uid: impl Into<String>, slug: impl Into<String>) -> Self {
+        Self {
+            uid: uid.into(),
+            slug: slug.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsCreateGuideBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ScalarDocsCreateGuideBody {
     pub name: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -147,8 +314,11 @@ pub struct ScalarDocsCreateGuideBody {
 impl ScalarDocsCreateGuideBody {
     /// Creates a new `ScalarDocsCreateGuideBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `ScalarDocsCreateGuideBody { slug: Some(…), ..ScalarDocsCreateGuideBody::new(…) }`.
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `ScalarDocsCreateGuideBody::new(name, is_private, allowed_users, allowed_domains).with_slug(…)`.
     pub fn new(
         name: impl Into<String>,
         is_private: bool,
@@ -163,11 +333,17 @@ impl ScalarDocsCreateGuideBody {
             allowed_domains,
         }
     }
+
+    /// Sets `slug`, which `new` leaves unset.
+    pub fn with_slug(mut self, value: impl Into<String>) -> Self {
+        self.slug = Some(value.into());
+        self
+    }
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsPublishGuideResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ScalarDocsPublishGuideResponse {
@@ -175,9 +351,18 @@ pub struct ScalarDocsPublishGuideResponse {
     pub publish_uid: String,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl ScalarDocsPublishGuideResponse {
+    /// Creates a new `ScalarDocsPublishGuideResponse` from its required fields, leaving every optional one unset.
+    pub fn new(publish_uid: impl Into<String>) -> Self {
+        Self {
+            publish_uid: publish_uid.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsListProjectsResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ScalarDocsListProjectsResponse {
@@ -186,7 +371,21 @@ pub struct ScalarDocsListProjectsResponse {
     pub has_more: bool,
 }
 
+impl ScalarDocsListProjectsResponse {
+    /// Creates a new `ScalarDocsListProjectsResponse` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(data: Vec<DocsProject>, has_more: bool) -> Self {
+        Self { data, has_more }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsCreateProjectBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ScalarDocsCreateProjectBody {
     pub name: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -205,8 +404,11 @@ pub struct ScalarDocsCreateProjectBody {
 impl ScalarDocsCreateProjectBody {
     /// Creates a new `ScalarDocsCreateProjectBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `ScalarDocsCreateProjectBody { slug: Some(…), ..ScalarDocsCreateProjectBody::new(name, provider) }`.
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `ScalarDocsCreateProjectBody::new(name, provider).with_slug(…)`.
     pub fn new(name: impl Into<String>, provider: ScalarDocsCreateProjectBodyProvider) -> Self {
         Self {
             name: name.into(),
@@ -217,6 +419,36 @@ impl ScalarDocsCreateProjectBody {
             github_repository: None,
             bitbucket_repository: None,
         }
+    }
+
+    /// Sets `slug`, which `new` leaves unset.
+    pub fn with_slug(mut self, value: impl Into<String>) -> Self {
+        self.slug = Some(value.into());
+        self
+    }
+
+    /// Sets `is_private`, which `new` leaves unset.
+    pub fn with_is_private(mut self, value: bool) -> Self {
+        self.is_private = Some(value);
+        self
+    }
+
+    /// Sets `blank`, which `new` leaves unset.
+    pub fn with_blank(mut self, value: bool) -> Self {
+        self.blank = Some(value);
+        self
+    }
+
+    /// Sets `github_repository`, which `new` leaves unset.
+    pub fn with_github_repository(mut self, value: ScalarDocsCreateProjectBodyGithubRepository) -> Self {
+        self.github_repository = Some(value);
+        self
+    }
+
+    /// Sets `bitbucket_repository`, which `new` leaves unset.
+    pub fn with_bitbucket_repository(mut self, value: ScalarDocsCreateProjectBodyBitbucketRepository) -> Self {
+        self.bitbucket_repository = Some(value);
+        self
     }
 }
 
@@ -267,7 +499,11 @@ impl From<&str> for ScalarDocsCreateProjectBodyProvider {
     }
 }
 
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsCreateProjectBodyGithubRepository::new` and the `with_*` setters rather than a struct literal. Fields
+/// stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ScalarDocsCreateProjectBodyGithubRepository {
     #[serde(rename = "installationId")]
     pub installation_id: i64,
@@ -275,7 +511,25 @@ pub struct ScalarDocsCreateProjectBodyGithubRepository {
     pub repo_id: i64,
 }
 
+impl ScalarDocsCreateProjectBodyGithubRepository {
+    /// Creates a new `ScalarDocsCreateProjectBodyGithubRepository` from its required fields, leaving every optional one
+    /// unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(installation_id: i64, repo_id: i64) -> Self {
+        Self {
+            installation_id,
+            repo_id,
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsCreateProjectBodyBitbucketRepository::new` and the `with_*` setters rather than a struct literal. Fields
+/// stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ScalarDocsCreateProjectBodyBitbucketRepository {
     #[serde(rename = "workspaceUuid")]
     pub workspace_uuid: String,
@@ -283,7 +537,28 @@ pub struct ScalarDocsCreateProjectBodyBitbucketRepository {
     pub repo_uuid: String,
 }
 
+impl ScalarDocsCreateProjectBodyBitbucketRepository {
+    /// Creates a new `ScalarDocsCreateProjectBodyBitbucketRepository` from its required fields, leaving every optional
+    /// one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(workspace_uuid: impl Into<String>, repo_uuid: impl Into<String>) -> Self {
+        Self {
+            workspace_uuid: workspace_uuid.into(),
+            repo_uuid: repo_uuid.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsUpdateProjectBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
+///
+/// `Default` is the empty value, every field unset. It is withdrawn if the API ever makes a field required, which
+/// breaks callers through `new` as well.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ScalarDocsUpdateProjectBody {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -301,6 +576,66 @@ pub struct ScalarDocsUpdateProjectBody {
     pub analytics_enabled: Option<bool>,
 }
 
+impl ScalarDocsUpdateProjectBody {
+    /// Creates a new `ScalarDocsUpdateProjectBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `ScalarDocsUpdateProjectBody::new().with_name(…)`.
+    pub fn new() -> Self {
+        Self {
+            name: None,
+            is_private: None,
+            access_groups: None,
+            login_portal_uid: None,
+            active_theme_id: None,
+            agent_enabled: None,
+            analytics_enabled: None,
+        }
+    }
+
+    /// Sets `name`, which `new` leaves unset.
+    pub fn with_name(mut self, value: impl Into<String>) -> Self {
+        self.name = Some(value.into());
+        self
+    }
+
+    /// Sets `is_private`, which `new` leaves unset.
+    pub fn with_is_private(mut self, value: bool) -> Self {
+        self.is_private = Some(value);
+        self
+    }
+
+    /// Sets `access_groups`, which `new` leaves unset.
+    pub fn with_access_groups(mut self, value: Vec<String>) -> Self {
+        self.access_groups = Some(value);
+        self
+    }
+
+    /// Sets `login_portal_uid`, which `new` leaves unset.
+    pub fn with_login_portal_uid(mut self, value: ScalarDocsUpdateProjectBodyLoginPortalUid) -> Self {
+        self.login_portal_uid = Some(value);
+        self
+    }
+
+    /// Sets `active_theme_id`, which `new` leaves unset.
+    pub fn with_active_theme_id(mut self, value: impl Into<String>) -> Self {
+        self.active_theme_id = Some(value.into());
+        self
+    }
+
+    /// Sets `agent_enabled`, which `new` leaves unset.
+    pub fn with_agent_enabled(mut self, value: bool) -> Self {
+        self.agent_enabled = Some(value);
+        self
+    }
+
+    /// Sets `analytics_enabled`, which `new` leaves unset.
+    pub fn with_analytics_enabled(mut self, value: bool) -> Self {
+        self.analytics_enabled = Some(value);
+        self
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 #[non_exhaustive]
@@ -316,9 +651,9 @@ pub enum ScalarDocsUpdateProjectBodyLoginPortalUid {
     Unknown(serde_json::Value),
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsPublishProjectResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public
+/// for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ScalarDocsPublishProjectResponse {
@@ -326,7 +661,23 @@ pub struct ScalarDocsPublishProjectResponse {
     pub publish_uid: String,
 }
 
+impl ScalarDocsPublishProjectResponse {
+    /// Creates a new `ScalarDocsPublishProjectResponse` from its required fields, leaving every optional one unset.
+    pub fn new(publish_uid: impl Into<String>) -> Self {
+        Self {
+            publish_uid: publish_uid.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsPublishProjectBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
+///
+/// `Default` is the empty value, every field unset. It is withdrawn if the API ever makes a field required, which
+/// breaks callers through `new` as well.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ScalarDocsPublishProjectBody {
     #[serde(rename = "commitSha", default, skip_serializing_if = "Option::is_none")]
     pub commit_sha: Option<String>,
@@ -336,9 +687,41 @@ pub struct ScalarDocsPublishProjectBody {
     pub config_path: Option<String>,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl ScalarDocsPublishProjectBody {
+    /// Creates a new `ScalarDocsPublishProjectBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `ScalarDocsPublishProjectBody::new().with_commit_sha(…)`.
+    pub fn new() -> Self {
+        Self {
+            commit_sha: None,
+            preview: None,
+            config_path: None,
+        }
+    }
+
+    /// Sets `commit_sha`, which `new` leaves unset.
+    pub fn with_commit_sha(mut self, value: impl Into<String>) -> Self {
+        self.commit_sha = Some(value.into());
+        self
+    }
+
+    /// Sets `preview`, which `new` leaves unset.
+    pub fn with_preview(mut self, value: bool) -> Self {
+        self.preview = Some(value);
+        self
+    }
+
+    /// Sets `config_path`, which `new` leaves unset.
+    pub fn with_config_path(mut self, value: impl Into<String>) -> Self {
+        self.config_path = Some(value.into());
+        self
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsListProjectConfigResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public
+/// for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ScalarDocsListProjectConfigResponse {
@@ -349,9 +732,29 @@ pub struct ScalarDocsListProjectConfigResponse {
     pub base_token: String,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl ScalarDocsListProjectConfigResponse {
+    /// Creates a new `ScalarDocsListProjectConfigResponse` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(
+        path: impl Into<String>,
+        content: impl Into<String>,
+        r#ref: impl Into<String>,
+        base_token: impl Into<String>,
+    ) -> Self {
+        Self {
+            path: path.into(),
+            content: content.into(),
+            r#ref: r#ref.into(),
+            base_token: base_token.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsUpdateProjectConfigResponse::new` and the `with_*` setters rather than a struct literal. Fields stay
+/// public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ScalarDocsUpdateProjectConfigResponse {
@@ -362,7 +765,26 @@ pub struct ScalarDocsUpdateProjectConfigResponse {
     pub base_token: String,
 }
 
+impl ScalarDocsUpdateProjectConfigResponse {
+    /// Creates a new `ScalarDocsUpdateProjectConfigResponse` from its required fields, leaving every optional one
+    /// unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(commit_sha: Option<String>, r#ref: impl Into<String>, base_token: impl Into<String>) -> Self {
+        Self {
+            commit_sha,
+            r#ref: r#ref.into(),
+            base_token: base_token.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsUpdateProjectConfigBody::new` and the `with_*` setters rather than a struct literal. Fields stay public
+/// for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ScalarDocsUpdateProjectConfigBody {
     pub content: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -378,8 +800,8 @@ pub struct ScalarDocsUpdateProjectConfigBody {
 impl ScalarDocsUpdateProjectConfigBody {
     /// Creates a new `ScalarDocsUpdateProjectConfigBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `ScalarDocsUpdateProjectConfigBody { r#ref: Some(…), ..ScalarDocsUpdateProjectConfigBody::new(content) }`.
+    /// Set an optional field with its `with_*` setter:
+    /// `ScalarDocsUpdateProjectConfigBody::new(content).with_ref(…)`.
     pub fn new(content: impl Into<String>) -> Self {
         Self {
             content: content.into(),
@@ -389,11 +811,35 @@ impl ScalarDocsUpdateProjectConfigBody {
             path: None,
         }
     }
+
+    /// Sets `ref`, which `new` leaves unset.
+    pub fn with_ref(mut self, value: impl Into<String>) -> Self {
+        self.r#ref = Some(value.into());
+        self
+    }
+
+    /// Sets `base_token`, which `new` leaves unset.
+    pub fn with_base_token(mut self, value: impl Into<String>) -> Self {
+        self.base_token = Some(value.into());
+        self
+    }
+
+    /// Sets `message`, which `new` leaves unset.
+    pub fn with_message(mut self, value: impl Into<String>) -> Self {
+        self.message = Some(value.into());
+        self
+    }
+
+    /// Sets `path`, which `new` leaves unset.
+    pub fn with_path(mut self, value: impl Into<String>) -> Self {
+        self.path = Some(value.into());
+        self
+    }
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsListProjectDomainResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public
+/// for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ScalarDocsListProjectDomainResponse {
@@ -403,9 +849,22 @@ pub struct ScalarDocsListProjectDomainResponse {
     pub custom_domain: Option<String>,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl ScalarDocsListProjectDomainResponse {
+    /// Creates a new `ScalarDocsListProjectDomainResponse` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(scalar_domain: Option<String>, custom_domain: Option<String>) -> Self {
+        Self {
+            scalar_domain,
+            custom_domain,
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsListProjectDomainStatusResponse::new` and the `with_*` setters rather than a struct literal. Fields stay
+/// public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ScalarDocsListProjectDomainStatusResponse {
@@ -415,6 +874,27 @@ pub struct ScalarDocsListProjectDomainStatusResponse {
     #[serde(default)]
     pub expected: Option<ScalarDocsListProjectDomainStatusResponseExpected>,
     pub found: Vec<String>,
+}
+
+impl ScalarDocsListProjectDomainStatusResponse {
+    /// Creates a new `ScalarDocsListProjectDomainStatusResponse` from its required fields, leaving every optional one
+    /// unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(
+        domain: Option<String>,
+        status: ScalarDocsListProjectDomainStatusResponseStatus,
+        expected: Option<ScalarDocsListProjectDomainStatusResponseExpected>,
+        found: Vec<String>,
+    ) -> Self {
+        Self {
+            domain,
+            status,
+            expected,
+            found,
+        }
+    }
 }
 
 /// Match on `as_str()` (or build one with `From<&str>`) when you need a value
@@ -464,12 +944,26 @@ impl From<&str> for ScalarDocsListProjectDomainStatusResponseStatus {
     }
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ScalarDocsListProjectDomainStatusResponseExpected::new` and the `with_*` setters rather than a struct literal.
+/// Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ScalarDocsListProjectDomainStatusResponseExpected {
     pub r#type: String,
     pub target: String,
+}
+
+impl ScalarDocsListProjectDomainStatusResponseExpected {
+    /// Creates a new `ScalarDocsListProjectDomainStatusResponseExpected` from its required fields, leaving every
+    /// optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(r#type: impl Into<String>, target: impl Into<String>) -> Self {
+        Self {
+            r#type: r#type.into(),
+            target: target.into(),
+        }
+    }
 }
