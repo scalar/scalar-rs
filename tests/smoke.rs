@@ -1731,7 +1731,7 @@ async fn smoke() {
                         .with_is_private(false)
                         .with_config("{\"targets\":{\"typescript\":{\"packageName\":\"@acme/sdk\"}}}".to_string())
                         .with_api_uid("UakgbKJ5m9gl0JDMbcJqL".to_string())
-                        .with_api_version("1.2.0".to_string()),
+                        .with_api_version(serde_json::json!(null)),
                 )
                 .send()
                 .await?;
@@ -1780,6 +1780,7 @@ async fn smoke() {
                     "UakgbKJ5m9gl0JDMbcJqL",
                     SdksBuildBody::new()
                         .with_version("1.2.0".to_string())
+                        .with_custom_code_ref("scalar-next".to_string())
                         .with_languages(vec![SdksBuildBodyLanguage::Typescript]),
                 )
                 .send()
@@ -1798,9 +1799,26 @@ async fn smoke() {
             let _ = client
                 .sdks()
                 .versions()
+                .create("UakgbKJ5m9gl0JDMbcJqL", VersionsCreateBody::new("1.2.0".to_string()))
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        if let Err(error) = result {
+            if is_smoke_failure(&error) {
+                failures.push(format!("{}: {error}", "POST /v1/sdks/{uid}/versions [required params]"));
+            }
+        }
+    }
+    {
+        let result: Result<(), Error> = async {
+            let _ = client
+                .sdks()
+                .versions()
                 .create(
                     "UakgbKJ5m9gl0JDMbcJqL",
-                    VersionsCreateBody::new("1.2.0".to_string(), "1.2.0".to_string()),
+                    VersionsCreateBody::new("1.2.0".to_string()).with_api_version(serde_json::json!(null)),
                 )
                 .send()
                 .await?;
@@ -1809,7 +1827,7 @@ async fn smoke() {
         .await;
         if let Err(error) = result {
             if is_smoke_failure(&error) {
-                failures.push(format!("{}: {error}", "POST /v1/sdks/{uid}/versions"));
+                failures.push(format!("{}: {error}", "POST /v1/sdks/{uid}/versions [all params]"));
             }
         }
     }
