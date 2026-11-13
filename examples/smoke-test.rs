@@ -2964,7 +2964,7 @@ async fn main() {
                         .with_is_private(false)
                         .with_config("{\"targets\":{\"typescript\":{\"packageName\":\"@acme/sdk\"}}}".to_string())
                         .with_api_uid("UakgbKJ5m9gl0JDMbcJqL".to_string())
-                        .with_api_version("1.2.0".to_string()),
+                        .with_api_version(serde_json::json!(null)),
                 )
                 .send()
                 .await?;
@@ -3052,6 +3052,7 @@ async fn main() {
                     "UakgbKJ5m9gl0JDMbcJqL",
                     SdksBuildBody::new()
                         .with_version("1.2.0".to_string())
+                        .with_custom_code_ref("scalar-next".to_string())
                         .with_languages(vec![SdksBuildBodyLanguage::Typescript]),
                 )
                 .send()
@@ -3083,9 +3084,39 @@ async fn main() {
             let _ = client
                 .sdks()
                 .versions()
+                .create("UakgbKJ5m9gl0JDMbcJqL", VersionsCreateBody::new("1.2.0".to_string()))
+                .send()
+                .await?;
+            Ok(())
+        }
+        .await;
+        let duration_ms = started.elapsed().as_millis() as i64;
+        let (status, error) = match result {
+            Ok(()) => ("passed", String::new()),
+            Err(error) if is_smoke_failure(&error) => ("failed", format!("{error}")),
+            // A response came back (API error or decode mismatch): the request
+            // reached the server, which is what this smoke verifies.
+            Err(_) => ("passed", String::new()),
+        };
+        results.push(SmokeResult {
+            operation: "create".to_string(),
+            method: "POST".to_string(),
+            path: "/v1/sdks/{uid}/versions".to_string(),
+            label: "required params".to_string(),
+            status: status.to_string(),
+            duration_ms,
+            error,
+        });
+    }
+    if selected(&filter, "create", "/v1/sdks/{uid}/versions") {
+        let started = std::time::Instant::now();
+        let result: Result<(), Error> = async {
+            let _ = client
+                .sdks()
+                .versions()
                 .create(
                     "UakgbKJ5m9gl0JDMbcJqL",
-                    VersionsCreateBody::new("1.2.0".to_string(), "1.2.0".to_string()),
+                    VersionsCreateBody::new("1.2.0".to_string()).with_api_version(serde_json::json!(null)),
                 )
                 .send()
                 .await?;
@@ -3104,7 +3135,7 @@ async fn main() {
             operation: "create".to_string(),
             method: "POST".to_string(),
             path: "/v1/sdks/{uid}/versions".to_string(),
-            label: "".to_string(),
+            label: "all params".to_string(),
             status: status.to_string(),
             duration_ms,
             error,

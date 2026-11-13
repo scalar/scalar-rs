@@ -19,10 +19,11 @@ pub struct Sdk {
     pub is_private: bool,
     #[serde(rename = "apiUid", default)]
     pub api_uid: Option<String>,
-    #[serde(rename = "apiVersion", default, skip_serializing_if = "Option::is_none")]
-    pub api_version: Option<String>,
+    pub current: std::collections::BTreeMap<String, String>,
     #[serde(rename = "currentVersion")]
     pub current_version: String,
+    #[serde(rename = "latestVersion", default)]
+    pub latest_version: Option<String>,
     pub targets: Vec<SdkTargetSummary>,
     pub versions: Vec<SdkVersion>,
 }
@@ -32,9 +33,6 @@ impl Sdk {
     ///
     /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
     /// argument, which is a breaking change either way.
-    ///
-    /// Set an optional field with its `with_*` setter:
-    /// `Sdk::new(…).with_api_version(…)`.
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         uid: impl Into<String>,
@@ -44,7 +42,9 @@ impl Sdk {
         description: impl Into<String>,
         is_private: bool,
         api_uid: Option<String>,
+        current: std::collections::BTreeMap<String, String>,
         current_version: impl Into<String>,
+        latest_version: Option<String>,
         targets: Vec<SdkTargetSummary>,
         versions: Vec<SdkVersion>,
     ) -> Self {
@@ -56,17 +56,12 @@ impl Sdk {
             description: description.into(),
             is_private,
             api_uid,
-            api_version: None,
+            current,
             current_version: current_version.into(),
+            latest_version,
             targets,
             versions,
         }
-    }
-
-    /// Sets `api_version`, which `new` leaves unset.
-    pub fn with_api_version(mut self, value: impl Into<String>) -> Self {
-        self.api_version = Some(value.into());
-        self
     }
 }
 
@@ -98,14 +93,9 @@ impl SdkTargetSummary {
 #[non_exhaustive]
 pub struct SdkVersion {
     pub version: String,
-    #[serde(rename = "apiVersion")]
-    pub api_version: String,
-    pub status: SdkVersionStatus,
+    #[serde(rename = "createdAt")]
+    pub created_at: i64,
     pub languages: Vec<SdkVersionLanguage>,
-    #[serde(rename = "publishedAt", default, skip_serializing_if = "Option::is_none")]
-    pub published_at: Option<i64>,
-    #[serde(rename = "createdAt", default, skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<i64>,
 }
 
 impl SdkVersion {
@@ -113,35 +103,12 @@ impl SdkVersion {
     ///
     /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
     /// argument, which is a breaking change either way.
-    ///
-    /// Set an optional field with its `with_*` setter:
-    /// `SdkVersion::new(version, api_version, status, languages).with_published_at(…)`.
-    pub fn new(
-        version: impl Into<String>,
-        api_version: impl Into<String>,
-        status: SdkVersionStatus,
-        languages: Vec<SdkVersionLanguage>,
-    ) -> Self {
+    pub fn new(version: impl Into<String>, created_at: i64, languages: Vec<SdkVersionLanguage>) -> Self {
         Self {
             version: version.into(),
-            api_version: api_version.into(),
-            status,
+            created_at,
             languages,
-            published_at: None,
-            created_at: None,
         }
-    }
-
-    /// Sets `published_at`, which `new` leaves unset.
-    pub fn with_published_at(mut self, value: i64) -> Self {
-        self.published_at = Some(value);
-        self
-    }
-
-    /// Sets `created_at`, which `new` leaves unset.
-    pub fn with_created_at(mut self, value: i64) -> Self {
-        self.created_at = Some(value);
-        self
     }
 }
 
@@ -337,13 +304,9 @@ pub struct SdksUpdateBody {
         with = "crate::explicit_null::double_option"
     )]
     pub api_uid: Option<Option<String>>,
-    #[serde(
-        rename = "apiVersion",
-        default,
-        skip_serializing_if = "Option::is_none",
-        with = "crate::explicit_null::double_option"
-    )]
-    pub api_version: Option<Option<String>>,
+    /// Removed. A request that carries it is refused with a 400.
+    #[serde(rename = "apiVersion", default, skip_serializing_if = "Option::is_none")]
+    pub api_version: Option<serde_json::Value>,
 }
 
 impl SdksUpdateBody {
@@ -395,10 +358,8 @@ impl SdksUpdateBody {
     }
 
     /// Sets `api_version`, which `new` leaves unset.
-    ///
-    /// To send an explicit `null` instead, assign `api_version = Some(None)` on the built value.
-    pub fn with_api_version(mut self, value: impl Into<String>) -> Self {
-        self.api_version = Some(Some(value.into()));
+    pub fn with_api_version(mut self, value: serde_json::Value) -> Self {
+        self.api_version = Some(value);
         self
     }
 }
@@ -430,6 +391,8 @@ impl SdksBuildResponse {
 pub struct SdksBuildBody {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub version: Option<String>,
+    #[serde(rename = "customCodeRef", default, skip_serializing_if = "Option::is_none")]
+    pub custom_code_ref: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub languages: Option<Vec<SdksBuildBodyLanguage>>,
 }
@@ -442,6 +405,7 @@ impl SdksBuildBody {
     pub fn new() -> Self {
         Self {
             version: None,
+            custom_code_ref: None,
             languages: None,
         }
     }
@@ -449,6 +413,12 @@ impl SdksBuildBody {
     /// Sets `version`, which `new` leaves unset.
     pub fn with_version(mut self, value: impl Into<String>) -> Self {
         self.version = Some(value.into());
+        self
+    }
+
+    /// Sets `custom_code_ref`, which `new` leaves unset.
+    pub fn with_custom_code_ref(mut self, value: impl Into<String>) -> Self {
+        self.custom_code_ref = Some(value.into());
         self
     }
 
@@ -628,49 +598,6 @@ impl From<&str> for SdkTargetSummaryLanguage {
             "swift" => Self::Swift,
             "cpp" => Self::Cpp,
             "dart" => Self::Dart,
-            other => Self::Unknown(other.to_owned()),
-        }
-    }
-}
-
-/// Match on `as_str()` (or build one with `From<&str>`) when you need a value
-/// this SDK version does not know. Matching `Unknown(_)` directly is an
-/// anti-pattern: that arm silently stops matching once a future SDK release
-/// adds the real variant.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[non_exhaustive]
-pub enum SdkVersionStatus {
-    #[serde(rename = "draft")]
-    Draft,
-    #[serde(rename = "published")]
-    Published,
-    /// A value not known to this version of the SDK, preserved verbatim.
-    #[serde(untagged)]
-    Unknown(String),
-}
-
-impl SdkVersionStatus {
-    /// The wire value this variant serializes to.
-    pub fn as_str(&self) -> &str {
-        match self {
-            Self::Draft => "draft",
-            Self::Published => "published",
-            Self::Unknown(value) => value,
-        }
-    }
-}
-
-impl std::fmt::Display for SdkVersionStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl From<&str> for SdkVersionStatus {
-    fn from(value: &str) -> Self {
-        match value {
-            "draft" => Self::Draft,
-            "published" => Self::Published,
             other => Self::Unknown(other.to_owned()),
         }
     }
