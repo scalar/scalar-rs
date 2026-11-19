@@ -109,6 +109,8 @@ async fn update_publishing_all_params() {
                         .with_tag("latest".to_string())
                         .with_artifact_id("scalar-galaxy".to_string())
                         .with_tap_repo("scalar/homebrew-tap".to_string())
+                        .with_cask(true)
+                        .with_replace_formula(false)
                         .with_registry("npm".to_string()),
                 )
                 .send()

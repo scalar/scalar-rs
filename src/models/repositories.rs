@@ -172,6 +172,10 @@ pub struct RepositoriesUpdatePublishingBody {
     #[serde(rename = "tapRepo", default, skip_serializing_if = "Option::is_none")]
     pub tap_repo: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cask: Option<bool>,
+    #[serde(rename = "replaceFormula", default, skip_serializing_if = "Option::is_none")]
+    pub replace_formula: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub registry: Option<String>,
 }
 
@@ -188,6 +192,8 @@ impl RepositoriesUpdatePublishingBody {
             tag: None,
             artifact_id: None,
             tap_repo: None,
+            cask: None,
+            replace_formula: None,
             registry: None,
         }
     }
@@ -219,6 +225,18 @@ impl RepositoriesUpdatePublishingBody {
     /// Sets `tap_repo`, which `new` leaves unset.
     pub fn with_tap_repo(mut self, value: impl Into<String>) -> Self {
         self.tap_repo = Some(value.into());
+        self
+    }
+
+    /// Sets `cask`, which `new` leaves unset.
+    pub fn with_cask(mut self, value: bool) -> Self {
+        self.cask = Some(value);
+        self
+    }
+
+    /// Sets `replace_formula`, which `new` leaves unset.
+    pub fn with_replace_formula(mut self, value: bool) -> Self {
+        self.replace_formula = Some(value);
         self
     }
 
