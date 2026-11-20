@@ -110,7 +110,6 @@ Complete reference of every operation, grouped by resource. See [the README](./R
     - [Delete an MCP server](#delete-an-mcp-server)
     - [`Mcp Servers Installations`](#mcp-servers-installations)
       - [List installations](#list-installations)
-      - [Create an installation](#create-an-installation)
       - [Get an installation](#get-an-installation)
       - [Update an installation](#update-an-installation)
       - [Delete an installation](#delete-an-installation)
@@ -174,17 +173,13 @@ let response = client
     .registry()
     .create_api_document(
         "acme",
-        RegistryCreateApiDocumentBody {
-            title: "Acme API".to_string(),
-            description: None,
-            version: "1.2.0".to_string(),
-            slug: "acme-api".to_string(),
-            ruleset: None,
-            is_private: None,
-            document:
-                "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"Acme API\",\"version\":\"1.2.0\"},\"paths\":{}}"
-                    .to_string(),
-        },
+        RegistryCreateApiDocumentBody::new(
+            "Acme API".to_string(),
+            "1.2.0".to_string(),
+            "acme-api".to_string(),
+            "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"Acme API\",\"version\":\"1.2.0\"},\"paths\":{}}"
+                .to_string(),
+        ),
     )
     .send()
     .await?;
@@ -202,16 +197,7 @@ Update metadata for an API document.
 ```rust
 let response = client
     .registry()
-    .update_api_document(
-        "acme",
-        "acme-api",
-        RegistryUpdateApiDocumentBody {
-            title: None,
-            description: None,
-            is_private: None,
-            ruleset: None,
-        },
-    )
+    .update_api_document("acme", "acme-api", RegistryUpdateApiDocumentBody::new())
     .send()
     .await?;
 ```
@@ -260,11 +246,10 @@ let response = client
         "acme",
         "acme-api",
         "1.2.0",
-        RegistryUpdateApiDocumentVersionBody {
-            document:
-                "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"Acme API\",\"version\":\"1.2.0\"},\"paths\":{}}"
-                    .to_string(),
-        },
+        RegistryUpdateApiDocumentVersionBody::new(
+            "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"Acme API\",\"version\":\"1.2.0\"},\"paths\":{}}"
+                .to_string(),
+        ),
     )
     .send()
     .await?;
@@ -317,13 +302,11 @@ let response = client
     .create_api_document_version(
         "acme",
         "acme-api",
-        RegistryCreateApiDocumentVersionBody {
-            version: "1.2.0".to_string(),
-            document:
-                "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"Acme API\",\"version\":\"1.2.0\"},\"paths\":{}}"
-                    .to_string(),
-            force: None,
-        },
+        RegistryCreateApiDocumentVersionBody::new(
+            "1.2.0".to_string(),
+            "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"Acme API\",\"version\":\"1.2.0\"},\"paths\":{}}"
+                .to_string(),
+        ),
     )
     .send()
     .await?;
@@ -341,13 +324,7 @@ Add an access group to an API document.
 ```rust
 let response = client
     .registry()
-    .create_api_document_access_group(
-        "acme",
-        "acme-api",
-        AccessGroup {
-            access_group_slug: "acme-api".to_string(),
-        },
-    )
+    .create_api_document_access_group("acme", "acme-api", AccessGroup::new("acme-api".to_string()))
     .send()
     .await?;
 ```
@@ -364,13 +341,7 @@ Remove an access group from an API document.
 ```rust
 let response = client
     .registry()
-    .delete_api_document_access_group(
-        "acme",
-        "acme-api",
-        AccessGroup {
-            access_group_slug: "acme-api".to_string(),
-        },
-    )
+    .delete_api_document_access_group("acme", "acme-api", AccessGroup::new("acme-api".to_string()))
     .send()
     .await?;
 ```
@@ -405,16 +376,13 @@ let response = client
     .schemas()
     .create(
         "acme",
-        SchemasCreateBody {
-            title: "Customer".to_string(),
-            description: None,
-            version: "1.2.0".to_string(),
-            slug: "customer".to_string(),
-            is_private: None,
-            document:
-                "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\",\"examples\":[\"Acme\"]}}}"
-                    .to_string(),
-        },
+        SchemasCreateBody::new(
+            "Customer".to_string(),
+            "1.2.0".to_string(),
+            "customer".to_string(),
+            "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\",\"examples\":[\"Acme\"]}}}"
+                .to_string(),
+        ),
     )
     .send()
     .await?;
@@ -432,15 +400,7 @@ Update schema metadata.
 ```rust
 let response = client
     .schemas()
-    .update(
-        "acme",
-        "customer",
-        SchemasUpdateBody {
-            title: None,
-            description: None,
-            is_private: None,
-        },
-    )
+    .update("acme", "customer", SchemasUpdateBody::new())
     .send()
     .await?;
 ```
@@ -511,13 +471,11 @@ let response = client
     .create(
         "acme",
         "customer",
-        VersionCreateBody {
-            version: "1.2.0".to_string(),
-            document:
-                "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\",\"examples\":[\"Acme\"]}}}"
-                    .to_string(),
-            force: None,
-        },
+        VersionCreateBody::new(
+            "1.2.0".to_string(),
+            "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\",\"examples\":[\"Acme\"]}}}"
+                .to_string(),
+        ),
     )
     .send()
     .await?;
@@ -540,13 +498,7 @@ Add an access group to a schema.
 let response = client
     .schemas()
     .access_group()
-    .create(
-        "acme",
-        "customer",
-        AccessGroup {
-            access_group_slug: "acme-api".to_string(),
-        },
-    )
+    .create("acme", "customer", AccessGroup::new("acme-api".to_string()))
     .send()
     .await?;
 ```
@@ -564,13 +516,7 @@ Remove an access group from a schema.
 let response = client
     .schemas()
     .access_group()
-    .delete(
-        "acme",
-        "customer",
-        AccessGroup {
-            access_group_slug: "acme-api".to_string(),
-        },
-    )
+    .delete("acme", "customer", AccessGroup::new("acme-api".to_string()))
     .send()
     .await?;
 ```
@@ -603,7 +549,7 @@ Update metadata for a login portal.
 ```rust
 let response = client
     .login_portals()
-    .update("acme-login", LoginPortalsUpdateBody { title: None })
+    .update("acme-login", LoginPortalsUpdateBody::new())
     .send()
     .await?;
 ```
@@ -632,39 +578,39 @@ Create a login portal for the current team.
 ```rust
 let response = client
     .login_portals()
-    .create(LoginPortalsCreateBody {
-        title: "Acme Private Documentation".to_string(),
-        slug: "acme-login".to_string(),
-        email: LoginPortalEmail {
-            logo: "".to_string(),
-            logo_size: "100".to_string(),
-            button_text: "Login".to_string(),
-            message: "Click to access private documentation hosted by scalar.com".to_string(),
-            title: "Private Docs".to_string(),
-            main_color: "#2a2f45".to_string(),
-            main_background: "#f6f6f6".to_string(),
-            card_color: "#2a2f45".to_string(),
-            card_background: "#fff".to_string(),
-            button_color: "#fff".to_string(),
-            button_background: "#0f0f0f".to_string(),
-        },
-        page: LoginPortalPage {
-            title: "Scalar Private Docs".to_string(),
-            description: "Login to access your documentation".to_string(),
-            head: "".to_string(),
-            script: "".to_string(),
-            theme: "".to_string(),
-            company_name: "".to_string(),
-            logo: "".to_string(),
-            logo_url: "".to_string(),
-            favicon: "".to_string(),
-            terms_link: "".to_string(),
-            privacy_link: "".to_string(),
-            form_title: "Scalar Private Docs".to_string(),
-            form_description: "Login to access your documentation".to_string(),
-            form_image: "".to_string(),
-        },
-    })
+    .create(LoginPortalsCreateBody::new(
+        "Acme Private Documentation".to_string(),
+        "acme-login".to_string(),
+        LoginPortalEmail::new(
+            "".to_string(),
+            "100".to_string(),
+            "Login".to_string(),
+            "Click to access private documentation hosted by scalar.com".to_string(),
+            "Private Docs".to_string(),
+            "#2a2f45".to_string(),
+            "#f6f6f6".to_string(),
+            "#2a2f45".to_string(),
+            "#fff".to_string(),
+            "#fff".to_string(),
+            "#0f0f0f".to_string(),
+        ),
+        LoginPortalPage::new(
+            "Scalar Private Docs".to_string(),
+            "Login to access your documentation".to_string(),
+            "".to_string(),
+            "".to_string(),
+            "".to_string(),
+            "".to_string(),
+            "".to_string(),
+            "".to_string(),
+            "".to_string(),
+            "".to_string(),
+            "".to_string(),
+            "Scalar Private Docs".to_string(),
+            "Login to access your documentation".to_string(),
+            "".to_string(),
+        ),
+    ))
     .send()
     .await?;
 ```
@@ -697,11 +643,7 @@ Create a group for the current team. Requires docs edit permission and the acces
 ```rust
 let response = client
     .access_groups()
-    .create(AccessGroupsCreateBody {
-        name: None,
-        slug: None,
-        allowed_domains: None,
-    })
+    .create(AccessGroupsCreateBody::new())
     .send()
     .await?;
 ```
@@ -730,7 +672,7 @@ Update group metadata. Requires docs edit permission. After changing the slug, u
 ```rust
 let response = client
     .access_groups()
-    .update("acme-api", AccessGroupsUpdateBody { name: None, slug: None })
+    .update("acme-api", AccessGroupsUpdateBody::new())
     .send()
     .await?;
 ```
@@ -764,12 +706,7 @@ Allow an exact email domain in a group. Requires docs edit permission. A group s
 let response = client
     .access_groups()
     .domains()
-    .create(
-        "acme-api",
-        DomainsCreateBody {
-            domain: "example.com".to_string(),
-        },
-    )
+    .create("acme-api", DomainsCreateBody::new("example.com".to_string()))
     .send()
     .await?;
 ```
@@ -787,12 +724,7 @@ Remove an exact email domain from a group. Requires docs edit permission. Other 
 let response = client
     .access_groups()
     .domains()
-    .delete(
-        "acme-api",
-        DomainsDeleteBody {
-            domain: "example.com".to_string(),
-        },
-    )
+    .delete("acme-api", DomainsDeleteBody::new("example.com".to_string()))
     .send()
     .await?;
 ```
@@ -827,13 +759,11 @@ let response = client
     .rules()
     .create_ruleset(
         "acme",
-        RulesCreateRulesetBody {
-            title: "Acme API Rules".to_string(),
-            description: None,
-            slug: "acme-rules".to_string(),
-            is_private: None,
-            document: "extends: [\"spectral:oas\"]\nrules:\n  info-contact: warn\n".to_string(),
-        },
+        RulesCreateRulesetBody::new(
+            "Acme API Rules".to_string(),
+            "acme-rules".to_string(),
+            "extends: [\"spectral:oas\"]\nrules:\n  info-contact: warn\n".to_string(),
+        ),
     )
     .send()
     .await?;
@@ -851,17 +781,7 @@ Update rule metadata by slug.
 ```rust
 let response = client
     .rules()
-    .update_ruleset(
-        "acme",
-        "acme-rules",
-        RulesUpdateRulesetBody {
-            namespace: None,
-            slug: None,
-            title: None,
-            description: None,
-            is_private: None,
-        },
-    )
+    .update_ruleset("acme", "acme-rules", RulesUpdateRulesetBody::new())
     .send()
     .await?;
 ```
@@ -906,13 +826,7 @@ Grant an access group to a rule.
 ```rust
 let response = client
     .rules()
-    .create_ruleset_access_group(
-        "acme",
-        "acme-rules",
-        AccessGroup {
-            access_group_slug: "acme-api".to_string(),
-        },
-    )
+    .create_ruleset_access_group("acme", "acme-rules", AccessGroup::new("acme-api".to_string()))
     .send()
     .await?;
 ```
@@ -929,13 +843,7 @@ Remove an access group from a rule.
 ```rust
 let response = client
     .rules()
-    .delete_ruleset_access_group(
-        "acme",
-        "acme-rules",
-        AccessGroup {
-            access_group_slug: "acme-api".to_string(),
-        },
-    )
+    .delete_ruleset_access_group("acme", "acme-rules", AccessGroup::new("acme-api".to_string()))
     .send()
     .await?;
 ```
@@ -968,12 +876,11 @@ Create a team theme.
 ```rust
 let response = client
     .themes()
-    .create(ThemesCreateBody {
-        name: "Acme Theme".to_string(),
-        description: None,
-        slug: "acme-theme".to_string(),
-        document: ":root { --scalar-color-1: #1f2937; }".to_string(),
-    })
+    .create(ThemesCreateBody::new(
+        "Acme Theme".to_string(),
+        "acme-theme".to_string(),
+        ":root { --scalar-color-1: #1f2937; }".to_string(),
+    ))
     .send()
     .await?;
 ```
@@ -990,13 +897,7 @@ Update theme metadata.
 ```rust
 let response = client
     .themes()
-    .update(
-        "acme-theme",
-        ThemesUpdateBody {
-            name: None,
-            description: None,
-        },
-    )
+    .update("acme-theme", ThemesUpdateBody::new())
     .send()
     .await?;
 ```
@@ -1015,9 +916,7 @@ let response = client
     .themes()
     .replace_document(
         "acme-theme",
-        ThemesReplaceDocumentBody {
-            document: ":root { --scalar-color-1: #1f2937; }".to_string(),
-        },
+        ThemesReplaceDocumentBody::new(":root { --scalar-color-1: #1f2937; }".to_string()),
     )
     .send()
     .await?;
@@ -1092,7 +991,7 @@ Change what a member of the current team is allowed to do.
 let response = client
     .teams()
     .members()
-    .update("UakgbKJ5m9gl0JDMbcJqL", MembersUpdateBody { role: Role::Owner })
+    .update("UakgbKJ5m9gl0JDMbcJqL", MembersUpdateBody::new(Role::Owner))
     .send()
     .await?;
 ```
@@ -1126,10 +1025,7 @@ Invite someone to the current team by email.
 let response = client
     .teams()
     .invites()
-    .member(InvitesMemberBody {
-        email: "alex@example.com".to_string(),
-        role: Role::Owner,
-    })
+    .member(InvitesMemberBody::new("alex@example.com".to_string(), Role::Owner))
     .send()
     .await?;
 ```
@@ -1186,13 +1082,12 @@ Create a guide project.
 ```rust
 let response = client
     .scalar_docs()
-    .create_guide(ScalarDocsCreateGuideBody {
-        name: "Acme Documentation".to_string(),
-        slug: None,
-        is_private: false,
-        allowed_users: vec![],
-        allowed_domains: vec![],
-    })
+    .create_guide(ScalarDocsCreateGuideBody::new(
+        "Acme Documentation".to_string(),
+        false,
+        vec![],
+        vec![],
+    ))
     .send()
     .await?;
 ```
@@ -1233,15 +1128,10 @@ Create a docs project. Omit `provider` to have Scalar host the repository.
 ```rust
 let response = client
     .scalar_docs()
-    .create_project(ScalarDocsCreateProjectBody {
-        name: "Acme Documentation".to_string(),
-        slug: None,
-        is_private: None,
-        blank: None,
-        provider: ScalarDocsCreateProjectBodyProvider::Forgejo,
-        github_repository: None,
-        bitbucket_repository: None,
-    })
+    .create_project(ScalarDocsCreateProjectBody::new(
+        "Acme Documentation".to_string(),
+        ScalarDocsCreateProjectBodyProvider::Forgejo,
+    ))
     .send()
     .await?;
 ```
@@ -1270,18 +1160,7 @@ Update project settings. Set `isPrivate` with `accessGroups` to put the site beh
 ```rust
 let response = client
     .scalar_docs()
-    .update_project(
-        "acme-docs",
-        ScalarDocsUpdateProjectBody {
-            name: None,
-            is_private: None,
-            access_groups: None,
-            login_portal_uid: None,
-            active_theme_id: None,
-            agent_enabled: None,
-            analytics_enabled: None,
-        },
-    )
+    .update_project("acme-docs", ScalarDocsUpdateProjectBody::new())
     .send()
     .await?;
 ```
@@ -1310,14 +1189,7 @@ Start a build and deploy. The returned `publishUid` identifies the publish recor
 ```rust
 let response = client
     .scalar_docs()
-    .publish_project(
-        "acme-docs",
-        ScalarDocsPublishProjectBody {
-            commit_sha: None,
-            preview: None,
-            config_path: None,
-        },
-    )
+    .publish_project("acme-docs", ScalarDocsPublishProjectBody::new())
     .send()
     .await?;
 ```
@@ -1348,13 +1220,7 @@ let response = client
     .scalar_docs()
     .update_project_config(
         "acme-docs",
-        ScalarDocsUpdateProjectConfigBody {
-            content: "{\"name\":\"Acme Documentation\"}".to_string(),
-            r#ref: None,
-            base_token: None,
-            message: None,
-            path: None,
-        },
+        ScalarDocsUpdateProjectConfigBody::new("{\"name\":\"Acme Documentation\"}".to_string()),
     )
     .send()
     .await?;
@@ -1420,9 +1286,9 @@ Exchange an API key for an access token.
 ```rust
 let response = client
     .authentication()
-    .exchange_personal_token(AuthenticationExchangePersonalTokenBody {
-        personal_token: "scalar_example_personal_token".to_string(),
-    })
+    .exchange_personal_token(AuthenticationExchangePersonalTokenBody::new(
+        "scalar_example_personal_token".to_string(),
+    ))
     .send()
     .await?;
 ```
@@ -1445,7 +1311,7 @@ SDKs
 
 ### List all SDKs
 
-List every SDK on the team.
+List every SDK on the team. `targets` are the languages its config declares, which the next build builds. `current` (the version label per language a request without a version serves) and each version label’s `languages`, highest label first, are what is served, and can include a language a later config dropped: a version keeps the languages its builds produced. Also returns the `currentVersion` and `latestVersion` tags.
 
 | Direction | Type |
 | --- | --- |
@@ -1467,21 +1333,17 @@ Create an SDK from an API document, targeting one or more languages.
 ```rust
 let response = client
     .sdks()
-    .create(SdksCreateBody {
-        api_uid: "UakgbKJ5m9gl0JDMbcJqL".to_string(),
-        languages: vec![SdksCreateBodyLanguage::Typescript],
-        title: None,
-        slug: None,
-        class_name: None,
-        config: None,
-    })
+    .create(SdksCreateBody::new(
+        "UakgbKJ5m9gl0JDMbcJqL".to_string(),
+        vec![SdksCreateBodyLanguage::Typescript],
+    ))
     .send()
     .await?;
 ```
 
 ### Get an SDK
 
-Get a single SDK by its uid.
+Get a single SDK by its uid. `targets` are the languages its config declares, which the next build builds. `current` (the version label per language a request without a version serves) and each version label’s `languages`, highest label first, are what is served, and can include a language a later config dropped: a version keeps the languages its builds produced. Also returns the `currentVersion` and `latestVersion` tags.
 
 | Direction | Type |
 | --- | --- |
@@ -1503,17 +1365,7 @@ Update SDK metadata, its linked API, or its config.
 ```rust
 let response = client
     .sdks()
-    .update(
-        "UakgbKJ5m9gl0JDMbcJqL",
-        SdksUpdateBody {
-            title: None,
-            slug: None,
-            is_private: None,
-            config: None,
-            api_uid: None,
-            api_version: None,
-        },
-    )
+    .update("UakgbKJ5m9gl0JDMbcJqL", SdksUpdateBody::new())
     .send()
     .await?;
 ```
@@ -1532,23 +1384,17 @@ let response = client.sdks().delete("UakgbKJ5m9gl0JDMbcJqL").send().await?;
 
 ### Build an SDK
 
-Start a build. Omit `version` to build the current work — the open draft, else the latest version — and the resolved version comes back in the response.
+Start a build with the SDK's saved config. Every input is optional: `version` is the version of the linked API description to build (default: its latest version), `customCodeRef` the branch, tag or commit each language merges as custom code (default: each language's `scalar-next` branch), and `languages` the languages to build (default: every language the config declares). The response names the version built. A 503 means the custom code could not be read from GitHub and nothing was built; try again.
 
 | Direction | Type |
 | --- | --- |
 | Request | [`SdksBuildBody`](./src/models/sdks.rs) |
-| Response | [`Option<SdksBuildResponse>`](./src/models/sdks.rs) |
+| Response | [`SdksBuildResponse`](./src/models/sdks.rs) |
 
 ```rust
 let response = client
     .sdks()
-    .build(
-        "UakgbKJ5m9gl0JDMbcJqL",
-        SdksBuildBody {
-            version: None,
-            languages: None,
-        },
-    )
+    .build("UakgbKJ5m9gl0JDMbcJqL", SdksBuildBody::new())
     .send()
     .await?;
 ```
@@ -1559,7 +1405,7 @@ SDKs
 
 #### Create an SDK version
 
-Create a new SDK version against a specific API version.
+Create a version label from a version of the SDK's API document and start its build. The label is the document version, and it becomes `latestVersion` when it is the highest.
 
 | Direction | Type |
 | --- | --- |
@@ -1570,20 +1416,14 @@ Create a new SDK version against a specific API version.
 let response = client
     .sdks()
     .versions()
-    .create(
-        "UakgbKJ5m9gl0JDMbcJqL",
-        VersionsCreateBody {
-            version: "1.2.0".to_string(),
-            api_version: "1.2.0".to_string(),
-        },
-    )
+    .create("UakgbKJ5m9gl0JDMbcJqL", VersionsCreateBody::new("1.2.0".to_string()))
     .send()
     .await?;
 ```
 
 #### Delete an SDK version
 
-Permanently delete one version of an SDK.
+Permanently delete one version label of an SDK and its builds. A label that is the current build of any language promoting manually is refused with 409 and nothing is deleted; promote or roll back to another build for that language first. Each other language whose current build was of that label moves to the active build of the highest remaining label that has one for the language, and has no current build when none has; `currentVersion` shows the result. Each language that moved to another build syncs it to its linked repository unless the repository already holds it. When it was `latestVersion`, that tag moves to the highest remaining label holding an active build. An SDK's last version cannot be deleted.
 
 | Direction | Type |
 | --- | --- |
@@ -1617,12 +1457,7 @@ let response = client
     .repositories()
     .link(
         "UakgbKJ5m9gl0JDMbcJqL",
-        RepositoriesLinkBody {
-            language: RepositoriesLinkBodyLanguage::Typescript,
-            repository_id: 123456789,
-            base_branch: "main".to_string(),
-            prerelease_type: None,
-        },
+        RepositoriesLinkBody::new(RepositoriesLinkBodyLanguage::Typescript, 123456789, "main".to_string()),
     )
     .send()
     .await?;
@@ -1661,12 +1496,7 @@ let response = client
     .update_publishing(
         "UakgbKJ5m9gl0JDMbcJqL",
         "typescript".to_string(),
-        RepositoriesUpdatePublishingBody {
-            publish_on_merge: true,
-            auth_method: None,
-            access: None,
-            tag: None,
-        },
+        RepositoriesUpdatePublishingBody::new(true),
     )
     .send()
     .await?;
@@ -1703,12 +1533,7 @@ Create an MCP server over one or more API document versions. The response carrie
 let response = client
     .mcp()
     .servers()
-    .create(ServersCreateBody {
-        name: "Acme MCP".to_string(),
-        slug: None,
-        version_uids: None,
-        project_uids: None,
-    })
+    .create(ServersCreateBody::new("Acme MCP".to_string()))
     .send()
     .await?;
 ```
@@ -1738,16 +1563,7 @@ Update MCP server metadata and which tools it exposes.
 let response = client
     .mcp()
     .servers()
-    .update(
-        "42",
-        ServersUpdateBody {
-            name: None,
-            slug: None,
-            auto_add_operations: None,
-            operations: None,
-            docs_pages: None,
-        },
-    )
+    .update("42", ServersUpdateBody::new())
     .send()
     .await?;
 ```
@@ -1780,35 +1596,9 @@ List the installations of an MCP server. An installation is what an MCP client c
 let response = client.mcp().servers().installations().list("42").send().await?;
 ```
 
-##### Create an installation
-
-Create an installation of an MCP server. `documentAuth` holds the credentials the server presents to the upstream API and is never returned.
-
-| Direction | Type |
-| --- | --- |
-| Request | [`InstallationsCreateBody`](./src/models/installations.rs) |
-| Response | [`McpInstallation`](./src/models/servers.rs) |
-
-```rust
-let response = client
-    .mcp()
-    .servers()
-    .installations()
-    .create(
-        "42",
-        InstallationsCreateBody {
-            name: "Acme MCP".to_string(),
-            slug: None,
-            document_auth: std::collections::HashMap::from([]),
-        },
-    )
-    .send()
-    .await?;
-```
-
 ##### Get an installation
 
-Get a single installation of an MCP server.
+Get a single installation of an MCP server. Deprecated: address the environment by slug with the `/environments/:environment` form.
 
 | Direction | Type |
 | --- | --- |
@@ -1826,7 +1616,7 @@ let response = client
 
 ##### Update an installation
 
-Update an installation. Set `isPrivate` and add access groups to put it behind a login.
+Update an installation. Deprecated: address the environment by slug with the `/environments/:environment` form.
 
 | Direction | Type |
 | --- | --- |
@@ -1838,25 +1628,14 @@ let response = client
     .mcp()
     .servers()
     .installations()
-    .update(
-        "42",
-        "84",
-        InstallationsUpdateBody {
-            name: None,
-            slug: None,
-            is_private: None,
-            login_portal_uid: None,
-            document_auth: None,
-            mcp_version: None,
-        },
-    )
+    .update("42", "84", InstallationsUpdateBody::new())
     .send()
     .await?;
 ```
 
 ##### Delete an installation
 
-Delete an installation of an MCP server.
+Delete an installation of an MCP server. Deprecated: address the environment by slug with the `/environments/:environment` form.
 
 | Direction | Type |
 | --- | --- |
@@ -1868,7 +1647,7 @@ let response = client.mcp().servers().installations().delete("42", "84").send().
 
 ##### Add an access group
 
-Let an access group reach a private installation.
+Let an access group reach a private installation. Requires a team admin. Deprecated: address the environment by slug with the `/environments/:environment` form.
 
 | Direction | Type |
 | --- | --- |
@@ -1883,9 +1662,7 @@ let response = client
     .create_access_group(
         "42",
         "84",
-        InstallationsCreateAccessGroupBody {
-            access_group_uid: "UakgbKJ5m9gl0JDMbcJqL".to_string(),
-        },
+        InstallationsCreateAccessGroupBody::new("UakgbKJ5m9gl0JDMbcJqL".to_string()),
     )
     .send()
     .await?;
@@ -1893,7 +1670,7 @@ let response = client
 
 ##### Remove an access group
 
-Stop an access group reaching a private installation.
+Stop an access group reaching a private installation. Requires a team admin. Deprecated: address the environment by slug with the `/environments/:environment` form.
 
 | Direction | Type |
 | --- | --- |
@@ -1908,9 +1685,7 @@ let response = client
     .delete_access_group(
         "42",
         "84",
-        InstallationsDeleteAccessGroupBody {
-            access_group_uid: "UakgbKJ5m9gl0JDMbcJqL".to_string(),
-        },
+        InstallationsDeleteAccessGroupBody::new("UakgbKJ5m9gl0JDMbcJqL".to_string()),
     )
     .send()
     .await?;

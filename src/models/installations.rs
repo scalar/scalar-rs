@@ -5,68 +5,130 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `McpInstallationListItem::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct McpInstallationListItem {
     pub id: String,
     pub name: String,
     pub slug: String,
-    #[serde(rename = "isPrivate")]
-    pub is_private: bool,
     #[serde(rename = "mcpVersion", default)]
     pub mcp_version: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct InstallationsCreateBody {
-    pub name: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub slug: Option<String>,
-    #[serde(rename = "documentAuth")]
-    pub document_auth: std::collections::HashMap<String, serde_json::Value>,
-}
-
-impl InstallationsCreateBody {
-    /// Creates a new `InstallationsCreateBody` from its required fields, leaving every optional one unset.
+impl McpInstallationListItem {
+    /// Creates a new `McpInstallationListItem` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `InstallationsCreateBody { slug: Some(…), ..InstallationsCreateBody::new(name, document_auth) }`.
-    pub fn new(name: impl Into<String>, document_auth: std::collections::HashMap<String, serde_json::Value>) -> Self {
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(
+        id: impl Into<String>,
+        name: impl Into<String>,
+        slug: impl Into<String>,
+        mcp_version: Option<String>,
+    ) -> Self {
         Self {
+            id: id.into(),
             name: name.into(),
-            slug: None,
-            document_auth,
+            slug: slug.into(),
+            mcp_version,
         }
     }
 }
 
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `InstallationsUpdateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
+///
+/// `Default` is the empty value, every field unset. It is withdrawn if the API ever makes a field required, which
+/// breaks callers through `new` as well.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct InstallationsUpdateBody {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    /// The environment’s current slug. An environment cannot be renamed, so any other slug is refused.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub slug: Option<String>,
-    #[serde(rename = "isPrivate", default, skip_serializing_if = "Option::is_none")]
-    pub is_private: Option<bool>,
-    #[serde(rename = "loginPortalUid", default, skip_serializing_if = "Option::is_none")]
-    pub login_portal_uid: Option<String>,
-    #[serde(rename = "documentAuth", default, skip_serializing_if = "Option::is_none")]
-    pub document_auth: Option<std::collections::HashMap<String, serde_json::Value>>,
-    #[serde(rename = "mcpVersion", default, skip_serializing_if = "Option::is_none")]
-    pub mcp_version: Option<String>,
+    #[serde(
+        rename = "mcpVersion",
+        default,
+        skip_serializing_if = "Option::is_none",
+        with = "crate::explicit_null::double_option"
+    )]
+    pub mcp_version: Option<Option<String>>,
 }
 
+impl InstallationsUpdateBody {
+    /// Creates a new `InstallationsUpdateBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `InstallationsUpdateBody::new().with_name(…)`.
+    pub fn new() -> Self {
+        Self {
+            name: None,
+            slug: None,
+            mcp_version: None,
+        }
+    }
+
+    /// Sets `name`, which `new` leaves unset.
+    pub fn with_name(mut self, value: impl Into<String>) -> Self {
+        self.name = Some(value.into());
+        self
+    }
+
+    /// Sets `slug`, which `new` leaves unset.
+    pub fn with_slug(mut self, value: impl Into<String>) -> Self {
+        self.slug = Some(value.into());
+        self
+    }
+
+    /// Sets `mcp_version`, which `new` leaves unset.
+    ///
+    /// To send an explicit `null` instead, assign `mcp_version = Some(None)` on the built value.
+    pub fn with_mcp_version(mut self, value: impl Into<String>) -> Self {
+        self.mcp_version = Some(Some(value.into()));
+        self
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `InstallationsCreateAccessGroupBody::new` and the `with_*` setters rather than a struct literal. Fields stay public
+/// for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct InstallationsCreateAccessGroupBody {
     #[serde(rename = "accessGroupUid")]
     pub access_group_uid: String,
 }
 
+impl InstallationsCreateAccessGroupBody {
+    /// Creates a new `InstallationsCreateAccessGroupBody` from its required fields, leaving every optional one unset.
+    pub fn new(access_group_uid: impl Into<String>) -> Self {
+        Self {
+            access_group_uid: access_group_uid.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `InstallationsDeleteAccessGroupBody::new` and the `with_*` setters rather than a struct literal. Fields stay public
+/// for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct InstallationsDeleteAccessGroupBody {
     #[serde(rename = "accessGroupUid")]
     pub access_group_uid: String,
+}
+
+impl InstallationsDeleteAccessGroupBody {
+    /// Creates a new `InstallationsDeleteAccessGroupBody` from its required fields, leaving every optional one unset.
+    pub fn new(access_group_uid: impl Into<String>) -> Self {
+        Self {
+            access_group_uid: access_group_uid.into(),
+        }
+    }
 }

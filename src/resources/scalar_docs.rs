@@ -293,7 +293,7 @@ impl PublishGuideRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<crate::models::ScalarDocsPublishGuideResponse, crate::error::Error> {
-        let path = format!("/v1/guides/{}/publish", crate::http::encode_path_param(&self.slug));
+        let path = format!("/v1/guides/{}/publish", crate::http::path_param(&self.slug)?);
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
@@ -514,7 +514,7 @@ impl RetrieveProjectRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<crate::models::DocsProject, crate::error::Error> {
-        let path = format!("/v1/docs/{}", crate::http::encode_path_param(&self.slug));
+        let path = format!("/v1/docs/{}", crate::http::path_param(&self.slug)?);
         let query: Vec<(String, String)> = Vec::new();
         let headers: Vec<(String, String)> = Vec::new();
         let body: Option<&serde_json::Value> = None;
@@ -585,7 +585,7 @@ impl UpdateProjectRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
-        let path = format!("/v1/docs/{}", crate::http::encode_path_param(&self.slug));
+        let path = format!("/v1/docs/{}", crate::http::path_param(&self.slug)?);
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
@@ -657,7 +657,7 @@ impl DeleteProjectRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
-        let path = format!("/v1/docs/{}", crate::http::encode_path_param(&self.slug));
+        let path = format!("/v1/docs/{}", crate::http::path_param(&self.slug)?);
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
@@ -731,7 +731,7 @@ impl PublishProjectRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<crate::models::ScalarDocsPublishProjectResponse, crate::error::Error> {
-        let path = format!("/v1/docs/{}/publish", crate::http::encode_path_param(&self.slug));
+        let path = format!("/v1/docs/{}/publish", crate::http::path_param(&self.slug)?);
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
@@ -810,7 +810,7 @@ impl ListProjectConfigRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<crate::models::ScalarDocsListProjectConfigResponse, crate::error::Error> {
-        let path = format!("/v1/docs/{}/config", crate::http::encode_path_param(&self.slug));
+        let path = format!("/v1/docs/{}/config", crate::http::path_param(&self.slug)?);
         let mut query: Vec<(String, String)> = Vec::new();
         if let Some(value) = &self.r#ref {
             query.push(("ref".to_string(), crate::http::scalar_value(value)));
@@ -896,7 +896,7 @@ impl UpdateProjectConfigRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<crate::models::ScalarDocsUpdateProjectConfigResponse, crate::error::Error> {
-        let path = format!("/v1/docs/{}/config", crate::http::encode_path_param(&self.slug));
+        let path = format!("/v1/docs/{}/config", crate::http::path_param(&self.slug)?);
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
@@ -968,7 +968,7 @@ impl ListProjectDomainRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<crate::models::ScalarDocsListProjectDomainResponse, crate::error::Error> {
-        let path = format!("/v1/docs/{}/domain", crate::http::encode_path_param(&self.slug));
+        let path = format!("/v1/docs/{}/domain", crate::http::path_param(&self.slug)?);
         let query: Vec<(String, String)> = Vec::new();
         let headers: Vec<(String, String)> = Vec::new();
         let body: Option<&serde_json::Value> = None;
@@ -1037,7 +1037,7 @@ impl ListProjectDomainStatusRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<crate::models::ScalarDocsListProjectDomainStatusResponse, crate::error::Error> {
-        let path = format!("/v1/docs/{}/domain/status", crate::http::encode_path_param(&self.slug));
+        let path = format!("/v1/docs/{}/domain/status", crate::http::path_param(&self.slug)?);
         let query: Vec<(String, String)> = Vec::new();
         let headers: Vec<(String, String)> = Vec::new();
         let body: Option<&serde_json::Value> = None;

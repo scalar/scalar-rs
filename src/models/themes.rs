@@ -5,9 +5,8 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `Theme::new` and the
+/// `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Theme {
@@ -17,7 +16,30 @@ pub struct Theme {
     pub slug: String,
 }
 
+impl Theme {
+    /// Creates a new `Theme` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(
+        uid: impl Into<String>,
+        name: impl Into<String>,
+        description: impl Into<String>,
+        slug: impl Into<String>,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            name: name.into(),
+            description: description.into(),
+            slug: slug.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ThemesCreateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ThemesCreateBody {
     pub name: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -29,8 +51,11 @@ pub struct ThemesCreateBody {
 impl ThemesCreateBody {
     /// Creates a new `ThemesCreateBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `ThemesCreateBody { description: Some(…), ..ThemesCreateBody::new(name, slug, document) }`.
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `ThemesCreateBody::new(name, slug, document).with_description(…)`.
     pub fn new(name: impl Into<String>, slug: impl Into<String>, document: impl Into<String>) -> Self {
         Self {
             name: name.into(),
@@ -39,9 +64,21 @@ impl ThemesCreateBody {
             document: document.into(),
         }
     }
+
+    /// Sets `description`, which `new` leaves unset.
+    pub fn with_description(mut self, value: impl Into<String>) -> Self {
+        self.description = Some(value.into());
+        self
+    }
 }
 
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ThemesUpdateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
+///
+/// `Default` is the empty value, every field unset. It is withdrawn if the API ever makes a field required, which
+/// breaks callers through `new` as well.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ThemesUpdateBody {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -49,7 +86,45 @@ pub struct ThemesUpdateBody {
     pub description: Option<String>,
 }
 
+impl ThemesUpdateBody {
+    /// Creates a new `ThemesUpdateBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `ThemesUpdateBody::new().with_name(…)`.
+    pub fn new() -> Self {
+        Self {
+            name: None,
+            description: None,
+        }
+    }
+
+    /// Sets `name`, which `new` leaves unset.
+    pub fn with_name(mut self, value: impl Into<String>) -> Self {
+        self.name = Some(value.into());
+        self
+    }
+
+    /// Sets `description`, which `new` leaves unset.
+    pub fn with_description(mut self, value: impl Into<String>) -> Self {
+        self.description = Some(value.into());
+        self
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ThemesReplaceDocumentBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ThemesReplaceDocumentBody {
     pub document: String,
+}
+
+impl ThemesReplaceDocumentBody {
+    /// Creates a new `ThemesReplaceDocumentBody` from its required fields, leaving every optional one unset.
+    pub fn new(document: impl Into<String>) -> Self {
+        Self {
+            document: document.into(),
+        }
+    }
 }

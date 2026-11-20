@@ -248,7 +248,7 @@ impl ListApiDocumentsRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<Vec<crate::models::ApiDocument>, crate::error::Error> {
-        let path = format!("/v1/apis/{}", crate::http::encode_path_param(&self.namespace));
+        let path = format!("/v1/apis/{}", crate::http::path_param(&self.namespace)?);
         let query: Vec<(String, String)> = Vec::new();
         let headers: Vec<(String, String)> = Vec::new();
         let body: Option<&serde_json::Value> = None;
@@ -331,7 +331,7 @@ impl CreateApiDocumentRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<crate::models::RegistryCreateApiDocumentResponse, crate::error::Error> {
-        let path = format!("/v1/apis/{}", crate::http::encode_path_param(&self.namespace));
+        let path = format!("/v1/apis/{}", crate::http::path_param(&self.namespace)?);
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
@@ -422,8 +422,8 @@ impl UpdateApiDocumentRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/apis/{}/{}",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
@@ -500,8 +500,8 @@ impl DeleteApiDocumentRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/apis/{}/{}",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
@@ -570,9 +570,9 @@ impl RetrieveApiDocumentVersionRequestBuilder {
     pub async fn send(self) -> Result<bytes::Bytes, crate::error::Error> {
         let path = format!(
             "/v1/apis/{}/{}/version/{}",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug),
-            crate::http::encode_path_param(&self.semver)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?,
+            crate::http::path_param(&self.semver)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let headers: Vec<(String, String)> = vec![("Accept".to_string(), "text/plain".to_string())];
@@ -656,9 +656,9 @@ impl UpdateApiDocumentVersionRequestBuilder {
     pub async fn send(self) -> Result<crate::models::RegistryUpdateApiDocumentVersionResponse, crate::error::Error> {
         let path = format!(
             "/v1/apis/{}/{}/version/{}",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug),
-            crate::http::encode_path_param(&self.semver)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?,
+            crate::http::path_param(&self.semver)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
@@ -745,9 +745,9 @@ impl DeleteApiDocumentVersionRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/apis/{}/{}/version/{}",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug),
-            crate::http::encode_path_param(&self.semver)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?,
+            crate::http::path_param(&self.semver)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
@@ -818,9 +818,9 @@ impl ListApiDocumentVersionMetadataRequestBuilder {
     pub async fn send(self) -> Result<crate::models::ManagedDocVersion, crate::error::Error> {
         let path = format!(
             "/v1/apis/{}/{}/version/{}/metadata",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug),
-            crate::http::encode_path_param(&self.semver)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?,
+            crate::http::path_param(&self.semver)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let headers: Vec<(String, String)> = Vec::new();
@@ -909,8 +909,8 @@ impl CreateApiDocumentVersionRequestBuilder {
     pub async fn send(self) -> Result<crate::models::ManagedDocVersion, crate::error::Error> {
         let path = format!(
             "/v1/apis/{}/{}/version",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
@@ -997,8 +997,8 @@ impl CreateApiDocumentAccessGroupRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/apis/{}/{}/access-group",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
@@ -1077,8 +1077,8 @@ impl DeleteApiDocumentAccessGroupRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/apis/{}/{}/access-group",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();

@@ -5,9 +5,8 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `TeamSummary::new`
+/// and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct TeamSummary {
@@ -17,9 +16,31 @@ pub struct TeamSummary {
     pub image_uri: Option<String>,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl TeamSummary {
+    /// Creates a new `TeamSummary` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `TeamSummary::new(uid, name).with_image_uri(…)`.
+    pub fn new(uid: impl Into<String>, name: impl Into<String>) -> Self {
+        Self {
+            uid: uid.into(),
+            name: name.into(),
+            image_uri: None,
+        }
+    }
+
+    /// Sets `image_uri`, which `new` leaves unset.
+    pub fn with_image_uri(mut self, value: impl Into<String>) -> Self {
+        self.image_uri = Some(value.into());
+        self
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `User::new` and the
+/// `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct User {
@@ -38,9 +59,45 @@ pub struct User {
     pub teams: Vec<TeamSummary>,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl User {
+    /// Creates a new `User` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `User::new(uid, created_at, updated_at, email, active_team_id, has_github, teams).with_theme(…)`.
+    pub fn new(
+        uid: impl Into<String>,
+        created_at: i64,
+        updated_at: i64,
+        email: impl Into<String>,
+        active_team_id: Option<String>,
+        has_github: bool,
+        teams: Vec<TeamSummary>,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            created_at,
+            updated_at,
+            email: email.into(),
+            theme: None,
+            active_team_id,
+            has_github,
+            teams,
+        }
+    }
+
+    /// Sets `theme`, which `new` leaves unset.
+    pub fn with_theme(mut self, value: impl Into<String>) -> Self {
+        self.theme = Some(value.into());
+        self
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `AuthenticationExchangePersonalTokenResponse::new` and the `with_*` setters rather than a struct literal. Fields
+/// stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct AuthenticationExchangePersonalTokenResponse {
@@ -48,8 +105,32 @@ pub struct AuthenticationExchangePersonalTokenResponse {
     pub access_token: String,
 }
 
+impl AuthenticationExchangePersonalTokenResponse {
+    /// Creates a new `AuthenticationExchangePersonalTokenResponse` from its required fields, leaving every optional one
+    /// unset.
+    pub fn new(access_token: impl Into<String>) -> Self {
+        Self {
+            access_token: access_token.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `AuthenticationExchangePersonalTokenBody::new` and the `with_*` setters rather than a struct literal. Fields stay
+/// public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct AuthenticationExchangePersonalTokenBody {
     #[serde(rename = "personalToken")]
     pub personal_token: String,
+}
+
+impl AuthenticationExchangePersonalTokenBody {
+    /// Creates a new `AuthenticationExchangePersonalTokenBody` from its required fields, leaving every optional one
+    /// unset.
+    pub fn new(personal_token: impl Into<String>) -> Self {
+        Self {
+            personal_token: personal_token.into(),
+        }
+    }
 }

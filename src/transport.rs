@@ -48,10 +48,16 @@ pub use crate::transport_reqwest::ReqwestTransport;
 /// An HTTP backend that executes one request and returns one response.
 ///
 /// This is a deliberately "dumb" transport: retries, backoff, deadlines, auth,
-/// and response decoding all live in the SDK runtime above it, so an
+/// redirects, and response decoding all live in the SDK runtime above it, so an
 /// implementation only has to move one request to the wire and map the result
 /// back. Implementations must be cheap to share (`Send + Sync`) because the
 /// client stores the transport as `Arc<dyn Transport>`.
+///
+/// An implementation must **not** follow redirects: return a 3xx response as
+/// is. The SDK follows redirects itself so it can drop credentials when a
+/// redirect leaves the origin and refuse an https→http downgrade; an HTTP
+/// stack that follows them first re-sends header-placed API keys and the
+/// request body to whatever host the redirect names.
 ///
 /// # Errors
 ///
@@ -146,6 +152,15 @@ pub trait Sleep: Send + Sync + fmt::Debug {
 }
 
 impl<T: Sleep + ?Sized> Sleep for Arc<T> {
+    fn sleep(&self, duration: Duration) -> BoxFuture<'static, ()> {
+        (**self).sleep(duration)
+    }
+}
+
+// Mirrors the `Box<T>` impl for `Transport`. `Box` is a fundamental type, so a
+// downstream crate may write `impl Sleep for Box<TheirSleeper>` today; adding
+// this blanket impl after release would then break it.
+impl<T: Sleep + ?Sized> Sleep for Box<T> {
     fn sleep(&self, duration: Duration) -> BoxFuture<'static, ()> {
         (**self).sleep(duration)
     }
@@ -576,8 +591,13 @@ struct MockState {
 
 /// A request captured by [`MockTransport`], with its body fully buffered so
 /// tests can assert on the exact bytes sent.
+///
+/// The fields stay public for reading; `#[non_exhaustive]` keeps callers from
+/// constructing or exhaustively destructuring one, so a field can be added
+/// later without a breaking release.
 #[cfg(feature = "mock")]
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct RecordedRequest {
     /// The request method.
     pub method: http::Method,

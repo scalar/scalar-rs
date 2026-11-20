@@ -95,9 +95,9 @@ impl RetrieveRequestBuilder {
     pub async fn send(self) -> Result<bytes::Bytes, crate::error::Error> {
         let path = format!(
             "/v1/schemas/{}/{}/version/{}",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug),
-            crate::http::encode_path_param(&self.semver)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?,
+            crate::http::path_param(&self.semver)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let headers: Vec<(String, String)> = vec![("Accept".to_string(), "text/plain".to_string())];
@@ -173,9 +173,9 @@ impl DeleteRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/schemas/{}/{}/version/{}",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug),
-            crate::http::encode_path_param(&self.semver)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?,
+            crate::http::path_param(&self.semver)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
@@ -259,8 +259,8 @@ impl CreateRequestBuilder {
     pub async fn send(self) -> Result<crate::models::VersionCreateResponse, crate::error::Error> {
         let path = format!(
             "/v1/schemas/{}/{}/version",
-            crate::http::encode_path_param(&self.namespace),
-            crate::http::encode_path_param(&self.slug)
+            crate::http::path_param(&self.namespace)?,
+            crate::http::path_param(&self.slug)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();

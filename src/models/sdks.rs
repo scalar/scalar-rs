@@ -5,9 +5,8 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `Sdk::new` and the
+/// `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Sdk {
@@ -20,17 +19,54 @@ pub struct Sdk {
     pub is_private: bool,
     #[serde(rename = "apiUid", default)]
     pub api_uid: Option<String>,
-    #[serde(rename = "apiVersion", default, skip_serializing_if = "Option::is_none")]
-    pub api_version: Option<String>,
+    pub current: std::collections::BTreeMap<String, String>,
     #[serde(rename = "currentVersion")]
     pub current_version: String,
+    #[serde(rename = "latestVersion", default)]
+    pub latest_version: Option<String>,
     pub targets: Vec<SdkTargetSummary>,
     pub versions: Vec<SdkVersion>,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl Sdk {
+    /// Creates a new `Sdk` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        uid: impl Into<String>,
+        title: impl Into<String>,
+        slug: impl Into<String>,
+        namespace: impl Into<String>,
+        description: impl Into<String>,
+        is_private: bool,
+        api_uid: Option<String>,
+        current: std::collections::BTreeMap<String, String>,
+        current_version: impl Into<String>,
+        latest_version: Option<String>,
+        targets: Vec<SdkTargetSummary>,
+        versions: Vec<SdkVersion>,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            title: title.into(),
+            slug: slug.into(),
+            namespace: namespace.into(),
+            description: description.into(),
+            is_private,
+            api_uid,
+            current,
+            current_version: current_version.into(),
+            latest_version,
+            targets,
+            versions,
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `SdkTargetSummary::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct SdkTargetSummary {
@@ -38,26 +74,46 @@ pub struct SdkTargetSummary {
     pub slug: String,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl SdkTargetSummary {
+    /// Creates a new `SdkTargetSummary` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(language: SdkTargetSummaryLanguage, slug: impl Into<String>) -> Self {
+        Self {
+            language,
+            slug: slug.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `SdkVersion::new` and
+/// the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct SdkVersion {
     pub version: String,
-    #[serde(rename = "apiVersion")]
-    pub api_version: String,
-    pub status: SdkVersionStatus,
+    #[serde(rename = "createdAt")]
+    pub created_at: i64,
     pub languages: Vec<SdkVersionLanguage>,
-    #[serde(rename = "publishedAt", default, skip_serializing_if = "Option::is_none")]
-    pub published_at: Option<i64>,
-    #[serde(rename = "createdAt", default, skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<i64>,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl SdkVersion {
+    /// Creates a new `SdkVersion` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(version: impl Into<String>, created_at: i64, languages: Vec<SdkVersionLanguage>) -> Self {
+        Self {
+            version: version.into(),
+            created_at,
+            languages,
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `SdksListResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct SdksListResponse {
@@ -66,7 +122,20 @@ pub struct SdksListResponse {
     pub has_more: bool,
 }
 
+impl SdksListResponse {
+    /// Creates a new `SdksListResponse` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(data: Vec<Sdk>, has_more: bool) -> Self {
+        Self { data, has_more }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `SdksCreateBody::new`
+/// and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct SdksCreateBody {
     #[serde(rename = "apiUid")]
     pub api_uid: String,
@@ -84,8 +153,11 @@ pub struct SdksCreateBody {
 impl SdksCreateBody {
     /// Creates a new `SdksCreateBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `SdksCreateBody { title: Some(…), ..SdksCreateBody::new(api_uid, languages) }`.
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `SdksCreateBody::new(api_uid, languages).with_title(…)`.
     pub fn new(api_uid: impl Into<String>, languages: Vec<SdksCreateBodyLanguage>) -> Self {
         Self {
             api_uid: api_uid.into(),
@@ -95,6 +167,30 @@ impl SdksCreateBody {
             class_name: None,
             config: None,
         }
+    }
+
+    /// Sets `title`, which `new` leaves unset.
+    pub fn with_title(mut self, value: impl Into<String>) -> Self {
+        self.title = Some(value.into());
+        self
+    }
+
+    /// Sets `slug`, which `new` leaves unset.
+    pub fn with_slug(mut self, value: impl Into<String>) -> Self {
+        self.slug = Some(value.into());
+        self
+    }
+
+    /// Sets `class_name`, which `new` leaves unset.
+    pub fn with_class_name(mut self, value: impl Into<String>) -> Self {
+        self.class_name = Some(value.into());
+        self
+    }
+
+    /// Sets `config`, which `new` leaves unset.
+    pub fn with_config(mut self, value: impl Into<String>) -> Self {
+        self.config = Some(value.into());
+        self
     }
 }
 
@@ -185,7 +281,13 @@ impl From<&str> for SdksCreateBodyLanguage {
     }
 }
 
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `SdksUpdateBody::new`
+/// and the `with_*` setters rather than a struct literal. Fields stay public for reading.
+///
+/// `Default` is the empty value, every field unset. It is withdrawn if the API ever makes a field required, which
+/// breaks callers through `new` as well.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct SdksUpdateBody {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
@@ -195,27 +297,136 @@ pub struct SdksUpdateBody {
     pub is_private: Option<bool>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub config: Option<String>,
-    #[serde(rename = "apiUid", default, skip_serializing_if = "Option::is_none")]
-    pub api_uid: Option<String>,
+    #[serde(
+        rename = "apiUid",
+        default,
+        skip_serializing_if = "Option::is_none",
+        with = "crate::explicit_null::double_option"
+    )]
+    pub api_uid: Option<Option<String>>,
+    /// Removed. A request that carries it is refused with a 400.
     #[serde(rename = "apiVersion", default, skip_serializing_if = "Option::is_none")]
-    pub api_version: Option<String>,
+    pub api_version: Option<serde_json::Value>,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl SdksUpdateBody {
+    /// Creates a new `SdksUpdateBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `SdksUpdateBody::new().with_title(…)`.
+    pub fn new() -> Self {
+        Self {
+            title: None,
+            slug: None,
+            is_private: None,
+            config: None,
+            api_uid: None,
+            api_version: None,
+        }
+    }
+
+    /// Sets `title`, which `new` leaves unset.
+    pub fn with_title(mut self, value: impl Into<String>) -> Self {
+        self.title = Some(value.into());
+        self
+    }
+
+    /// Sets `slug`, which `new` leaves unset.
+    pub fn with_slug(mut self, value: impl Into<String>) -> Self {
+        self.slug = Some(value.into());
+        self
+    }
+
+    /// Sets `is_private`, which `new` leaves unset.
+    pub fn with_is_private(mut self, value: bool) -> Self {
+        self.is_private = Some(value);
+        self
+    }
+
+    /// Sets `config`, which `new` leaves unset.
+    pub fn with_config(mut self, value: impl Into<String>) -> Self {
+        self.config = Some(value.into());
+        self
+    }
+
+    /// Sets `api_uid`, which `new` leaves unset.
+    ///
+    /// To send an explicit `null` instead, assign `api_uid = Some(None)` on the built value.
+    pub fn with_api_uid(mut self, value: impl Into<String>) -> Self {
+        self.api_uid = Some(Some(value.into()));
+        self
+    }
+
+    /// Sets `api_version`, which `new` leaves unset.
+    pub fn with_api_version(mut self, value: serde_json::Value) -> Self {
+        self.api_version = Some(value);
+        self
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `SdksBuildResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct SdksBuildResponse {
     pub version: String,
 }
 
+impl SdksBuildResponse {
+    /// Creates a new `SdksBuildResponse` from its required fields, leaving every optional one unset.
+    pub fn new(version: impl Into<String>) -> Self {
+        Self {
+            version: version.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `SdksBuildBody::new`
+/// and the `with_*` setters rather than a struct literal. Fields stay public for reading.
+///
+/// `Default` is the empty value, every field unset. It is withdrawn if the API ever makes a field required, which
+/// breaks callers through `new` as well.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct SdksBuildBody {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub version: Option<String>,
+    #[serde(rename = "customCodeRef", default, skip_serializing_if = "Option::is_none")]
+    pub custom_code_ref: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub languages: Option<Vec<SdksBuildBodyLanguage>>,
+}
+
+impl SdksBuildBody {
+    /// Creates a new `SdksBuildBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `SdksBuildBody::new().with_version(…)`.
+    pub fn new() -> Self {
+        Self {
+            version: None,
+            custom_code_ref: None,
+            languages: None,
+        }
+    }
+
+    /// Sets `version`, which `new` leaves unset.
+    pub fn with_version(mut self, value: impl Into<String>) -> Self {
+        self.version = Some(value.into());
+        self
+    }
+
+    /// Sets `custom_code_ref`, which `new` leaves unset.
+    pub fn with_custom_code_ref(mut self, value: impl Into<String>) -> Self {
+        self.custom_code_ref = Some(value.into());
+        self
+    }
+
+    /// Sets `languages`, which `new` leaves unset.
+    pub fn with_languages(mut self, value: Vec<SdksBuildBodyLanguage>) -> Self {
+        self.languages = Some(value);
+        self
+    }
 }
 
 /// Match on `as_str()` (or build one with `From<&str>`) when you need a value
@@ -387,49 +598,6 @@ impl From<&str> for SdkTargetSummaryLanguage {
             "swift" => Self::Swift,
             "cpp" => Self::Cpp,
             "dart" => Self::Dart,
-            other => Self::Unknown(other.to_owned()),
-        }
-    }
-}
-
-/// Match on `as_str()` (or build one with `From<&str>`) when you need a value
-/// this SDK version does not know. Matching `Unknown(_)` directly is an
-/// anti-pattern: that arm silently stops matching once a future SDK release
-/// adds the real variant.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[non_exhaustive]
-pub enum SdkVersionStatus {
-    #[serde(rename = "draft")]
-    Draft,
-    #[serde(rename = "published")]
-    Published,
-    /// A value not known to this version of the SDK, preserved verbatim.
-    #[serde(untagged)]
-    Unknown(String),
-}
-
-impl SdkVersionStatus {
-    /// The wire value this variant serializes to.
-    pub fn as_str(&self) -> &str {
-        match self {
-            Self::Draft => "draft",
-            Self::Published => "published",
-            Self::Unknown(value) => value,
-        }
-    }
-}
-
-impl std::fmt::Display for SdkVersionStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl From<&str> for SdkVersionStatus {
-    fn from(value: &str) -> Self {
-        match value {
-            "draft" => Self::Draft,
-            "published" => Self::Published,
             other => Self::Unknown(other.to_owned()),
         }
     }

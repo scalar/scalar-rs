@@ -5,7 +5,10 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `LoginPortalEmail::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct LoginPortalEmail {
     pub logo: String,
     #[serde(rename = "logoSize")]
@@ -28,7 +31,45 @@ pub struct LoginPortalEmail {
     pub button_background: String,
 }
 
+impl LoginPortalEmail {
+    /// Creates a new `LoginPortalEmail` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        logo: impl Into<String>,
+        logo_size: impl Into<String>,
+        button_text: impl Into<String>,
+        message: impl Into<String>,
+        title: impl Into<String>,
+        main_color: impl Into<String>,
+        main_background: impl Into<String>,
+        card_color: impl Into<String>,
+        card_background: impl Into<String>,
+        button_color: impl Into<String>,
+        button_background: impl Into<String>,
+    ) -> Self {
+        Self {
+            logo: logo.into(),
+            logo_size: logo_size.into(),
+            button_text: button_text.into(),
+            message: message.into(),
+            title: title.into(),
+            main_color: main_color.into(),
+            main_background: main_background.into(),
+            card_color: card_color.into(),
+            card_background: card_background.into(),
+            button_color: button_color.into(),
+            button_background: button_background.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `LoginPortalPage::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct LoginPortalPage {
     pub title: String,
     pub description: String,
@@ -53,9 +94,49 @@ pub struct LoginPortalPage {
     pub form_image: String,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl LoginPortalPage {
+    /// Creates a new `LoginPortalPage` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        title: impl Into<String>,
+        description: impl Into<String>,
+        head: impl Into<String>,
+        script: impl Into<String>,
+        theme: impl Into<String>,
+        company_name: impl Into<String>,
+        logo: impl Into<String>,
+        logo_url: impl Into<String>,
+        favicon: impl Into<String>,
+        terms_link: impl Into<String>,
+        privacy_link: impl Into<String>,
+        form_title: impl Into<String>,
+        form_description: impl Into<String>,
+        form_image: impl Into<String>,
+    ) -> Self {
+        Self {
+            title: title.into(),
+            description: description.into(),
+            head: head.into(),
+            script: script.into(),
+            theme: theme.into(),
+            company_name: company_name.into(),
+            logo: logo.into(),
+            logo_url: logo_url.into(),
+            favicon: favicon.into(),
+            terms_link: terms_link.into(),
+            privacy_link: privacy_link.into(),
+            form_title: form_title.into(),
+            form_description: form_description.into(),
+            form_image: form_image.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `LoginPortal::new`
+/// and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct LoginPortal {
@@ -64,9 +145,23 @@ pub struct LoginPortal {
     pub slug: String,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl LoginPortal {
+    /// Creates a new `LoginPortal` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(uid: impl Into<String>, title: impl Into<String>, slug: impl Into<String>) -> Self {
+        Self {
+            uid: uid.into(),
+            title: title.into(),
+            slug: slug.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `LoginPortalsRetrieveResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct LoginPortalsRetrieveResponse {
@@ -77,16 +172,83 @@ pub struct LoginPortalsRetrieveResponse {
     pub page: LoginPortalPage,
 }
 
+impl LoginPortalsRetrieveResponse {
+    /// Creates a new `LoginPortalsRetrieveResponse` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(
+        uid: impl Into<String>,
+        title: impl Into<String>,
+        slug: impl Into<String>,
+        email: LoginPortalEmail,
+        page: LoginPortalPage,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            title: title.into(),
+            slug: slug.into(),
+            email,
+            page,
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `LoginPortalsUpdateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
+///
+/// `Default` is the empty value, every field unset. It is withdrawn if the API ever makes a field required, which
+/// breaks callers through `new` as well.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct LoginPortalsUpdateBody {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
 }
 
+impl LoginPortalsUpdateBody {
+    /// Creates a new `LoginPortalsUpdateBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `LoginPortalsUpdateBody::new().with_title(…)`.
+    pub fn new() -> Self {
+        Self { title: None }
+    }
+
+    /// Sets `title`, which `new` leaves unset.
+    pub fn with_title(mut self, value: impl Into<String>) -> Self {
+        self.title = Some(value.into());
+        self
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `LoginPortalsCreateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct LoginPortalsCreateBody {
     pub title: String,
     pub slug: String,
     pub email: LoginPortalEmail,
     pub page: LoginPortalPage,
+}
+
+impl LoginPortalsCreateBody {
+    /// Creates a new `LoginPortalsCreateBody` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(
+        title: impl Into<String>,
+        slug: impl Into<String>,
+        email: LoginPortalEmail,
+        page: LoginPortalPage,
+    ) -> Self {
+        Self {
+            title: title.into(),
+            slug: slug.into(),
+            email,
+            page,
+        }
+    }
 }
