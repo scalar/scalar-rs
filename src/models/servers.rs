@@ -5,18 +5,68 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `McpServerListItem::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct McpServerListItem {
+    pub uid: String,
+    pub slug: String,
+    pub namespace: String,
+    #[serde(default)]
+    pub domain: Option<String>,
+    #[serde(rename = "createdAt")]
+    pub created_at: i64,
+    #[serde(rename = "updatedAt")]
+    pub updated_at: i64,
+    pub name: String,
+    pub environments: Vec<McpServerListItemEnvironment>,
+}
+
+impl McpServerListItem {
+    /// Creates a new `McpServerListItem` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        uid: impl Into<String>,
+        slug: impl Into<String>,
+        namespace: impl Into<String>,
+        domain: Option<String>,
+        created_at: i64,
+        updated_at: i64,
+        name: impl Into<String>,
+        environments: Vec<McpServerListItemEnvironment>,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            slug: slug.into(),
+            namespace: namespace.into(),
+            domain,
+            created_at,
+            updated_at,
+            name: name.into(),
+            environments,
+        }
+    }
+}
+
 /// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `McpServer::new` and
 /// the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct McpServer {
-    pub id: String,
-    pub name: String,
+    pub uid: String,
     pub slug: String,
+    pub namespace: String,
+    #[serde(default)]
+    pub domain: Option<String>,
     #[serde(rename = "createdAt")]
-    pub created_at: String,
+    pub created_at: i64,
     #[serde(rename = "updatedAt")]
-    pub updated_at: String,
+    pub updated_at: i64,
+    pub name: String,
 }
 
 impl McpServer {
@@ -25,71 +75,22 @@ impl McpServer {
     /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
     /// argument, which is a breaking change either way.
     pub fn new(
-        id: impl Into<String>,
-        name: impl Into<String>,
+        uid: impl Into<String>,
         slug: impl Into<String>,
-        created_at: impl Into<String>,
-        updated_at: impl Into<String>,
+        namespace: impl Into<String>,
+        domain: Option<String>,
+        created_at: i64,
+        updated_at: i64,
+        name: impl Into<String>,
     ) -> Self {
         Self {
-            id: id.into(),
-            name: name.into(),
+            uid: uid.into(),
             slug: slug.into(),
-            created_at: created_at.into(),
-            updated_at: updated_at.into(),
-        }
-    }
-}
-
-/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
-/// `McpInstallation::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[non_exhaustive]
-pub struct McpInstallation {
-    pub id: String,
-    #[serde(rename = "mcpServerId")]
-    pub mcp_server_id: String,
-    pub name: String,
-    pub slug: String,
-    #[serde(rename = "accessGroups")]
-    pub access_groups: Vec<String>,
-    #[serde(rename = "loginPortalUid", default)]
-    pub login_portal_uid: Option<String>,
-    #[serde(rename = "mcpVersion", default)]
-    pub mcp_version: Option<String>,
-    #[serde(rename = "piiRedactionEnabled")]
-    pub pii_redaction_enabled: bool,
-    #[serde(rename = "credentialRedactionEnabled")]
-    pub credential_redaction_enabled: bool,
-}
-
-impl McpInstallation {
-    /// Creates a new `McpInstallation` from its required fields, leaving every optional one unset.
-    ///
-    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
-    /// argument, which is a breaking change either way.
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        id: impl Into<String>,
-        mcp_server_id: impl Into<String>,
-        name: impl Into<String>,
-        slug: impl Into<String>,
-        access_groups: Vec<String>,
-        login_portal_uid: Option<String>,
-        mcp_version: Option<String>,
-        pii_redaction_enabled: bool,
-        credential_redaction_enabled: bool,
-    ) -> Self {
-        Self {
-            id: id.into(),
-            mcp_server_id: mcp_server_id.into(),
+            namespace: namespace.into(),
+            domain,
+            created_at,
+            updated_at,
             name: name.into(),
-            slug: slug.into(),
-            access_groups,
-            login_portal_uid,
-            mcp_version,
-            pii_redaction_enabled,
-            credential_redaction_enabled,
         }
     }
 }
@@ -100,16 +101,12 @@ impl McpInstallation {
 #[non_exhaustive]
 pub struct ServersCreateResponse {
     pub server: McpServer,
-    pub installation: McpInstallation,
 }
 
 impl ServersCreateResponse {
     /// Creates a new `ServersCreateResponse` from its required fields, leaving every optional one unset.
-    ///
-    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
-    /// argument, which is a breaking change either way.
-    pub fn new(server: McpServer, installation: McpInstallation) -> Self {
-        Self { server, installation }
+    pub fn new(server: McpServer) -> Self {
+        Self { server }
     }
 }
 
@@ -161,58 +158,25 @@ impl ServersCreateBody {
 }
 
 /// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
-/// `ServersUpdateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
-///
-/// `Default` is the empty value, every field unset. It is withdrawn if the API ever makes a field required, which
-/// breaks callers through `new` as well.
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+/// `McpServerListItemEnvironment::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
-pub struct ServersUpdateBody {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub slug: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub operations: Option<Vec<String>>,
-    #[serde(rename = "docsPages", default, skip_serializing_if = "Option::is_none")]
-    pub docs_pages: Option<Vec<String>>,
+pub struct McpServerListItemEnvironment {
+    pub slug: String,
+    #[serde(default)]
+    pub served: Option<String>,
 }
 
-impl ServersUpdateBody {
-    /// Creates a new `ServersUpdateBody` from its required fields, leaving every optional one unset.
+impl McpServerListItemEnvironment {
+    /// Creates a new `McpServerListItemEnvironment` from its required fields, leaving every optional one unset.
     ///
-    /// Set an optional field with its `with_*` setter:
-    /// `ServersUpdateBody::new().with_name(…)`.
-    pub fn new() -> Self {
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(slug: impl Into<String>, served: Option<String>) -> Self {
         Self {
-            name: None,
-            slug: None,
-            operations: None,
-            docs_pages: None,
+            slug: slug.into(),
+            served,
         }
-    }
-
-    /// Sets `name`, which `new` leaves unset.
-    pub fn with_name(mut self, value: impl Into<String>) -> Self {
-        self.name = Some(value.into());
-        self
-    }
-
-    /// Sets `slug`, which `new` leaves unset.
-    pub fn with_slug(mut self, value: impl Into<String>) -> Self {
-        self.slug = Some(value.into());
-        self
-    }
-
-    /// Sets `operations`, which `new` leaves unset.
-    pub fn with_operations(mut self, value: Vec<String>) -> Self {
-        self.operations = Some(value);
-        self
-    }
-
-    /// Sets `docs_pages`, which `new` leaves unset.
-    pub fn with_docs_pages(mut self, value: Vec<String>) -> Self {
-        self.docs_pages = Some(value);
-        self
     }
 }
