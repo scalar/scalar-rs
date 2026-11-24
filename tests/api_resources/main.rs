@@ -22,7 +22,6 @@ mod resources {
     mod access_groups;
     mod authentication;
     mod domains;
-    mod installations;
     mod invites;
     mod login_portals;
     mod members;
@@ -50,7 +49,7 @@ use ::scalar_rs::*;
 /// Fingerprint of the case list the generator's smoke runner checks this suite
 /// against (written only for generator tooling). The runner refuses a list whose
 /// digest differs, so a list left by an earlier generation is never trusted.
-const SMOKE_CASE_LIST_DIGEST: &str = "8ee87b7cfa913424";
+const SMOKE_CASE_LIST_DIGEST: &str = "543bfab18b2d601f";
 
 /// The variable naming the server the smoke tests call.
 const TEST_BASE_URL_ENV: &str = "TEST_API_BASE_URL";

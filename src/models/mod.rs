@@ -29,7 +29,6 @@
 mod access_groups;
 mod authentication;
 mod domains;
-mod installations;
 mod invites;
 mod login_portals;
 mod members;
@@ -49,7 +48,6 @@ mod versions;
 pub use access_groups::*;
 pub use authentication::*;
 pub use domains::*;
-pub use installations::*;
 pub use invites::*;
 pub use login_portals::*;
 pub use members::*;

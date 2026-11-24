@@ -105,16 +105,6 @@ Complete reference of every operation, grouped by resource. See [the README](./R
   - [`Mcp Servers`](#mcp-servers)
     - [List all MCP servers](#list-all-mcp-servers)
     - [Create an MCP server](#create-an-mcp-server)
-    - [Get an MCP server](#get-an-mcp-server)
-    - [Update an MCP server](#update-an-mcp-server)
-    - [Delete an MCP server](#delete-an-mcp-server)
-    - [`Mcp Servers Installations`](#mcp-servers-installations)
-      - [List installations](#list-installations)
-      - [Get an installation](#get-an-installation)
-      - [Update an installation](#update-an-installation)
-      - [Delete an installation](#delete-an-installation)
-      - [Add an access group](#add-an-access-group)
-      - [Remove an access group](#remove-an-access-group)
 
 ## Setup
 
@@ -1510,11 +1500,11 @@ MCP
 
 #### List all MCP servers
 
-List every MCP server on the team.
+List every MCP server on the team, each with its environments and the version tag a request that names no version gets there.
 
 | Direction | Type |
 | --- | --- |
-| Response | [`Vec<McpServer>`](./src/models/servers.rs) |
+| Response | [`Vec<McpServerListItem>`](./src/models/servers.rs) |
 
 ```rust
 let response = client.mcp().servers().list().send().await?;
@@ -1522,7 +1512,7 @@ let response = client.mcp().servers().list().send().await?;
 
 #### Create an MCP server
 
-Create an MCP server over one or more API document versions. The response carries the server and its first installation.
+Create an MCP server linking the API documents of the named versions and the named docs projects. The server builds from each linked document’s versions, not only the version named.
 
 | Direction | Type |
 | --- | --- |
@@ -1534,159 +1524,6 @@ let response = client
     .mcp()
     .servers()
     .create(ServersCreateBody::new("Acme MCP".to_string()))
-    .send()
-    .await?;
-```
-
-#### Get an MCP server
-
-Get a single MCP server by its id.
-
-| Direction | Type |
-| --- | --- |
-| Response | [`McpServer`](./src/models/servers.rs) |
-
-```rust
-let response = client.mcp().servers().retrieve("42").send().await?;
-```
-
-#### Update an MCP server
-
-Update MCP server metadata and which tools it exposes.
-
-| Direction | Type |
-| --- | --- |
-| Request | [`ServersUpdateBody`](./src/models/servers.rs) |
-| Response | [`McpServer`](./src/models/servers.rs) |
-
-```rust
-let response = client
-    .mcp()
-    .servers()
-    .update("42", ServersUpdateBody::new())
-    .send()
-    .await?;
-```
-
-#### Delete an MCP server
-
-Delete an MCP server and every installation it serves.
-
-| Direction | Type |
-| --- | --- |
-| Response | `serde_json::Value` |
-
-```rust
-let response = client.mcp().servers().delete("42").send().await?;
-```
-
-#### `Mcp Servers Installations`
-
-MCP
-
-##### List installations
-
-List the installations of an MCP server. An installation is what an MCP client connects to.
-
-| Direction | Type |
-| --- | --- |
-| Response | [`Vec<McpInstallationListItem>`](./src/models/installations.rs) |
-
-```rust
-let response = client.mcp().servers().installations().list("42").send().await?;
-```
-
-##### Get an installation
-
-Get a single installation of an MCP server. Deprecated: address the environment by slug with the `/environments/:environment` form.
-
-| Direction | Type |
-| --- | --- |
-| Response | [`McpInstallation`](./src/models/servers.rs) |
-
-```rust
-let response = client
-    .mcp()
-    .servers()
-    .installations()
-    .retrieve("42", "84")
-    .send()
-    .await?;
-```
-
-##### Update an installation
-
-Update an installation. Deprecated: address the environment by slug with the `/environments/:environment` form.
-
-| Direction | Type |
-| --- | --- |
-| Request | [`InstallationsUpdateBody`](./src/models/installations.rs) |
-| Response | [`McpInstallation`](./src/models/servers.rs) |
-
-```rust
-let response = client
-    .mcp()
-    .servers()
-    .installations()
-    .update("42", "84", InstallationsUpdateBody::new())
-    .send()
-    .await?;
-```
-
-##### Delete an installation
-
-Delete an installation of an MCP server. Deprecated: address the environment by slug with the `/environments/:environment` form.
-
-| Direction | Type |
-| --- | --- |
-| Response | `serde_json::Value` |
-
-```rust
-let response = client.mcp().servers().installations().delete("42", "84").send().await?;
-```
-
-##### Add an access group
-
-Let an access group reach a private installation. Requires a team admin. Deprecated: address the environment by slug with the `/environments/:environment` form.
-
-| Direction | Type |
-| --- | --- |
-| Request | [`InstallationsCreateAccessGroupBody`](./src/models/installations.rs) |
-| Response | `serde_json::Value` |
-
-```rust
-let response = client
-    .mcp()
-    .servers()
-    .installations()
-    .create_access_group(
-        "42",
-        "84",
-        InstallationsCreateAccessGroupBody::new("UakgbKJ5m9gl0JDMbcJqL".to_string()),
-    )
-    .send()
-    .await?;
-```
-
-##### Remove an access group
-
-Stop an access group reaching a private installation. Requires a team admin. Deprecated: address the environment by slug with the `/environments/:environment` form.
-
-| Direction | Type |
-| --- | --- |
-| Request | [`InstallationsDeleteAccessGroupBody`](./src/models/installations.rs) |
-| Response | `serde_json::Value` |
-
-```rust
-let response = client
-    .mcp()
-    .servers()
-    .installations()
-    .delete_access_group(
-        "42",
-        "84",
-        InstallationsDeleteAccessGroupBody::new("UakgbKJ5m9gl0JDMbcJqL".to_string()),
-    )
     .send()
     .await?;
 ```

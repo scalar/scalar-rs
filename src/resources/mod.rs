@@ -5,7 +5,6 @@ pub mod access_group;
 pub mod access_groups;
 pub mod authentication;
 pub mod domains;
-pub mod installations;
 pub mod invites;
 pub mod login_portals;
 pub mod mcp;
