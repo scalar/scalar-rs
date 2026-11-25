@@ -38,6 +38,7 @@ async fn link_all_params() {
                 .link(
                     "UakgbKJ5m9gl0JDMbcJqL",
                     RepositoriesLinkBody::new(RepositoriesLinkBodyLanguage::Typescript, 123456789, "main".to_string())
+                        .with_promotion(RepositoriesLinkBodyPromotion::Automatic)
                         .with_prerelease_type("beta".to_string()),
                 )
                 .send()

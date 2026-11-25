@@ -139,7 +139,9 @@ impl SdksListResponse {
 pub struct SdksCreateBody {
     #[serde(rename = "apiUid")]
     pub api_uid: String,
-    pub languages: Vec<SdksCreateBodyLanguage>,
+    /// Languages to create. Defaults to the targets declared by config.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub languages: Option<Vec<SdksCreateBodyLanguage>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -153,20 +155,23 @@ pub struct SdksCreateBody {
 impl SdksCreateBody {
     /// Creates a new `SdksCreateBody` from its required fields, leaving every optional one unset.
     ///
-    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
-    /// argument, which is a breaking change either way.
-    ///
     /// Set an optional field with its `with_*` setter:
-    /// `SdksCreateBody::new(api_uid, languages).with_title(…)`.
-    pub fn new(api_uid: impl Into<String>, languages: Vec<SdksCreateBodyLanguage>) -> Self {
+    /// `SdksCreateBody::new(api_uid).with_languages(…)`.
+    pub fn new(api_uid: impl Into<String>) -> Self {
         Self {
             api_uid: api_uid.into(),
-            languages,
+            languages: None,
             title: None,
             slug: None,
             class_name: None,
             config: None,
         }
+    }
+
+    /// Sets `languages`, which `new` leaves unset.
+    pub fn with_languages(mut self, value: Vec<SdksCreateBodyLanguage>) -> Self {
+        self.languages = Some(value);
+        self
     }
 
     /// Sets `title`, which `new` leaves unset.
