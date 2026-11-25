@@ -1,5 +1,97 @@
 # Changelog
 
+## [0.5.0](https://github.com/scalar/scalar-rs/compare/v0.4.0...v0.5.0) (2026-11-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* **api:** 2 breaking changes to the SDK surface.
+    - fields models::SdksCreateBody.languages — field retyped (breaking: changed in a way existing callers can observe)
+    - params models::SdksCreateBody.new/#1 — argument languages only in before (breaking: the new snapshot no longer has it)
+* **api:** 37 breaking changes to the SDK surface.
+    - types InstallationsCreateAccessGroupBody — reexport only in before (breaking: removed; McpServerListItemEnvironment, McpServerListItem appeared in its place, likely a rename)
+    - types InstallationsDeleteAccessGroupBody — reexport only in before (breaking: removed; McpServerListItemEnvironment, McpServerListItem appeared in its place, likely a rename)
+    - types InstallationsUpdateBody — reexport only in before (breaking: removed; McpServerListItemEnvironment, McpServerListItem appeared in its place, likely a rename)
+    - types McpInstallation — reexport only in before (breaking: removed; McpServerListItem, McpServerListItemEnvironment appeared in its place, likely a rename)
+    - types McpInstallationListItem — reexport only in before (breaking: removed; McpServerListItem, McpServerListItemEnvironment appeared in its place, likely a rename)
+    - types ServersUpdateBody — reexport only in before (breaking: removed; McpServerListItem, McpServerListItemEnvironment appeared in its place, likely a rename)
+    - types models::InstallationsCreateAccessGroupBody — struct only in before (breaking: removed; McpServerListItemEnvironment, McpServerListItem appeared in its place, likely a rename)
+    - types models::InstallationsDeleteAccessGroupBody — struct only in before (breaking: removed; McpServerListItemEnvironment, McpServerListItem appeared in its place, likely a rename)
+    - types models::InstallationsUpdateBody — struct only in before (breaking: removed; McpServerListItemEnvironment, McpServerListItem appeared in its place, likely a rename)
+    - types models::McpInstallation — struct only in before (breaking: removed; McpServerListItem, McpServerListItemEnvironment appeared in its place, likely a rename)
+    - types models::McpInstallationListItem — struct only in before (breaking: removed; McpServerListItem, McpServerListItemEnvironment appeared in its place, likely a rename)
+    - types models::ServersUpdateBody — struct only in before (breaking: removed; McpServerListItem, McpServerListItemEnvironment appeared in its place, likely a rename)
+    - types resources::installations::CreateAccessGroupRequestBuilder — struct only in before (breaking: the new snapshot no longer has it)
+    - types resources::installations::DeleteAccessGroupRequestBuilder — struct only in before (breaking: the new snapshot no longer has it)
+    - types resources::installations::DeleteRequestBuilder — struct only in before (breaking: the new snapshot no longer has it)
+    - types resources::installations::InstallationsResource — struct only in before (breaking: the new snapshot no longer has it)
+    - types resources::installations::ListRequestBuilder — struct only in before (breaking: the new snapshot no longer has it)
+    - types resources::installations::RetrieveRequestBuilder — struct only in before (breaking: the new snapshot no longer has it)
+    - types resources::installations::UpdateRequestBuilder — struct only in before (breaking: the new snapshot no longer has it)
+    - types resources::servers::DeleteRequestBuilder — struct only in before (breaking: the new snapshot no longer has it)
+    - types resources::servers::RetrieveRequestBuilder — struct only in before (breaking: the new snapshot no longer has it)
+    - types resources::servers::UpdateRequestBuilder — struct only in before (breaking: the new snapshot no longer has it)
+    - fields models::McpServer.id — field only in before (breaking: removed; uid, domain, namespace appeared in its place, likely a rename)
+    - fields models::McpServer.created_at — field retyped (breaking: changed in a way existing callers can observe)
+    - fields models::McpServer.updated_at — field retyped (breaking: changed in a way existing callers can observe)
+    - params models::McpServer.new/#3 — argument domain retyped (breaking: changed in a way existing callers can observe)
+    - params models::McpServer.new/#4 — argument created_at retyped (breaking: changed in a way existing callers can observe)
+    - params models::McpServer.new/#5 — new required argument updated_at in after; existing calls lack it (breaking: changed in a way existing callers can observe)
+    - params models::McpServer.new/#6 — new required argument name in after; existing calls lack it (breaking: changed in a way existing callers can observe)
+    - params models::McpServer.new — positional arguments moved (slug, created_at, updated_at, name); existing calls pass each value in another slot (breaking: changed in a way existing callers can observe)
+    - fields models::ServersCreateResponse.installation — field only in before (breaking: the new snapshot no longer has it)
+    - params models::ServersCreateResponse.new/#1 — argument installation only in before (breaking: the new snapshot no longer has it)
+    - methods resources::servers::ListRequestBuilder.send — return type changed (breaking: changed in a way existing callers can observe)
+    - methods resources::servers::ServersResource.delete — only in before (breaking: the new snapshot no longer has it)
+    - methods resources::servers::ServersResource.installations — only in before (breaking: the new snapshot no longer has it)
+    - methods resources::servers::ServersResource.retrieve — only in before (breaking: the new snapshot no longer has it)
+    - methods resources::servers::ServersResource.update — only in before (breaking: the new snapshot no longer has it)
+* **api:** 9 breaking changes to the SDK surface.
+    - Added required property `sdk.current`.
+    - Property `sdk.currentVersion` type changed from `version` to `string`.
+    - Added required property `sdk.latestVersion`.
+    - Removed optional property `sdk.apiVersion`.
+    - Property `sdk_version.version` type changed from `version` to `string`.
+    - Property `sdk_version.createdAt` is now required.
+    - Removed required property `sdk_version.apiVersion`.
+    - Removed required property `sdk_version.status`.
+    - Removed optional property `sdk_version.publishedAt`.
+* **api:** Added required property `github_project.chatInsightsEnabled`.
+* **api:** 3 breaking changes to the SDK surface.
+    - Property `api_document.tags` type changed from `string` to `unknown`.
+    - Property `github_project.accessGroups` type changed from `string` to `unknown`.
+    - Property `docs_project.accessGroups` type changed from `string` to `unknown`.
+* **api:** 8 breaking changes to the SDK surface.
+    - Removed body field `autoAddOperations` from `mcp.servers.update`.
+    - Removed body field `isPrivate` from `mcp.servers.installations.update`.
+    - Removed body field `loginPortalUid` from `mcp.servers.installations.update`.
+    - Removed body field `documentAuth` from `mcp.servers.installations.update`.
+    - Removed operation `mcp.servers.installations.create` (`POST /v1/mcp/servers/{id}/installations`).
+    - Removed required property `mcp_server.autoAddOperations`.
+    - Removed required property `mcp_installation.isPrivate`.
+    - Removed required property `mcp_installation_list_item.isPrivate`.
+
+### Features
+
+* **api:** add property github_project.chatInsightsEnabled ([508357e](https://github.com/scalar/scalar-rs/commit/508357ea2f2441e6ff9f16a7ee6a7477abdd5b3b))
+* **api:** add property sdk.current (+9 more changes) ([4022b30](https://github.com/scalar/scalar-rs/commit/4022b3002820eada65461cca14fa655b013996bb))
+* **api:** update property api_document.tags (+3 more changes) ([b13635c](https://github.com/scalar/scalar-rs/commit/b13635c740fcc90a6b74601dd62d74ac4621f6e2))
+* **api:** update SDK surface (14 changes) ([1df474b](https://github.com/scalar/scalar-rs/commit/1df474b3e059c2b97e247a1eb2fbd3d9f76f3a5a))
+* **api:** update SDK surface (4 changes) ([64b74a6](https://github.com/scalar/scalar-rs/commit/64b74a6b1ff253ad0b0d49ea3e9f811525d3ebe5))
+* **api:** update SDK surface (4 changes) ([1ec08c2](https://github.com/scalar/scalar-rs/commit/1ec08c2ddadb1805287e6280022d7d26c1fde3f5))
+* **api:** update SDK surface (44 changes) ([2719c17](https://github.com/scalar/scalar-rs/commit/2719c17874f8a9ef5d8c85a015a879d4896c10e9))
+* **api:** update SDK surface (7 changes) ([e83e8b9](https://github.com/scalar/scalar-rs/commit/e83e8b9f33037820be29c3916bf037dc4960b10a))
+
+
+### Chores
+
+* **api:** regenerate SDK ([d77e210](https://github.com/scalar/scalar-rs/commit/d77e21006f84ea17b61a5e8f57a865edfd83d080))
+* **api:** regenerate SDK ([8abfdac](https://github.com/scalar/scalar-rs/commit/8abfdac7ef2b9a1be3f77787078d49991180b4c0))
+* **api:** regenerate SDK ([d993dc4](https://github.com/scalar/scalar-rs/commit/d993dc4867a7f184b15d36946ecdb5458a21a820))
+* **api:** regenerate SDK ([c419938](https://github.com/scalar/scalar-rs/commit/c4199383ff9f3183154f9357af36432d689dddcb))
+* **api:** update generated SDK content ([fc874c1](https://github.com/scalar/scalar-rs/commit/fc874c16a73f8642bef7dde0c699a4862f547e8e))
+* **api:** update generated SDK content ([612b335](https://github.com/scalar/scalar-rs/commit/612b335d511c4aaaacdba765b8a35b5c6850a35e))
+
 ## [0.4.0](https://github.com/scalar/scalar-rs/compare/v0.3.3...v0.4.0) (2026-10-09)
 
 

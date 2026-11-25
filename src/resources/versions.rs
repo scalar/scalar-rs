@@ -23,7 +23,7 @@ impl VersionsResource {
     }
 }
 
-/// Create a new SDK version against a specific API version.
+/// Create a version label from a version of the SDK's API document and start its build. The label is the document version, and it becomes `latestVersion` when it is the highest.
 #[must_use = "a request builder does nothing until `.send().await` is called"]
 pub struct CreateRequestBuilder {
     client: crate::client::Scalar,
@@ -81,7 +81,7 @@ impl CreateRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
-        let path = format!("/v1/sdks/{}/versions", crate::http::encode_path_param(&self.uid));
+        let path = format!("/v1/sdks/{}/versions", crate::http::path_param(&self.uid)?);
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
@@ -97,7 +97,7 @@ impl CreateRequestBuilder {
             .await
     }
 }
-/// Permanently delete one version of an SDK.
+/// Permanently delete one version label of an SDK and its builds. A label that is the current build of any language promoting manually is refused with 409 and nothing is deleted; promote or roll back to another build for that language first. Each other language whose current build was of that label moves to the active build of the highest remaining label that has one for the language, and has no current build when none has; `currentVersion` shows the result. Each language that moved to another build syncs it to its linked repository unless the repository already holds it. When it was `latestVersion`, that tag moves to the highest remaining label holding an active build. An SDK's last version cannot be deleted.
 #[must_use = "a request builder does nothing until `.send().await` is called"]
 pub struct DeleteRequestBuilder {
     client: crate::client::Scalar,
@@ -157,8 +157,8 @@ impl DeleteRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/sdks/{}/versions/{}",
-            crate::http::encode_path_param(&self.uid),
-            crate::http::encode_path_param(&self.version)
+            crate::http::path_param(&self.uid)?,
+            crate::http::path_param(&self.version)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();

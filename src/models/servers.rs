@@ -5,59 +5,115 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `McpServerListItem::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct McpServerListItem {
+    pub uid: String,
+    pub slug: String,
+    pub namespace: String,
+    #[serde(default)]
+    pub domain: Option<String>,
+    #[serde(rename = "createdAt")]
+    pub created_at: i64,
+    #[serde(rename = "updatedAt")]
+    pub updated_at: i64,
+    pub name: String,
+    pub environments: Vec<McpServerListItemEnvironment>,
+}
+
+impl McpServerListItem {
+    /// Creates a new `McpServerListItem` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        uid: impl Into<String>,
+        slug: impl Into<String>,
+        namespace: impl Into<String>,
+        domain: Option<String>,
+        created_at: i64,
+        updated_at: i64,
+        name: impl Into<String>,
+        environments: Vec<McpServerListItemEnvironment>,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            slug: slug.into(),
+            namespace: namespace.into(),
+            domain,
+            created_at,
+            updated_at,
+            name: name.into(),
+            environments,
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `McpServer::new` and
+/// the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct McpServer {
-    pub id: String,
-    pub name: String,
+    pub uid: String,
     pub slug: String,
-    #[serde(rename = "autoAddOperations")]
-    pub auto_add_operations: bool,
+    pub namespace: String,
+    #[serde(default)]
+    pub domain: Option<String>,
     #[serde(rename = "createdAt")]
-    pub created_at: String,
+    pub created_at: i64,
     #[serde(rename = "updatedAt")]
-    pub updated_at: String,
-}
-
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[non_exhaustive]
-pub struct McpInstallation {
-    pub id: String,
-    #[serde(rename = "mcpServerId")]
-    pub mcp_server_id: String,
+    pub updated_at: i64,
     pub name: String,
-    pub slug: String,
-    #[serde(rename = "isPrivate")]
-    pub is_private: bool,
-    #[serde(rename = "accessGroups")]
-    pub access_groups: Vec<String>,
-    #[serde(rename = "loginPortalUid", default)]
-    pub login_portal_uid: Option<String>,
-    #[serde(rename = "mcpVersion", default)]
-    pub mcp_version: Option<String>,
-    #[serde(rename = "piiRedactionEnabled")]
-    pub pii_redaction_enabled: bool,
-    #[serde(rename = "credentialRedactionEnabled")]
-    pub credential_redaction_enabled: bool,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl McpServer {
+    /// Creates a new `McpServer` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(
+        uid: impl Into<String>,
+        slug: impl Into<String>,
+        namespace: impl Into<String>,
+        domain: Option<String>,
+        created_at: i64,
+        updated_at: i64,
+        name: impl Into<String>,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            slug: slug.into(),
+            namespace: namespace.into(),
+            domain,
+            created_at,
+            updated_at,
+            name: name.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ServersCreateResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ServersCreateResponse {
     pub server: McpServer,
-    pub installation: McpInstallation,
 }
 
+impl ServersCreateResponse {
+    /// Creates a new `ServersCreateResponse` from its required fields, leaving every optional one unset.
+    pub fn new(server: McpServer) -> Self {
+        Self { server }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ServersCreateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ServersCreateBody {
     pub name: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -71,8 +127,8 @@ pub struct ServersCreateBody {
 impl ServersCreateBody {
     /// Creates a new `ServersCreateBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `ServersCreateBody { slug: Some(…), ..ServersCreateBody::new(name) }`.
+    /// Set an optional field with its `with_*` setter:
+    /// `ServersCreateBody::new(name).with_slug(…)`.
     pub fn new(name: impl Into<String>) -> Self {
         Self {
             name: name.into(),
@@ -81,18 +137,46 @@ impl ServersCreateBody {
             project_uids: None,
         }
     }
+
+    /// Sets `slug`, which `new` leaves unset.
+    pub fn with_slug(mut self, value: impl Into<String>) -> Self {
+        self.slug = Some(value.into());
+        self
+    }
+
+    /// Sets `version_uids`, which `new` leaves unset.
+    pub fn with_version_uids(mut self, value: Vec<String>) -> Self {
+        self.version_uids = Some(value);
+        self
+    }
+
+    /// Sets `project_uids`, which `new` leaves unset.
+    pub fn with_project_uids(mut self, value: Vec<String>) -> Self {
+        self.project_uids = Some(value);
+        self
+    }
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
-pub struct ServersUpdateBody {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub slug: Option<String>,
-    #[serde(rename = "autoAddOperations", default, skip_serializing_if = "Option::is_none")]
-    pub auto_add_operations: Option<bool>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub operations: Option<Vec<String>>,
-    #[serde(rename = "docsPages", default, skip_serializing_if = "Option::is_none")]
-    pub docs_pages: Option<Vec<String>>,
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `McpServerListItemEnvironment::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct McpServerListItemEnvironment {
+    pub slug: String,
+    #[serde(default)]
+    pub served: Option<String>,
+}
+
+impl McpServerListItemEnvironment {
+    /// Creates a new `McpServerListItemEnvironment` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(slug: impl Into<String>, served: Option<String>) -> Self {
+        Self {
+            slug: slug.into(),
+            served,
+        }
+    }
 }

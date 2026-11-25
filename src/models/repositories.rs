@@ -5,9 +5,9 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `RepositoriesLinkResponse::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct RepositoriesLinkResponse {
@@ -15,13 +15,33 @@ pub struct RepositoriesLinkResponse {
     pub branch: String,
 }
 
+impl RepositoriesLinkResponse {
+    /// Creates a new `RepositoriesLinkResponse` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(repo: impl Into<String>, branch: impl Into<String>) -> Self {
+        Self {
+            repo: repo.into(),
+            branch: branch.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `RepositoriesLinkBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RepositoriesLinkBody {
     pub language: RepositoriesLinkBodyLanguage,
     #[serde(rename = "repositoryId")]
     pub repository_id: i64,
+    /// Release promote branch. Platform-managed branches such as scalar-next and scalar-generated are reserved.
     #[serde(rename = "baseBranch")]
     pub base_branch: String,
+    /// Controls when a build becomes current and syncs to GitHub. Omit to preserve the saved policy.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub promotion: Option<RepositoriesLinkBodyPromotion>,
     #[serde(rename = "prereleaseType", default, skip_serializing_if = "Option::is_none")]
     pub prerelease_type: Option<String>,
 }
@@ -29,15 +49,31 @@ pub struct RepositoriesLinkBody {
 impl RepositoriesLinkBody {
     /// Creates a new `RepositoriesLinkBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `RepositoriesLinkBody { prerelease_type: Some(…), ..RepositoriesLinkBody::new(…) }`.
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `RepositoriesLinkBody::new(language, repository_id, base_branch).with_promotion(…)`.
     pub fn new(language: RepositoriesLinkBodyLanguage, repository_id: i64, base_branch: impl Into<String>) -> Self {
         Self {
             language,
             repository_id,
             base_branch: base_branch.into(),
+            promotion: None,
             prerelease_type: None,
         }
+    }
+
+    /// Sets `promotion`, which `new` leaves unset.
+    pub fn with_promotion(mut self, value: RepositoriesLinkBodyPromotion) -> Self {
+        self.promotion = Some(value);
+        self
+    }
+
+    /// Sets `prerelease_type`, which `new` leaves unset.
+    pub fn with_prerelease_type(mut self, value: impl Into<String>) -> Self {
+        self.prerelease_type = Some(value.into());
+        self
     }
 }
 
@@ -128,7 +164,54 @@ impl From<&str> for RepositoriesLinkBodyLanguage {
     }
 }
 
+/// Match on `as_str()` (or build one with `From<&str>`) when you need a value
+/// this SDK version does not know. Matching `Unknown(_)` directly is an
+/// anti-pattern: that arm silently stops matching once a future SDK release
+/// adds the real variant.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub enum RepositoriesLinkBodyPromotion {
+    #[serde(rename = "automatic")]
+    Automatic,
+    #[serde(rename = "manual")]
+    Manual,
+    /// A value not known to this version of the SDK, preserved verbatim.
+    #[serde(untagged)]
+    Unknown(String),
+}
+
+impl RepositoriesLinkBodyPromotion {
+    /// The wire value this variant serializes to.
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Automatic => "automatic",
+            Self::Manual => "manual",
+            Self::Unknown(value) => value,
+        }
+    }
+}
+
+impl std::fmt::Display for RepositoriesLinkBodyPromotion {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for RepositoriesLinkBodyPromotion {
+    fn from(value: &str) -> Self {
+        match value {
+            "automatic" => Self::Automatic,
+            "manual" => Self::Manual,
+            other => Self::Unknown(other.to_owned()),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `RepositoriesUpdatePublishingBody::new` and the `with_*` setters rather than a struct literal. Fields stay public
+/// for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RepositoriesUpdatePublishingBody {
     #[serde(rename = "publishOnMerge")]
     pub publish_on_merge: bool,
@@ -138,20 +221,83 @@ pub struct RepositoriesUpdatePublishingBody {
     pub access: Option<RepositoriesUpdatePublishingBodyAccess>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tag: Option<String>,
+    #[serde(rename = "artifactId", default, skip_serializing_if = "Option::is_none")]
+    pub artifact_id: Option<String>,
+    #[serde(rename = "tapRepo", default, skip_serializing_if = "Option::is_none")]
+    pub tap_repo: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cask: Option<bool>,
+    #[serde(rename = "replaceFormula", default, skip_serializing_if = "Option::is_none")]
+    pub replace_formula: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub registry: Option<String>,
 }
 
 impl RepositoriesUpdatePublishingBody {
     /// Creates a new `RepositoriesUpdatePublishingBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `RepositoriesUpdatePublishingBody { auth_method: Some(…), ..RepositoriesUpdatePublishingBody::new(…) }`.
+    /// Set an optional field with its `with_*` setter:
+    /// `RepositoriesUpdatePublishingBody::new(publish_on_merge).with_auth_method(…)`.
     pub fn new(publish_on_merge: bool) -> Self {
         Self {
             publish_on_merge,
             auth_method: None,
             access: None,
             tag: None,
+            artifact_id: None,
+            tap_repo: None,
+            cask: None,
+            replace_formula: None,
+            registry: None,
         }
+    }
+
+    /// Sets `auth_method`, which `new` leaves unset.
+    pub fn with_auth_method(mut self, value: RepositoriesUpdatePublishingBodyAuthMethod) -> Self {
+        self.auth_method = Some(value);
+        self
+    }
+
+    /// Sets `access`, which `new` leaves unset.
+    pub fn with_access(mut self, value: RepositoriesUpdatePublishingBodyAccess) -> Self {
+        self.access = Some(value);
+        self
+    }
+
+    /// Sets `tag`, which `new` leaves unset.
+    pub fn with_tag(mut self, value: impl Into<String>) -> Self {
+        self.tag = Some(value.into());
+        self
+    }
+
+    /// Sets `artifact_id`, which `new` leaves unset.
+    pub fn with_artifact_id(mut self, value: impl Into<String>) -> Self {
+        self.artifact_id = Some(value.into());
+        self
+    }
+
+    /// Sets `tap_repo`, which `new` leaves unset.
+    pub fn with_tap_repo(mut self, value: impl Into<String>) -> Self {
+        self.tap_repo = Some(value.into());
+        self
+    }
+
+    /// Sets `cask`, which `new` leaves unset.
+    pub fn with_cask(mut self, value: bool) -> Self {
+        self.cask = Some(value);
+        self
+    }
+
+    /// Sets `replace_formula`, which `new` leaves unset.
+    pub fn with_replace_formula(mut self, value: bool) -> Self {
+        self.replace_formula = Some(value);
+        self
+    }
+
+    /// Sets `registry`, which `new` leaves unset.
+    pub fn with_registry(mut self, value: impl Into<String>) -> Self {
+        self.registry = Some(value.into());
+        self
     }
 }
 

@@ -5,9 +5,8 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `BadRequestError::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct BadRequestError {
@@ -15,9 +14,21 @@ pub struct BadRequestError {
     pub code: String,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl BadRequestError {
+    /// Creates a new `BadRequestError` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(message: impl Into<String>, code: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+            code: code.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `UnauthorizedError::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct UnauthorizedError {
@@ -25,9 +36,21 @@ pub struct UnauthorizedError {
     pub code: String,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl UnauthorizedError {
+    /// Creates a new `UnauthorizedError` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(message: impl Into<String>, code: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+            code: code.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `ForbiddenError::new`
+/// and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ForbiddenError {
@@ -35,9 +58,21 @@ pub struct ForbiddenError {
     pub code: String,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl ForbiddenError {
+    /// Creates a new `ForbiddenError` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(message: impl Into<String>, code: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+            code: code.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `NotFoundError::new`
+/// and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct NotFoundError {
@@ -45,9 +80,22 @@ pub struct NotFoundError {
     pub code: String,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl NotFoundError {
+    /// Creates a new `NotFoundError` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(message: impl Into<String>, code: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+            code: code.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `UnprocessableEntityError::new` and the `with_*` setters rather than a struct literal. Fields stay public for
+/// reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct UnprocessableEntityError {
@@ -55,9 +103,21 @@ pub struct UnprocessableEntityError {
     pub code: String,
 }
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+impl UnprocessableEntityError {
+    /// Creates a new `UnprocessableEntityError` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(message: impl Into<String>, code: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+            code: code.into(),
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `InternalServerError::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct InternalServerError {
@@ -65,13 +125,25 @@ pub struct InternalServerError {
     pub code: String,
 }
 
+impl InternalServerError {
+    /// Creates a new `InternalServerError` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(message: impl Into<String>, code: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+            code: code.into(),
+        }
+    }
+}
+
 pub type Nanoid = String;
 
 pub type Namespace = String;
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `ManagedDocVersion::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct ManagedDocVersion {
@@ -93,13 +165,69 @@ pub struct ManagedDocVersion {
     pub json_sha: Option<String>,
 }
 
+impl ManagedDocVersion {
+    /// Creates a new `ManagedDocVersion` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `ManagedDocVersion::new(uid, created_at, version, upgraded, endpoint_count, embed_status, tags).with_tools(…)`.
+    pub fn new(
+        uid: impl Into<String>,
+        created_at: f64,
+        version: impl Into<String>,
+        upgraded: bool,
+        endpoint_count: Option<i64>,
+        embed_status: Option<ManagedDocVersionEmbedStatus>,
+        tags: Vec<String>,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            created_at,
+            version: version.into(),
+            upgraded,
+            endpoint_count,
+            embed_status,
+            tags,
+            tools: None,
+            yaml_sha: None,
+            json_sha: None,
+        }
+    }
+
+    /// Sets `tools`, which `new` leaves unset.
+    pub fn with_tools(mut self, value: Vec<ManagedDocVersionTool>) -> Self {
+        self.tools = Some(value);
+        self
+    }
+
+    /// Sets `yaml_sha`, which `new` leaves unset.
+    pub fn with_yaml_sha(mut self, value: impl Into<String>) -> Self {
+        self.yaml_sha = Some(value.into());
+        self
+    }
+
+    /// Sets `json_sha`, which `new` leaves unset.
+    pub fn with_json_sha(mut self, value: impl Into<String>) -> Self {
+        self.json_sha = Some(value.into());
+        self
+    }
+}
+
 pub type Timestamp = i64;
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `Uid::new` and the
+/// `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Uid {
     pub uid: String,
+}
+
+impl Uid {
+    /// Creates a new `Uid` from its required fields, leaving every optional one unset.
+    pub fn new(uid: impl Into<String>) -> Self {
+        Self { uid: uid.into() }
+    }
 }

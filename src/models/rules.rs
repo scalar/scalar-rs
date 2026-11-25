@@ -5,9 +5,8 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
-///
-/// Response-only model, marked `#[non_exhaustive]`: fields may be added
-/// additively in future versions without a breaking release.
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with `Rule::new` and the
+/// `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Rule {
@@ -20,7 +19,34 @@ pub struct Rule {
     pub is_private: bool,
 }
 
+impl Rule {
+    /// Creates a new `Rule` from its required fields, leaving every optional one unset.
+    ///
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    pub fn new(
+        uid: impl Into<String>,
+        title: impl Into<String>,
+        description: impl Into<String>,
+        slug: impl Into<String>,
+        namespace: impl Into<String>,
+        is_private: bool,
+    ) -> Self {
+        Self {
+            uid: uid.into(),
+            title: title.into(),
+            description: description.into(),
+            slug: slug.into(),
+            namespace: namespace.into(),
+            is_private,
+        }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `RulesCreateRulesetBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RulesCreateRulesetBody {
     pub title: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -34,8 +60,11 @@ pub struct RulesCreateRulesetBody {
 impl RulesCreateRulesetBody {
     /// Creates a new `RulesCreateRulesetBody` from its required fields, leaving every optional one unset.
     ///
-    /// Pair it with struct-update syntax to set only the optionals you need:
-    /// `RulesCreateRulesetBody { description: Some(…), ..RulesCreateRulesetBody::new(title, slug, document) }`.
+    /// The arguments follow the order the API declares these fields in. A required field the API adds is a new
+    /// argument, which is a breaking change either way.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `RulesCreateRulesetBody::new(title, slug, document).with_description(…)`.
     pub fn new(title: impl Into<String>, slug: impl Into<String>, document: impl Into<String>) -> Self {
         Self {
             title: title.into(),
@@ -45,9 +74,27 @@ impl RulesCreateRulesetBody {
             document: document.into(),
         }
     }
+
+    /// Sets `description`, which `new` leaves unset.
+    pub fn with_description(mut self, value: impl Into<String>) -> Self {
+        self.description = Some(value.into());
+        self
+    }
+
+    /// Sets `is_private`, which `new` leaves unset.
+    pub fn with_is_private(mut self, value: bool) -> Self {
+        self.is_private = Some(value);
+        self
+    }
 }
 
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `RulesUpdateRulesetBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
+///
+/// `Default` is the empty value, every field unset. It is withdrawn if the API ever makes a field required, which
+/// breaks callers through `new` as well.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct RulesUpdateRulesetBody {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub namespace: Option<String>,
@@ -59,4 +106,50 @@ pub struct RulesUpdateRulesetBody {
     pub description: Option<String>,
     #[serde(rename = "isPrivate", default, skip_serializing_if = "Option::is_none")]
     pub is_private: Option<bool>,
+}
+
+impl RulesUpdateRulesetBody {
+    /// Creates a new `RulesUpdateRulesetBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `RulesUpdateRulesetBody::new().with_namespace(…)`.
+    pub fn new() -> Self {
+        Self {
+            namespace: None,
+            slug: None,
+            title: None,
+            description: None,
+            is_private: None,
+        }
+    }
+
+    /// Sets `namespace`, which `new` leaves unset.
+    pub fn with_namespace(mut self, value: impl Into<String>) -> Self {
+        self.namespace = Some(value.into());
+        self
+    }
+
+    /// Sets `slug`, which `new` leaves unset.
+    pub fn with_slug(mut self, value: impl Into<String>) -> Self {
+        self.slug = Some(value.into());
+        self
+    }
+
+    /// Sets `title`, which `new` leaves unset.
+    pub fn with_title(mut self, value: impl Into<String>) -> Self {
+        self.title = Some(value.into());
+        self
+    }
+
+    /// Sets `description`, which `new` leaves unset.
+    pub fn with_description(mut self, value: impl Into<String>) -> Self {
+        self.description = Some(value.into());
+        self
+    }
+
+    /// Sets `is_private`, which `new` leaves unset.
+    pub fn with_is_private(mut self, value: bool) -> Self {
+        self.is_private = Some(value);
+        self
+    }
 }

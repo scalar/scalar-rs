@@ -7,12 +7,32 @@ use serde::{Deserialize, Serialize};
 
 pub type EmailDomain = String;
 
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `DomainsCreateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct DomainsCreateBody {
     pub domain: String,
 }
 
+impl DomainsCreateBody {
+    /// Creates a new `DomainsCreateBody` from its required fields, leaving every optional one unset.
+    pub fn new(domain: impl Into<String>) -> Self {
+        Self { domain: domain.into() }
+    }
+}
+
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `DomainsDeleteBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct DomainsDeleteBody {
     pub domain: String,
+}
+
+impl DomainsDeleteBody {
+    /// Creates a new `DomainsDeleteBody` from its required fields, leaving every optional one unset.
+    pub fn new(domain: impl Into<String>) -> Self {
+        Self { domain: domain.into() }
+    }
 }

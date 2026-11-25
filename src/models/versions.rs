@@ -5,9 +5,32 @@
 use super::*;
 use serde::{Deserialize, Serialize};
 
+/// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with
+/// `VersionsCreateBody::new` and the `with_*` setters rather than a struct literal. Fields stay public for reading.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct VersionsCreateBody {
     pub version: String,
-    #[serde(rename = "apiVersion")]
-    pub api_version: String,
+    /// Removed. A request that carries it is refused with a 400.
+    #[serde(rename = "apiVersion", default, skip_serializing_if = "Option::is_none")]
+    pub api_version: Option<serde_json::Value>,
+}
+
+impl VersionsCreateBody {
+    /// Creates a new `VersionsCreateBody` from its required fields, leaving every optional one unset.
+    ///
+    /// Set an optional field with its `with_*` setter:
+    /// `VersionsCreateBody::new(version).with_api_version(…)`.
+    pub fn new(version: impl Into<String>) -> Self {
+        Self {
+            version: version.into(),
+            api_version: None,
+        }
+    }
+
+    /// Sets `api_version`, which `new` leaves unset.
+    pub fn with_api_version(mut self, value: serde_json::Value) -> Self {
+        self.api_version = Some(value);
+        self
+    }
 }

@@ -33,7 +33,7 @@ impl RepositoriesResource {
     }
 }
 
-/// Link one language target to a GitHub repository, so builds sync there.
+/// Link an existing language target to a GitHub repository accessible through the Scalar GitHub App. Requires team edit permission and a paid SDK automation plan. Native delivery writes at the repository root; use a separate repository for each target. Directory fields are unsupported. Linking can immediately sync the current build under automatic promotion; pass promotion: manual to hold it back. If GitHub access is missing, connect GitHub and grant the App access in Scalar Dashboard before retrying.
 #[must_use = "a request builder does nothing until `.send().await` is called"]
 pub struct LinkRequestBuilder {
     client: crate::client::Scalar,
@@ -91,7 +91,7 @@ impl LinkRequestBuilder {
     /// - [`Error::Serde`](crate::error::Error::Serde) — the response body did not
     ///   match the generated model.
     pub async fn send(self) -> Result<Option<crate::models::RepositoriesLinkResponse>, crate::error::Error> {
-        let path = format!("/v1/sdks/{}/repositories", crate::http::encode_path_param(&self.uid));
+        let path = format!("/v1/sdks/{}/repositories", crate::http::path_param(&self.uid)?);
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
         if let Some(key) = self.idempotency_key {
@@ -175,8 +175,8 @@ impl UnlinkRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/sdks/{}/repositories/{}",
-            crate::http::encode_path_param(&self.uid),
-            crate::http::encode_path_param(&self.language)
+            crate::http::path_param(&self.uid)?,
+            crate::http::path_param(&self.language)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
@@ -260,8 +260,8 @@ impl UpdatePublishingRequestBuilder {
     pub async fn send(self) -> Result<serde_json::Value, crate::error::Error> {
         let path = format!(
             "/v1/sdks/{}/repositories/{}/publishing",
-            crate::http::encode_path_param(&self.uid),
-            crate::http::encode_path_param(&self.language)
+            crate::http::path_param(&self.uid)?,
+            crate::http::path_param(&self.language)?
         );
         let query: Vec<(String, String)> = Vec::new();
         let mut headers: Vec<(String, String)> = Vec::new();
