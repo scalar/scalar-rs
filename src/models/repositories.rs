@@ -36,8 +36,12 @@ pub struct RepositoriesLinkBody {
     pub language: RepositoriesLinkBodyLanguage,
     #[serde(rename = "repositoryId")]
     pub repository_id: i64,
+    /// Release promote branch. Platform-managed branches such as scalar-next and scalar-generated are reserved.
     #[serde(rename = "baseBranch")]
     pub base_branch: String,
+    /// Controls when a build becomes current and syncs to GitHub. Omit to preserve the saved policy.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub promotion: Option<RepositoriesLinkBodyPromotion>,
     #[serde(rename = "prereleaseType", default, skip_serializing_if = "Option::is_none")]
     pub prerelease_type: Option<String>,
 }
@@ -49,14 +53,21 @@ impl RepositoriesLinkBody {
     /// argument, which is a breaking change either way.
     ///
     /// Set an optional field with its `with_*` setter:
-    /// `RepositoriesLinkBody::new(language, repository_id, base_branch).with_prerelease_type(…)`.
+    /// `RepositoriesLinkBody::new(language, repository_id, base_branch).with_promotion(…)`.
     pub fn new(language: RepositoriesLinkBodyLanguage, repository_id: i64, base_branch: impl Into<String>) -> Self {
         Self {
             language,
             repository_id,
             base_branch: base_branch.into(),
+            promotion: None,
             prerelease_type: None,
         }
+    }
+
+    /// Sets `promotion`, which `new` leaves unset.
+    pub fn with_promotion(mut self, value: RepositoriesLinkBodyPromotion) -> Self {
+        self.promotion = Some(value);
+        self
     }
 
     /// Sets `prerelease_type`, which `new` leaves unset.
@@ -148,6 +159,49 @@ impl From<&str> for RepositoriesLinkBodyLanguage {
             "swift" => Self::Swift,
             "cpp" => Self::Cpp,
             "dart" => Self::Dart,
+            other => Self::Unknown(other.to_owned()),
+        }
+    }
+}
+
+/// Match on `as_str()` (or build one with `From<&str>`) when you need a value
+/// this SDK version does not know. Matching `Unknown(_)` directly is an
+/// anti-pattern: that arm silently stops matching once a future SDK release
+/// adds the real variant.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub enum RepositoriesLinkBodyPromotion {
+    #[serde(rename = "automatic")]
+    Automatic,
+    #[serde(rename = "manual")]
+    Manual,
+    /// A value not known to this version of the SDK, preserved verbatim.
+    #[serde(untagged)]
+    Unknown(String),
+}
+
+impl RepositoriesLinkBodyPromotion {
+    /// The wire value this variant serializes to.
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Automatic => "automatic",
+            Self::Manual => "manual",
+            Self::Unknown(value) => value,
+        }
+    }
+}
+
+impl std::fmt::Display for RepositoriesLinkBodyPromotion {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl From<&str> for RepositoriesLinkBodyPromotion {
+    fn from(value: &str) -> Self {
+        match value {
+            "automatic" => Self::Automatic,
+            "manual" => Self::Manual,
             other => Self::Unknown(other.to_owned()),
         }
     }

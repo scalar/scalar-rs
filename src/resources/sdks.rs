@@ -130,7 +130,7 @@ impl ListRequestBuilder {
             .await
     }
 }
-/// Create an SDK from an API document, targeting one or more languages.
+/// Create an SDK from an existing API document on the team. Its current version must have content. Send languages or a config declaring targets; omit languages to derive them from config. SDK and target counts must fit the team plan. Config is a JSON string.
 #[must_use = "a request builder does nothing until `.send().await` is called"]
 pub struct CreateRequestBuilder {
     client: crate::client::Scalar,
@@ -263,7 +263,7 @@ impl RetrieveRequestBuilder {
             .await
     }
 }
-/// Update SDK metadata, its linked API, or its config.
+/// Update SDK metadata, its linked API, or its JSON-string config. Targets using native GitHub delivery need separate repositories; delivery writes each package at the repository root. Sharing a repository across language targets in this SDK and using reserved promote branches are rejected before config saves.
 #[must_use = "a request builder does nothing until `.send().await` is called"]
 pub struct UpdateRequestBuilder {
     client: crate::client::Scalar,

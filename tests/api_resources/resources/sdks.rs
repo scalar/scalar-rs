@@ -26,10 +26,7 @@ async fn create_required_params() {
     crate::smoke_case("sdks.create:required", "create", "/v1/sdks", |client| async move {
         let _ = client
             .sdks()
-            .create(SdksCreateBody::new(
-                "UakgbKJ5m9gl0JDMbcJqL".to_string(),
-                vec![SdksCreateBodyLanguage::Typescript],
-            ))
+            .create(SdksCreateBody::new("UakgbKJ5m9gl0JDMbcJqL".to_string()))
             .send()
             .await?;
         Ok(())
@@ -43,14 +40,12 @@ async fn create_all_params() {
         let _ = client
             .sdks()
             .create(
-                SdksCreateBody::new(
-                    "UakgbKJ5m9gl0JDMbcJqL".to_string(),
-                    vec![SdksCreateBodyLanguage::Typescript],
-                )
-                .with_title("Acme SDK".to_string())
-                .with_slug("acme-sdk".to_string())
-                .with_class_name("Acme".to_string())
-                .with_config("{\"targets\":{\"typescript\":{\"packageName\":\"@acme/sdk\"}}}".to_string()),
+                SdksCreateBody::new("UakgbKJ5m9gl0JDMbcJqL".to_string())
+                    .with_languages(vec![SdksCreateBodyLanguage::Typescript])
+                    .with_title("Acme SDK".to_string())
+                    .with_slug("acme-sdk".to_string())
+                    .with_class_name("Acme".to_string())
+                    .with_config("{\"targets\":{\"typescript\":{\"packageName\":\"@acme/sdk\"}}}".to_string()),
             )
             .send()
             .await?;
