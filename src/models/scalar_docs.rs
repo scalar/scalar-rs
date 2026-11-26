@@ -680,7 +680,7 @@ impl ScalarDocsPublishProjectResponse {
 #[non_exhaustive]
 pub struct ScalarDocsPublishProjectBody {
     #[serde(rename = "commitSha", default, skip_serializing_if = "Option::is_none")]
-    pub commit_sha: Option<String>,
+    pub commit_sha: Option<ScalarDocsPublishProjectBodyCommitSha>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub preview: Option<bool>,
     #[serde(rename = "configPath", default, skip_serializing_if = "Option::is_none")]
@@ -701,8 +701,8 @@ impl ScalarDocsPublishProjectBody {
     }
 
     /// Sets `commit_sha`, which `new` leaves unset.
-    pub fn with_commit_sha(mut self, value: impl Into<String>) -> Self {
-        self.commit_sha = Some(value.into());
+    pub fn with_commit_sha(mut self, value: ScalarDocsPublishProjectBodyCommitSha) -> Self {
+        self.commit_sha = Some(value);
         self
     }
 
@@ -717,6 +717,21 @@ impl ScalarDocsPublishProjectBody {
         self.config_path = Some(value.into());
         self
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+#[non_exhaustive]
+pub enum ScalarDocsPublishProjectBodyCommitSha {
+    Variant1(String),
+    Variant2(String),
+    /// A variant not recognized by this version of the SDK, preserved verbatim.
+    ///
+    /// Match the specific variants first. Matching this one directly is an
+    /// anti-pattern: that arm silently stops matching once a future SDK
+    /// release adds the real variant.
+    #[serde(untagged)]
+    Unknown(serde_json::Value),
 }
 
 /// Marked `#[non_exhaustive]` so the API can add fields without a breaking release: build it with

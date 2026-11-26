@@ -260,7 +260,6 @@ async fn publish_project_all_params() {
                 .publish_project(
                     "acme-docs",
                     ScalarDocsPublishProjectBody::new()
-                        .with_commit_sha("0123456789abcdef0123456789abcdef01234567".to_string())
                         .with_preview(false)
                         .with_config_path("scalar.config.json".to_string()),
                 )
