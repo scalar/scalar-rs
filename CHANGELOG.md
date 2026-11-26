@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.0](https://github.com/scalar/scalar-rs/compare/v0.5.0...v0.6.0) (2026-11-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* **api:** 2 breaking changes to the SDK surface.
+    - fields models::ScalarDocsPublishProjectBody.commit_sha — field retyped (breaking: changed in a way existing callers can observe)
+    - params models::ScalarDocsPublishProjectBody.with_commit_sha/#0 — argument value retyped (breaking: changed in a way existing callers can observe)
+
+### Features
+
+* **api:** update SDK surface (4 changes) ([9826aad](https://github.com/scalar/scalar-rs/commit/9826aada642354d6fef4e53c48814a1888b1f56f))
+
 ## [0.5.0](https://github.com/scalar/scalar-rs/compare/v0.4.0...v0.5.0) (2026-11-25)
 
 
